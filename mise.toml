@@ -1,0 +1,55 @@
+[tasks     	.check]
+description	= 'Rust: check Cargo and clippy'
+run        	= ['cargo check','cargo clippy -- -D warnings',]
+alias      	= 'c'
+[tasks     	.fmt]
+description	= 'Rust: reformat all with Cargo'
+run        	= ['cargo fmt --all',]
+alias      	= 'f'
+[tasks     	.build]
+description	= 'Rust: Build with Cargo'
+run        	= "cargo build"
+alias      	= 'b'
+[tasks     	.test]
+description	= 'Rust: run a specific test with Cargo with stdout unsupressed'
+run        	= ['cargo test {{arg(name="cargo_test_args",var=true,default="")}} -- --nocapture',]
+alias      	= 't'
+
+# alias	= 'c' # `mise run c`
+# run  	= ['cargo check', 'cargo clippy -- -D warnings',] # multiple commands are run in series
+# run_windows = 'cargo test --features windows' # alternate command on Windows
+# Positional argument: 'cargo test {{arg(name="file")}}'
+  # i      	index. This can be used to specify the order of arguments. Defaults to the order they're defined in the scripts.
+  # name   	name (help/error messages)
+  # var    	true: multiple arguments can be passed
+  # default	≝value if the argument is not provided
+# --Options (order doesn't matter)   'cargo test {{option(name="file")}}'  name, var, default
+  # mise run test --file my-test-file   →   cargo test my-test-file
+# --Flags = options w/o values:      'echo {{flag(name=("myflag")}}'
+  # mise run echo --myflag              →  echo true
+
+# [tasks.test]
+# description	= 'Run automated tests'
+# run        	= ['cargo test','./scripts/test-e2e.sh',]# multiple commands are run in series
+# dir        	= "{{cwd}}" # run in user's cwd, default is the project's base directory
+# [tasks     	.cleancache]
+# run        	= "rm -rf .cache"
+# hide       	= true # hide this task from the list
+# [tasks     	.clean]
+# depends    	= ['cleancache']
+# run        	= "cargo clean" # runs as a shell command
+# [tasks     	.ci] # only dependencies to be run
+# description	= 'Run CI tasks'
+# depends    	= ['build', 'lint', 'test']
+# [tasks     	.release]
+# description	= 'Cut a new release'
+# file       	= 'scripts/release.sh' # execute an external script
+# [tasks     	.lint]
+# description	= 'Lint with clippy'
+# env        	= {RUST_BACKTRACE='1'} # env vars for the script
+# shell      	= 'bash -c'	# specify a shell command to run the script with (default is 'sh -c')
+# run        	= """
+# #!/usr/bin/env bash
+# # you can specify a multiline script instead of individual commands
+# cargo clippy
+# """
