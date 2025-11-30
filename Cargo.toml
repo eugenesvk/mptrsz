@@ -23,8 +23,21 @@ helperes_proc	= {git="https://github.com/eugenesvk/helperes-proc.git"} #, tag="0
 log          	= "0.4"
 # stderrlog  	= "0.6"
 anyhow       	= "1.0"
+thiserror    	= "2.0.17"
 faccess      	= "0.2"
 docpos       	= "0.2.0" #add doc comments after items, not before them
+bitvec       	= "1.0.1"
+windows = {version="0.59.0", features=[
+  "Win32_Graphics_Dxgi",
+  "Win32_Foundation",
+  "Win32_Graphics_Direct3D11",
+  "Win32_Graphics_Direct3D",
+  "Win32_Graphics_Dxgi_Common",
+  "Win32_Graphics_Gdi",
+  "Win32_System_Memory",
+  "Win32_Security",
+]}
+rusty-duplication = "0.6.1"
 
 [build-dependencies]
 log	= "0.4"
