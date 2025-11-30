@@ -9,6 +9,7 @@ pub use ::h::helper	::*;
 
 _mod!(binmod); //→ #[path="binmod/[binmod].rs"] pub mod binmod;
 use crate::binmod::print42;
+use dummy_lib::libmod::{ret42,get_mptr_sz};
 
 use std::error::Error;
 use std::result;
@@ -70,33 +71,25 @@ pub struct Point {pub x:i32, pub y:i32,}
 #[derive(Copy,Clone,Debug,PartialOrd,PartialEq,Eq,Ord)] #[docpos]
 pub struct mptr_box { /// 🖰Mouse pointer real bounding box around actualy drawn pixels, not just the containing bitmap rect
   pub ptl:Point ,/// ↖ top-left     corner point coordinates (x,y) in bounding box coordinates (↖ box = 0,0)
-                 ///!↘ bottom-right …
-  pub pbr:Point ,
-  // pub hs :Point ,
-}
-#[docpos] pub struct StructyPos { /// "inner" scruct docs
-  pub field1       :        String  ,/// pos-doc for `field1` (in regular Rust this would be a doc for `field2_longer`)
-  pub field2_longer: Option<String> ,/// pos-doc for `field2_longer`
-                                     /// pos-doc for `field2_longer` line 2
-                                     ///! pre-doc for `paths` at `field2_longer` (after `///!`)
-  pub paths        : Vec   <PathBuf>, // no doc comments allowed here, use `///!` in the previous field
+  pub pbr:Point ,/// ↘ bottom-right …
+                 ///!  position of the cursor's hot spot relative to its top-left pixel
+  pub hs :Point ,
 }
 
 
 fn main() {
   let mut out_str = String::new();
-  let x = 1; //NO: ⹙𜸘🯬˲
-  // let xՙ = 1;
-  let coords = main_lib(Some(&mut out_str));
-  if coords.is_none() {println!("not maybe_ptr_shape{x}");}
+  let dbg = true;
+  let coords = if dbg	{main_lib(Some(&mut out_str))
+  } else             	{main_lib(None)};
   println!("{}",out_str);
+  match coords {
+    Some(c)	=> {println!("coords {:?}",c);},
+    None   	=> {println!("no mouse pointer shape captured");},
+  };
 }
 
-fn append_to_string(maybe_string: Option<&mut String>) {
-  if let Some(s) = maybe_string {
-    s.push('1');
-  }
-}
+// todo: add bounds checks
 pub fn is_px3_black(px: &[u8]) -> bool{
   if   px[0] == 0
     && px[1] == 0
@@ -136,24 +129,25 @@ fn main_lib(mut s:Option<&mut String>) -> Option<mptr_box> {
         // position of the cursor's hot spot relative to its upper-left pixel
         // app doesn't use hot spot when it determines where to draw the cursor shape
       let ps_type = DXGI_OUTDUPL_POINTER_SHAPE_TYPE(ptr_shape.Type as i32);
-      let ptype = match ps_type {
-        DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME  	=> "MonoChrome   (1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝 DIB ⋀AND mask + ⊻XOR mask)",
-        DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR       	=> "Color        (4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB)",
-        DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR	=> "Masked_Color (4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB) with mask value @α bits",
-        _                                           	=> "?",
-        // only two mask values:
-          //    0: RGB value should replace screen pixel
-          // 0xFF: ⊻XOR is performed on RGB value and screen pixel; result replaces the screen pixel
-      };
-      println!("{}\n{}\n\
-        {w} {h}  {hot_x} {hot_y}  {}b  {wb}  {ptype}"
-        ,"       Hotspot Bytes B Type"
-        ," ↔   ↕  x  y   Size  ↔              №𝑐 𝑏⁄𝑐 𝑏⁄𝑝"
-        ,ptr_buff.len());
+      if is_s {
+        let ptype = match ps_type {
+          DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME  	=> "MonoChrome   (1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝 DIB ⋀AND mask + ⊻XOR mask)",
+          DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR       	=> "Color        (4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB)",
+          DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR	=> "Masked_Color (4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB) with mask value @α bits",
+          _                                           	=> "?",
+          // only two mask values:
+            //    0: RGB value should replace screen pixel
+            // 0xFF: ⊻XOR is performed on RGB value and screen pixel; result replaces the screen pixel
+        };
+        *s.as_deref_mut().unwrap() += &format!("{}\n{}\n\
+          {w} {h}  {hot_x} {hot_y}  {}b  {wb}  {ptype}"
+          ,"       Hotspot Bytes B Type"
+          ," ↔   ↕  x  y   Size  ↔              №𝑐 𝑏⁄𝑐 𝑏⁄𝑝", ptr_buff.len());
+      }
 
 
-      let mut scan_line_test     = 0;
-      let mut chunk_test:Vec<u8> = vec![];
+      // let mut scan_line_test     = 0;
+      // let mut chunk_test:Vec<u8> = vec![];
       // !: empty pointer will have nonsensical →0 < ←w, this is not checked    ■•◧□
       let mut most𐎓	= w as usize; //pushed ← if a valid pixel found
       let mut most𑁱	= 0         ; //pushed → …
@@ -176,10 +170,10 @@ fn main_lib(mut s:Option<&mut String>) -> Option<mptr_box> {
         let 𝑐ℕ=1; let bpc=1; let px_sz_b = 𝑐ℕ * bpc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
         if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz_b} ■sz𝑏 {row_sz_b} row_sz𝑏 {hmask}hmask\n");}
-        scan_line_test = 90;
+        // scan_line_test = 90;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
-          if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
+          // if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
           let chunk𝑏 = BitSlice::<_,Msb0>::from_slice(&chunk);
           if row < hmask {if row==0     {if is_s {*s.as_deref_mut().unwrap() += "———⋀AND bitmask———";}}
@@ -206,11 +200,11 @@ fn main_lib(mut s:Option<&mut String>) -> Option<mptr_box> {
         let 𝑐ℕ=4; let bpc=8; let px_sz_b = 𝑐ℕ * bpc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
         if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz_b} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
-        scan_line_test = 54;
+        // scan_line_test = 54;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
+          // if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
-          if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
           chunk.chunks(  px_sz_b).enumerate().for_each(|(column, px   )| {
             if px != px0 {
               if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
@@ -231,11 +225,11 @@ fn main_lib(mut s:Option<&mut String>) -> Option<mptr_box> {
         let 𝑐ℕ=4; let bpc=8; let px_sz_b = 𝑐ℕ * bpc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
         if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz_b} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
-        scan_line_test = 35;
+        // scan_line_test = 35;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
+          // if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
-          if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
           chunk.chunks(  px_sz_b).enumerate().for_each(|(column, px   )| {
             if px[3] == 0 { //mask    0: RGB value should replace screen px
               if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
@@ -260,29 +254,14 @@ fn main_lib(mut s:Option<&mut String>) -> Option<mptr_box> {
       // let    stop = src.add(h as usize);
       // while src != stop {src = src.add(1);}
       // }
-      if is_s {*s.as_deref_mut().unwrap() += &format!("№{scan_line_test} = chunk {chunk_test:?}\n");}
+      // if is_s {*s.as_deref_mut().unwrap() += &format!("№{scan_line_test} = chunk {chunk_test:?}\n");}
       if is_s {*s.as_deref_mut().unwrap() += &format!("←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} true bounding box (non0 pixels, 0-based coords)\n",
         most𑁱-most𐎓+1, most𖭪-most𖭩+1);}
+
+      return Some(mptr_box{
+        ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
+        pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
+        hs :Point {x: hot_x, y: hot_y}})
     },
   }
-
-  return Some(mptr_box{ptl:Point{x:0,y:0}, pbr:Point{x:0,y:0}})
-  // println!("capturer.pointer_shape_buffer len: {}", ptr_buff.len());
-  // let _ = pt(&ptr_buff); //alloc::vec::Vec<u8>
-
-  // println!("capturer.pointer_shape_buffer len: {:?}", ptr_buff.len());
-
-  // let curs = capt.pointer_shape_buffer;
-
-  // thread::sleep(Duration::from_millis(100)); // sleep before capture to wait system to update the screen
-  // let info = capturer.capture().unwrap()   ; // capture desktop image and get the frame info
-  // // we have some extension methods for the frame info
-  // if info.desktop_updated      () {println!("captured! desktop updated");}
-  // if info.mouse_updated        () {println!("mouse updated!");}
-  // if info.pointer_shape_updated() {println!("pointer shape updated!");}
-
-  // // write to a file
-  // let mut file = File::create("capture.bin").unwrap();
-  // // the buffer is in BGRA32 format
-  // file.write_all(&capturer.buffer).unwrap();
 }
