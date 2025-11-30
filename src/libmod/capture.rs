@@ -10,11 +10,11 @@ use bitvec::prelude::*; // to iterate over individual pixels packed in a byte
 #[derive(Copy,Clone,Debug,PartialOrd,PartialEq,Eq,Ord)]
 pub struct BGRA8 {pub b:u8,  pub g:u8,  pub r:u8,  pub a:u8,}
 
-const px0: [u8;4] = [0,0,0,0];
-const 𝑐mask_rep:u8 =   0; // RGB value should replace screen pixel
-const 𝑐mask_xor:u8 = 255; // ⊻XOR is performed on RGB value and screen pixel; result replaces screen pixel
-const 𝑐dark    :u8 =  50;
-const 𝑐light   :u8 = 150;
+pub const px0: [u8;4] = [0,0,0,0];
+pub const 𝑐mask_rep:u8 =   0; //         RGB value                  replaces screen pixel
+pub const 𝑐mask_xor:u8 = 255; // ⊻XOR of RGB value & screen pixel → replaces screen pixel
+pub const 𝑐dark    :u8 =  50;
+pub const 𝑐light   :u8 = 150;
 
 use std::mem;
 
