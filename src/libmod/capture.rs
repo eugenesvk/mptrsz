@@ -29,6 +29,22 @@ use windows::{
 
 use std::path::PathBuf;
 use docpos::*;
+#[docpos] #[derive(Debug)] pub enum CursorColor { /// Similar to DXGI_OUTDUPL_POINTER_SHAPE_TYPE
+  Mono       	,///  1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝      DIB ⋀AND mask + ⊻XOR mask  	=_MONOCHROME
+  Color      	,///  4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB                        	=_COLOR
+             	 ///! 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB with mask value @α bits	=_MASKED_COLOR
+  ColorMasked	,
+}
+#[docpos] #[derive(Debug)] pub enum Mask { /// Type of pixel mask with the following combined effect:
+  ///⋀AND	⊻XOR	Display
+  /// 0  	0   	■ Black
+  /// 0  	1   	□ White
+  /// 1  	0   	🖵  Screen
+  /// 1  	1   	🖵◧ Screen reverse
+  And    	,///  ⋀AND mask
+         	 ///! ⊻XOR mask
+  Xor    	,
+}
 
 #[derive(Copy,Clone,Debug,PartialOrd,PartialEq,Eq,Ord)] #[docpos]
 pub struct Point {pub x:i32, pub y:i32,}
@@ -58,7 +74,130 @@ pub fn is_px3_light(px: &[u8]) -> bool{
     && px[2] > 𝑐light  {true} else {false}
 }
 
-pub fn get_mptr_sz(mut s:Option<&mut String>) -> Option<mptr_box> {
+use windows::Win32::Foundation::{POINT, BOOL, TRUE, FALSE,};
+use windows::Win32::Graphics::Gdi::{DeleteObject,GetObjectW,BITMAP,HGDIOBJ,HBITMAP,};
+use windows::Win32::UI::WindowsAndMessaging::{HICON, ICONINFO, CURSORINFO, HCURSOR, CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,};
+use windows::Win32::UI::WindowsAndMessaging::{GetCursor, GetCursorPos, GetCursorInfo, GetIconInfo};
+use std::slice;
+
+#[docpos]
+pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e., the minimal box that contains all the cursor pixels, based off its bitmap mask from GetIconInfo (hbmMask or hbmColor). Cursor monochrome status is required to know whether the mask is a combo of 2
+  bm_h	:HBITMAP    	,/// ref to a BitMap mask
+  ccol	:CursorColor	,/// color type
+  ///! store the text drawing of the cursor and print a few metrics (mostly for debugging)
+  mut s:Option<&mut String>
+) -> Option<mptr_box>  {
+  let is_s = s.is_some(); //store a printout string of non-empty pixels
+  let mut bm = BITMAP::default();
+    // bmType:i32=0   bmPlanes:u16=№color planes (NOT!!! colors)
+    // bmWidth ¦ bmHeight	:i32        	//>0 pixels
+    // bmWidthBytes      	:i32        	//№bytes in each scan line. ==EVEN because OS assumes that bit values of a bitmap form an array that is word aligned
+    // bmBitsPixel       	:u16        	//𝑏⁄𝑝  №𝑏 bits required to indicate the color of a pixel
+    // bmBits            	:*mut c_void	//pointer to location of bit values for the bitmap. Its member must be a pointer to an array of character (1-byte) values
+  let bm_sz = unsafe{ GetObjectW(bm_h.into(), mem::size_of::<BITMAP>() as _,
+  Some(&mut bm as *mut BITMAP as _)) };
+  if bm_sz <= 0 {return None}
+
+  let w  	= bm.bmWidth ;
+  let wb 	= bm.bmWidthBytes; //🡘b width in bytes of the mouse cursor aka stride
+  let h  	= bm.bmHeight; // !2 AND+XOR masks
+  let bpp	= bm.bmBitsPixel;
+  let px_szb = bpp      as usize;
+  let px_sz = (bpp / 8) as usize;
+  let row_sz = wb       as usize;
+
+  // Store non-empty pixels closest to each of the 4 sides to get the cursor bounding box
+  // !: empty cursor will have nonsensical →0 < ←w, this is not checked    ■•◧□
+  let mut most𐎓	= w as usize; //pushed ← if a valid pixel found
+  let mut most𑁱	= 0         ; //pushed → …
+  let mut most𖭩	= h as usize;
+  let mut most𖭪	= 0;
+
+
+  match ccol { // Iterate over mouse cursor bitmap buffer to detect blank pixels and bounding box size
+  CursorColor::Mono      => {let 𝑐ℕ = 1; let bpc = bpp / 𝑐ℕ; //1c·1bpc=1bpp
+    // ■black □white
+    let hm = (h/2) as usize; // split between ⋀AND and ⊻XOR masks
+    if is_s { *s.as_deref_mut().unwrap() += &format!(
+      "↔{w} ↕{hm} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{bpc}𝑏⁄𝑐={bpp}𝑏⁄𝑝 {px_sz} ■sz (DIB ⋀AND mask + ⊻XOR mask)");    }
+    let ptr_buff = unsafe{slice::from_raw_parts(bm.bmBits as *const u8, bm_sz as usize)}; //№of el, not bytes, but in this case colors don't align, so just use bytes, but in this case we can't fit colors into els
+
+    ptr_buff.chunks(  row_sz).enumerate().for_each(|(row   , chunk)| {let chunk𝑏 = BitSlice::<_,Msb0>::from_slice(&chunk);
+      if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
+      if row < hm {if row==0  {if is_s {*s.as_deref_mut().unwrap() += "———⋀AND bitmask———¦\n¦";}}
+        chunk𝑏.chunks(px_szb).enumerate().for_each(|(column, px   )| { // px: &BitSlice<u8>
+          if  !px[0] {if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
+            /**/      if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}  }
+          if is_s {(*s.as_deref_mut().unwrap()).push(if !px[0] {'■'}else{' '})}        });
+      } else      {if row==hm {if is_s {*s.as_deref_mut().unwrap() += "———⊻XOR bitmask———¦\n¦";}}
+        let hrow = row - hm; //reset row index to begin from 0 for the 2nd half
+        chunk𝑏.chunks(px_szb).enumerate().for_each(|(column, px   )| { // px: &BitSlice<u8>
+          if   px[0] {if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
+            /**/      if hrow   < most𖭩	{most𖭩 = hrow  ;} if hrow   > most𖭪	{most𖭪 = hrow  ;}  }
+          if is_s {(*s.as_deref_mut().unwrap()).push(if  px[0] {'■'}else{' '})}        });
+      }   if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
+    });
+  },
+  CursorColor::Color     => {let 𝑐ℕ = 4; let bpc = bpp / 𝑐ℕ; //4c·8bpc=32bpp BGRα DIB
+    // ■~black □~white ◧other color (visually works best for greys)
+
+    if is_s { *s.as_deref_mut().unwrap() += &format!(
+      "↔{w} ↕{h} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{bpc}𝑏⁄𝑐={bpp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)");    }
+    let ptr_buff = unsafe{slice::from_raw_parts(bm.bmBits as *const u8, (wb*h) as usize)}; //№of elements=pixels, not bytes, but in this case split by bytes to fit old iteration logic
+
+    ptr_buff.chunks(row_sz).enumerate().for_each(|(row   , chunk)| {
+      if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
+      chunk.chunks(  px_sz).enumerate().for_each(|(column, px   )| {
+        if px != px0 {if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
+          /**/        if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}  }
+        if is_s {(*s.as_deref_mut().unwrap()).push(
+          if              px0 == px  {' '
+          } else if is_px3_dark (px) {'■'
+          } else if is_px3_light(px) {'□'
+          } else                     {'◧'})}
+      });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
+    });
+  },
+  // TODO: what about the monochrome mask for masked color
+  CursorColor::ColorMasked => {let 𝑐ℕ = 4; let bpc = bpp / 𝑐ℕ; //4c·8bpc=32bpp BGRα DIB with mask value in alpha bits
+    // ■~black □~white •solid color replacement ◧result depends on bg, ⊻XOR (255,255,255,255 inverts colors?)
+    if is_s { *s.as_deref_mut().unwrap() += &format!(
+      "↔{w} ↕{h} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{bpc}𝑏⁄𝑐={bpp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)");    }
+    let ptr_buff = unsafe{slice::from_raw_parts(bm.bmBits as *const u8, (wb*h) as usize)}; //№of elements=pixels, not bytes, but in this case split by bytes to fit old iteration logic
+
+    ptr_buff.chunks(row_sz).enumerate().for_each(|(row   , chunk)| {
+      if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
+      chunk.chunks(  px_sz).enumerate().for_each(|(column, px   )| {
+        if px[3] == 𝑐mask_rep {if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
+          /**/                 if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}  }
+        if is_s {(*s.as_deref_mut().unwrap()).push(
+          if         px[3] == 𝑐mask_rep { // only two mask values↓
+                  if is_px3_dark (px) {'■'
+            }else if is_px3_light(px) {'□'
+            }else                     {'•'}
+          } else  if px[3] == 𝑐mask_xor {
+                  if is_px3_black(px) {' '
+            }else                     {'◧'}
+          } else                      {'ℯ'}) } //invalid as only 2 mask values are allowed
+      });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
+    });
+  },   }
+    // todo: replace with unsafe pointer arithmetic?
+    // let mut src = chunk.as_ptr() as *const BGRA8;
+    // let    stop = src.add(h as usize);
+    // while src != stop {src = src.add(1);}
+    // }
+  if is_s {*s.as_deref_mut().unwrap() += &format!(
+    "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box (¬0 px, 0-based coords)\n",
+    most𑁱-most𐎓+1, most𖭪-most𖭩+1);}
+
+  return Some(mptr_box{
+    ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
+    pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
+    hs :Point {x:0,y:0}})
+}
+
+
   let is_s = s.is_some(); //store a printout string of non-empty pixels
 
   let mut mon_scanner         	= Scanner::new()    .unwrap(); // Scanner to scan for monitors
