@@ -50,7 +50,7 @@ use docpos::*;
 pub struct Point {pub x:i32, pub y:i32,}
 
 #[derive(Copy,Clone,Debug,PartialOrd,PartialEq,Eq,Ord)] #[docpos]
-pub struct mptr_box { /// 🖰Mouse pointer real bounding box around actualy drawn pixels, not just the containing bitmap rect
+pub struct mptr_box { /// 🖰Mouse cursor real bounding box around actualy drawn pixels, not just the containing bitmap rect
   pub ptl:Point ,/// ↖ top-left     corner point coordinates (x,y) in bounding box coordinates (↖ box = 0,0)
   pub pbr:Point ,/// ↘ bottom-right …
                  ///!  position of the cursor's hot spot relative to its top-left pixel
@@ -198,6 +198,13 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e.,
 }
 
 
+
+
+#[docpos]
+pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible), i.e., the minimal box that contains all the pointer pixels
+  ///! store the text drawing of the pointer and print a few metrics (mostly for debugging)
+  mut s:Option<&mut String>
+) -> Option<mptr_box>  {
   let is_s = s.is_some(); //store a printout string of non-empty pixels
 
   let mut mon_scanner         	= Scanner::new()    .unwrap(); // Scanner to scan for monitors
@@ -258,9 +265,9 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e.,
       if        ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME   { //1c·1bpc=1bpp DIB ⋀AND mask + ⊻XOR mask (⋅2))
         // ■black □white
         let hmask = (h/2) as usize; // split between ⋀AND and ⊻XOR masks
-        let 𝑐ℕ=1; let bpc=1; let px_sz_b = 𝑐ℕ * bpc / 8;
+        let 𝑐ℕ=1; let bpc=1; let px_sz = 𝑐ℕ * bpc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
-        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz_b} ■sz𝑏 {row_sz_b} row_sz𝑏 {hmask}hmask\n");}
+        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏 {hmask}hmask\n");}
         // scan_line_test = 90;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
@@ -288,15 +295,15 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e.,
 
       } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR        { //4c·8bpc=32bpp BGRα DIB
         // ■~black □~white ◧other color (visually works best for greys)
-        let 𝑐ℕ=4; let bpc=8; let px_sz_b = 𝑐ℕ * bpc / 8;
+        let 𝑐ℕ=4; let bpc=8; let px_sz = 𝑐ℕ * bpc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
-        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz_b} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
+        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
         // scan_line_test = 54;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
           // if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
-          chunk.chunks(  px_sz_b).enumerate().for_each(|(column, px   )| {
+          chunk.chunks(  px_sz).enumerate().for_each(|(column, px   )| {
             if px != px0 {
               if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
               if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}
@@ -313,15 +320,15 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e.,
       } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR { // 4c·8bpc=32bpp BGRα DIB with mask value in alpha bits
         // ■~black □~white •solid color replacement ◧result depends on bg, ⊻XOR (255,255,255,255 inverts colors?)
 
-        let 𝑐ℕ=4; let bpc=8; let px_sz_b = 𝑐ℕ * bpc / 8;
+        let 𝑐ℕ=4; let bpc=8; let px_sz = 𝑐ℕ * bpc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
-        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz_b} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
+        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
         // scan_line_test = 35;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
           // if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
-          chunk.chunks(  px_sz_b).enumerate().for_each(|(column, px   )| {
+          chunk.chunks(  px_sz).enumerate().for_each(|(column, px   )| {
             if px[3] == 0 { //mask    0: RGB value should replace screen px
               if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
               if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}
