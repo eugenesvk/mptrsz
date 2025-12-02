@@ -101,9 +101,9 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e.,
   let w  	= bm.bmWidth ;
   let wb 	= bm.bmWidthBytes; //🡘b width in bytes of the mouse cursor aka stride
   let h  	= bm.bmHeight; // !2 AND+XOR masks
-  let bpp	= bm.bmBitsPixel;
-  let px_szb = bpp      as usize;
-  let px_sz = (bpp / 8) as usize;
+  let 𝑏pp	= bm.bmBitsPixel;
+  let px_szb = 𝑏pp      as usize;
+  let px_sz = (𝑏pp / 8) as usize;
   let row_sz = wb       as usize;
 
   // Store non-empty pixels closest to each of the 4 sides to get the cursor bounding box
@@ -115,11 +115,11 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e.,
 
 
   match ccol { // Iterate over mouse cursor bitmap buffer to detect blank pixels and bounding box size
-  CursorColor::Mono      => {let 𝑐ℕ = 1; let bpc = bpp / 𝑐ℕ; //1c·1bpc=1bpp
+  CursorColor::Mono      => {let 𝑐ℕ = 1; let 𝑏pc = 𝑏pp / 𝑐ℕ; //1c·1𝑏pc=1𝑏pp
     // ■black □white
     let hm = (h/2) as usize; // split between ⋀AND and ⊻XOR masks
     if is_s { *s.as_deref_mut().unwrap() += &format!(
-      "↔{w} ↕{hm} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{bpc}𝑏⁄𝑐={bpp}𝑏⁄𝑝 {px_sz} ■sz (DIB ⋀AND mask + ⊻XOR mask)");    }
+      "↔{w} ↕{hm} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (DIB ⋀AND mask + ⊻XOR mask)");    }
     let ptr_buff = unsafe{slice::from_raw_parts(bm.bmBits as *const u8, bm_sz as usize)}; //№of el, not bytes, but in this case colors don't align, so just use bytes, but in this case we can't fit colors into els
 
     ptr_buff.chunks(  row_sz).enumerate().for_each(|(row   , chunk)| {let chunk𝑏 = BitSlice::<_,Msb0>::from_slice(&chunk);
@@ -138,11 +138,11 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e.,
       }   if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
     });
   },
-  CursorColor::Color     => {let 𝑐ℕ = 4; let bpc = bpp / 𝑐ℕ; //4c·8bpc=32bpp BGRα DIB
+  CursorColor::Color     => {let 𝑐ℕ = 4; let 𝑏pc = 𝑏pp / 𝑐ℕ; //4c·8𝑏pc=32𝑏pp BGRα DIB
     // ■~black □~white ◧other color (visually works best for greys)
 
     if is_s { *s.as_deref_mut().unwrap() += &format!(
-      "↔{w} ↕{h} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{bpc}𝑏⁄𝑐={bpp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)");    }
+      "↔{w} ↕{h} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)");    }
     let ptr_buff = unsafe{slice::from_raw_parts(bm.bmBits as *const u8, (wb*h) as usize)}; //№of elements=pixels, not bytes, but in this case split by bytes to fit old iteration logic
 
     ptr_buff.chunks(row_sz).enumerate().for_each(|(row   , chunk)| {
@@ -159,10 +159,10 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e.,
     });
   },
   // TODO: what about the monochrome mask for masked color
-  CursorColor::ColorMasked => {let 𝑐ℕ = 4; let bpc = bpp / 𝑐ℕ; //4c·8bpc=32bpp BGRα DIB with mask value in alpha bits
+  CursorColor::ColorMasked => {let 𝑐ℕ = 4; let 𝑏pc = 𝑏pp / 𝑐ℕ; //4c·8𝑏pc=32𝑏pp BGRα DIB with mask value in alpha bits
     // ■~black □~white •solid color replacement ◧result depends on bg, ⊻XOR (255,255,255,255 inverts colors?)
     if is_s { *s.as_deref_mut().unwrap() += &format!(
-      "↔{w} ↕{h} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{bpc}𝑏⁄𝑐={bpp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)");    }
+      "↔{w} ↕{h} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)");    }
     let ptr_buff = unsafe{slice::from_raw_parts(bm.bmBits as *const u8, (wb*h) as usize)}; //№of elements=pixels, not bytes, but in this case split by bytes to fit old iteration logic
 
     ptr_buff.chunks(row_sz).enumerate().for_each(|(row   , chunk)| {
@@ -262,12 +262,12 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
 
       // Iterate over mouse pointer buffer to detect blank pixels and true box size
 
-      if        ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME   { //1c·1bpc=1bpp DIB ⋀AND mask + ⊻XOR mask (⋅2))
+      if        ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME   { //1c·1𝑏pc=1𝑏pp DIB ⋀AND mask + ⊻XOR mask (⋅2))
         // ■black □white
         let hmask = (h/2) as usize; // split between ⋀AND and ⊻XOR masks
-        let 𝑐ℕ=1; let bpc=1; let px_sz = 𝑐ℕ * bpc / 8;
+        let 𝑐ℕ=1; let 𝑏pc=1; let px_sz = 𝑐ℕ * 𝑏pc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
-        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏 {hmask}hmask\n");}
+        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {𝑏pc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏 {hmask}hmask\n");}
         // scan_line_test = 90;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
@@ -275,7 +275,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
           let chunk𝑏 = BitSlice::<_,Msb0>::from_slice(&chunk);
           if row < hmask {if row==0     {if is_s {*s.as_deref_mut().unwrap() += "———⋀AND bitmask———";}}
-            chunk𝑏.chunks(bpc     ).enumerate().for_each(|(column, px   )| { // px: &BitSlice<u8>
+            chunk𝑏.chunks(𝑏pc     ).enumerate().for_each(|(column, px   )| { // px: &BitSlice<u8>
               if   px[0] == false {
                 if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
                 if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}  }
@@ -283,7 +283,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
             });
           } else         {if row==hmask {if is_s {*s.as_deref_mut().unwrap() += "———⊻XOR bitmask———";}}
             let hrow = row - hmask;
-            chunk𝑏.chunks(bpc     ).enumerate().for_each(|(column, px   )| { // px: &BitSlice<u8>
+            chunk𝑏.chunks(𝑏pc     ).enumerate().for_each(|(column, px   )| { // px: &BitSlice<u8>
               if   px[0] == true {
                 if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
                 if hrow   < most𖭩	{most𖭩 = hrow  ;} if hrow   > most𖭪	{most𖭪 = hrow  ;}  }
@@ -293,11 +293,11 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
         });
 
-      } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR        { //4c·8bpc=32bpp BGRα DIB
+      } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR        { //4c·8𝑏pc=32𝑏pp BGRα DIB
         // ■~black □~white ◧other color (visually works best for greys)
-        let 𝑐ℕ=4; let bpc=8; let px_sz = 𝑐ℕ * bpc / 8;
+        let 𝑐ℕ=4; let 𝑏pc=8; let px_sz = 𝑐ℕ * 𝑏pc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
-        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
+        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {𝑏pc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
         // scan_line_test = 54;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
@@ -317,12 +317,12 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
           });
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
         });
-      } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR { // 4c·8bpc=32bpp BGRα DIB with mask value in alpha bits
+      } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR { // 4c·8𝑏pc=32𝑏pp BGRα DIB with mask value in alpha bits
         // ■~black □~white •solid color replacement ◧result depends on bg, ⊻XOR (255,255,255,255 inverts colors?)
 
-        let 𝑐ℕ=4; let bpc=8; let px_sz = 𝑐ℕ * bpc / 8;
+        let 𝑐ℕ=4; let 𝑏pc=8; let px_sz = 𝑐ℕ * 𝑏pc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
-        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {bpc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
+        if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {𝑏pc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
         // scan_line_test = 35;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
