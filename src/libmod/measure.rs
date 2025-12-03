@@ -163,8 +163,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box (¬0 px, 0-based coords)\n",
     most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1);}
 
-  return Some(mptr_box{
+  return Some(cur_box{
     ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
     pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
-    hs :Point {x:0,y:0}})
+    hs :None, })
 }
