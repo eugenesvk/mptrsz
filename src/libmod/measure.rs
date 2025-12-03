@@ -100,67 +100,144 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       } if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     }
   },
-  CursorColor::Color     => {let 𝑐ℕ = 4; let 𝑏pc = 𝑏pp / 𝑐ℕ; //4c·8𝑏pc=32𝑏pp BGRα DIB
-    // ■~black □~white ◧other color (visually works best for greys)
+  CursorColor::Color     => {let 𝑐ℕ = 4;  // 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, no 𝑏mask → draw color px directly
+    let mut bm = BITMAP::default();
+    let bm_sz = unsafe{ GetObjectW(cur𝑐.into(), size_of::<BITMAP>() as _, Some(&mut bm as *mut BITMAP as _)) };
+    if  bm_sz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
 
+    let w  	= bm.bmWidth     	; let w_sz  	= w   as usize;
+    let wb 	= bm.bmWidthBytes	; let row_sz	= wb  as usize; // aka stride
+    let h  	= bm.bmHeight    	; let h_sz  	= h   as usize;
+    let 𝑏pp	= bm.bmBitsPixel 	; let px_sz𝑏	= 𝑏pp as usize; let px_sz = (𝑏pp / 8) as usize;
+    let 𝑏pc	= 𝑏pp / 𝑐ℕ;
+
+    let buf_sz = (wb * h) as usize;
+
+    let pad = if h_sz <= 9 {1} else if h_sz <= 99 {2} else {3};
     if is_s { *s.as_deref_mut().unwrap() += &format!(
-      "↔{w} ↕{h} ↔{wb}B  {cur_col:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)\n");    }
-    let mut ptr_buff = vec![0u8; buf_sz];
-    let ret = unsafe{GetBitmapBits(maskA, ptr_buff.len() as i32, ptr_buff.as_mut_ptr() as *mut c_void,) };
-    if  ret == 0 {return None}; //todo: convert into a proper error
+      "↔{w} ↕{h} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)\n");    }
+    let mut cur_buf = vec![0u8; buf_sz];
+    let ret = unsafe{GetBitmapBits(cur𝑐, cur_buf.len() as i32, cur_buf.as_mut_ptr() as *mut c_void,) };
+    if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
 
-    if is_s {*s.as_deref_mut().unwrap() += "——— ⊻XOR Color bitmap ———\n";}
-    ptr_buff.chunks(row_sz).enumerate().for_each(|(row   , chunk)| {
-      if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
-      chunk.chunks(  px_sz).enumerate().for_each(|(column, px   )| {
-        if px != px0 {if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
-          /**/        if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}  }
+    if is_s {*s.as_deref_mut().unwrap() += "——— Color 𝑏map ■dark¦□light¦•other ———\n";} //◧visually works best for greys
+    cur_buf.chunks(row_sz).enumerate().for_each(|(𝑖row, row)| {if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
+      row  .chunks( px_sz).enumerate().for_each(|(𝑗col, px )| {
+        if px != px0 {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
+          /**/        if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}  }
         if is_s {(*s.as_deref_mut().unwrap()).push(
           if              px0 == px  {' '
           } else if is_px3_dark (px) {'■'
           } else if is_px3_light(px) {'□'
-          } else                     {'◧'})}
-      });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
+          } else                     {'•'})} //◧
+      });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     });
   },
-  // TODO: what about the monochrome mask for masked color
-  CursorColor::ColorMasked => {let 𝑐ℕ = 4; let 𝑏pc = 𝑏pp / 𝑐ℕ; //4c·8𝑏pc=32𝑏pp BGRα DIB with mask value in alpha bits
-    // ■~black □~white •solid color replacement ◧result depends on bg, ⊻XOR (255,255,255,255 inverts colors?)
-    if is_s { *s.as_deref_mut().unwrap() += &format!(
-      "↔{w} ↕{h} ↔{wb}B  {cur_col:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)\n");    }
-    println!("↔{w} ↕{h} ↔{wb}B  {cur_col:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)\n");
-    let mut ptr_buff = vec![0u8; buf_sz];
-    let ret = unsafe{GetBitmapBits(maskA, ptr_buff.len() as i32, ptr_buff.as_mut_ptr() as *mut c_void,) };
-    if  ret == 0 {return None}; //todo: convert into a proper error
+  CursorColor::ColorMasked => { let 𝑐ℕA = 1; let 𝑐ℕX = 4; //4c·8𝑏pc=32𝑏pp BGRα DIB  both 𝑏mask and color 𝑏map
+    let mut bmA = BITMAP::default(); //monochrome 𝑏mask
+    let mut bmX = BITMAP::default(); //color      𝑏map
+    let bmAsz = unsafe{ GetObjectW(𝑏mask.into(), size_of::<BITMAP>() as _, Some(&mut bmA as *mut BITMAP as _)) };
+    let bmXsz = unsafe{ GetObjectW(cur𝑐 .into(), size_of::<BITMAP>() as _, Some(&mut bmX as *mut BITMAP as _)) };
+    if  bmAsz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
+    if  bmXsz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
 
-    if 𝑏pp == 1 {if is_s {*s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask ———\n";}
-    ptr_buff.chunks(  row_sz).enumerate().for_each(|(row   , chunk)| {let chunk𝑏 = BitSlice::<_,Msb0>::from_slice(&chunk);
-      if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
-      chunk𝑏.chunks(px_sz𝑏).enumerate().for_each(|(column, px   )| { // px: &BitSlice<u8>
-        if is_s {(*s.as_deref_mut().unwrap()).push(if !px[0] {'■'}else{' '})}        });
-        if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
-    }); return None} else {if is_s {*s.as_deref_mut().unwrap() += "——— ⊻XOR Color bitmap ———\n";}
-    ptr_buff.chunks(row_sz).enumerate().for_each(|(row   , chunk)| {if is_s{(*s.as_deref_mut().unwrap()).push('¦');}
-      chunk.chunks(  px_sz).enumerate().for_each(|(column, px   )| {
-        if px[3] == 𝑐mask_rep {if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
-          /**/                 if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}  }
-        if is_s {(*s.as_deref_mut().unwrap()).push(
-          if         px[3] == 𝑐mask_rep { // only two mask values↓
-                  if is_px3_dark (px) {'■'
-            }else if is_px3_light(px) {'□'
-            }else                     {'•'}
-          } else  if px[3] == 𝑐mask_xor {
-                  if is_px3_black(px) {' '
-            }else                     {'◧'}
-          } else                      {'ℯ'}) } //invalid as only 2 mask values are allowed
-      });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
+    // Monochrome 𝑏mask
+    let wA  	= bmA.bmWidth     	; let wA_sz  	= wA   as usize;
+    let wAb 	= bmA.bmWidthBytes	; let rowA_sz	= wAb  as usize; // aka stride
+    let hA  	= bmA.bmHeight    	; let hA_sz  	= hA   as usize;
+    let 𝑏ppA	= bmA.bmBitsPixel 	; let pxA_sz𝑏	= 𝑏ppA as usize; let pxA_sz = (𝑏ppA / 8) as usize;
+    let 𝑏pcA	= 𝑏ppA / 𝑐ℕA;
+    let bufA_sz = (wAb * hA) as usize;
+
+    let mut curA_buf = vec![0u8; bufA_sz];
+    let ret = unsafe{GetBitmapBits(𝑏mask, curA_buf.len() as i32, curA_buf.as_mut_ptr() as *mut c_void,) };
+    if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
+
+    // Color bits
+    let wX  	= bmX.bmWidth     	; let wX_sz  	= wX   as usize;
+    let wXb 	= bmX.bmWidthBytes	; let rowX_sz	= wXb  as usize; // aka stride
+    let hX  	= bmX.bmHeight    	; let hX_sz  	= hX   as usize;
+    let 𝑏ppX	= bmX.bmBitsPixel 	; let pxX_sz𝑏	= 𝑏ppX as usize; let pxX_sz = (𝑏ppX / 8) as usize;
+    let 𝑏pcX	= 𝑏ppX / 𝑐ℕX;
+    let bufX_sz = (wXb * hX) as usize;
+
+    let mut curX_buf = vec![0u8; bufX_sz];
+    let ret = unsafe{GetBitmapBits(cur𝑐, curX_buf.len() as i32, curX_buf.as_mut_ptr() as *mut c_void,) };
+    if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
+
+    // 1. Print each mask separately, do box calculations later with both masks applied
+    let pad = if hX_sz <= 9 {1} else if hX_sz <= 99 {2} else {3};
+    if is_s {
+         *s.as_deref_mut().unwrap() += &format!(
+      "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA} №𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz} ■sz Mono◧ 𝑏mask (BGRα DIB)\n");
+         *s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1= 0Δ• ———¦\n¦";
+    curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
+      (  *s.as_deref_mut().unwrap()).push('¦');
+      row𝑏  .chunks(pxA_sz𝑏).enumerate().for_each(|(𝑗col, px )| { // px:&BitSlice<u8>, conceptually [bool] slice
+        (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
+         *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);
+    });
+
+         *s.as_deref_mut().unwrap() += &format!(
+      "↔{wX} ↕{hX} ↔{wXb}B  {cur𝑡:?}   {𝑐ℕX} №𝑐⋅{𝑏pcX}𝑏⁄𝑐={𝑏ppX}𝑏⁄𝑝 {pxX_sz} ■sz Color 𝑏map (BGRα DIB)\n");
+    curX_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {(*s.as_deref_mut().unwrap()).push('¦');
+      row   .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {(*s.as_deref_mut().unwrap()).push(
+        if              px0 == px  {' '
+        } else if       0   == px[3] {'α'  //technically transparent, but •mark them anyway since when XORed with screen α the 1,2,3 colors still have an effect? todo: test
+        } else if is_px3_dark (px) {'■'
+        } else if is_px3_light(px) {'□'
+        } else                     {'•'}) //◧
+      });*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);
     });  }
-  },   }
-    // todo: replace with unsafe pointer arithmetic?
-    // let mut src = chunk.as_ptr() as *const BGRA8;
-    // let    stop = src.add(h as usize);
-    // while src != stop {src = src.add(1);}
-    // }
+
+
+    /* 2. Iterate over rows/pixels (Mono◧ px=1𝑏, so iterate BitSlice), calc bound box for ■□◧affected pixels
+      ⋀ 0 1 |←⊻	|Base
+      0|■ □ |Δ🗘	|🖰cursor
+      1|  ◧ |= 	|🖵Screen  only skip ⋀1⊻0 transparent
+        =|Δ¡|🖵  */
+    if   is_s { *s.as_deref_mut().unwrap() += "¦——— ⋀AND Mono◧ 𝑏mask + ⊻XOR Color 0𝑐_••→■dark¦□light¦•other 1𝑐_␠•_◧inverted🖵¦␠transparent🖵¦⊻XORed🖵 ———¦\n";}
+
+    for   𝑖row in 0..hX_sz { // mask is doubled, and we need to access both to determine pixel state
+      if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
+      let begA = (wAb as usize) * 𝑖row; let endA = begA + rowA_sz;
+      let begX = (wXb as usize) * 𝑖row; let endX = begX + rowX_sz;
+      let rowA = &curA_buf[begA..endA]; let rowA𝑏 = BitSlice::<_,Msb0>::from_slice(&rowA);
+      let rowX = &curX_buf[begX..endX];
+
+      for 𝑗col in 0..wX_sz {
+        let begA = 𝑗col; let endA = begA + (𝑐ℕA as usize);
+        let begX = 𝑗col; let endX = begX + (𝑐ℕX as usize);
+        let pxA = &rowA𝑏[begA..endA];
+        let pxX = &rowX [begX..endX];
+        let is_draw =
+          if        !pxA[0] { //↓ technically replaces screen px, but it's α=0, so transparent
+            if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false
+            } else if       0   == pxX[3]{if is_s{(*s.as_deref_mut().unwrap()).push('α')}; true //technically transparent, does this XOR black from ■pxA or 🖵screen background? todo: test
+            } else if is_px3_dark (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('■')}; true
+            } else if is_px3_light(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('□')}; true
+            } else                         {if is_s {(*s.as_deref_mut().unwrap()).push('•')}; true} //◧
+          } else if  pxA[0] { // ◧inverted🖵¦␠transparent🖵¦⊻XORed🖵
+            if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false
+            } else if       0   == pxX[3]{if is_s{(*s.as_deref_mut().unwrap()).push('◧')}; true //inverts colors, but not α, is this just ⊻?
+            } else if       px1 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push('◧')}; true
+            } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('⊻')}; true}
+          } else {false}; // should be impossible todo: error here
+          if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱 {most𑁱 = 𝑗col;}
+            /**/      if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪 {most𖭪 = 𝑖row;}  }
+      } if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
+    }
+  }, //TODO: find a ↓ cursor colored, but NOT masked, to test
+  }
+  // todo: replace with unsafe pointer arithmetic? to avoid bound checks??
+  // let mut src = row.as_ptr() as *const BGRA8;
+  // let    stop = src.add(h as usize);
+  // while src != stop {src = src.add(1);}
+  // }
+
+  if  most𐎓 > most𑁱 // todo: convert to proper error
+   || most𖭩 > most𖭪 {return None}
+
   if is_s {*s.as_deref_mut().unwrap() += &format!(
     "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box (¬0 px, 0-based coords)\n",
     most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1);}
