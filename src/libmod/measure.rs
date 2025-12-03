@@ -100,39 +100,6 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       } if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     }
   },
-  CursorColor::Color     => {let 𝑐ℕ = 4;  // 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, no 𝑏mask → draw color px directly
-    let mut bm = BITMAP::default();
-    let bm_sz = unsafe{ GetObjectW(cur𝑐.into(), size_of::<BITMAP>() as _, Some(&mut bm as *mut BITMAP as _)) };
-    if  bm_sz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
-
-    let w  	= bm.bmWidth     	; let w_sz  	= w   as usize;
-    let wb 	= bm.bmWidthBytes	; let row_sz	= wb  as usize; // aka stride
-    let h  	= bm.bmHeight    	; let h_sz  	= h   as usize;
-    let 𝑏pp	= bm.bmBitsPixel 	; let px_sz𝑏	= 𝑏pp as usize; let px_sz = (𝑏pp / 8) as usize;
-    let 𝑏pc	= 𝑏pp / 𝑐ℕ;
-
-    let buf_sz = (wb * h) as usize;
-
-    let pad = if h_sz <= 9 {1} else if h_sz <= 99 {2} else {3};
-    if is_s { *s.as_deref_mut().unwrap() += &format!(
-      "↔{w} ↕{h} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)\n");    }
-    let mut cur_buf = vec![0u8; buf_sz];
-    let ret = unsafe{GetBitmapBits(cur𝑐, cur_buf.len() as i32, cur_buf.as_mut_ptr() as *mut c_void,) };
-    if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
-
-    if is_s {*s.as_deref_mut().unwrap() += "——— Color 𝑏map ■dark¦□light¦•other ———\n";} //◧visually works best for greys
-    cur_buf.chunks(row_sz).enumerate().for_each(|(𝑖row, row)| {if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
-      row  .chunks( px_sz).enumerate().for_each(|(𝑗col, px )| {
-        if px != px0 {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
-          /**/        if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}  }
-        if is_s {(*s.as_deref_mut().unwrap()).push(
-          if              px0 == px  {' '
-          } else if is_px3_dark (px) {'■'
-          } else if is_px3_light(px) {'□'
-          } else                     {'•'})} //◧
-      });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
-    });
-  },
   CursorColor::ColorMasked => { let 𝑐ℕA = 1; let 𝑐ℕX = 4; //4c·8𝑏pc=32𝑏pp BGRα DIB  both 𝑏mask and color 𝑏map
     let mut bmA = BITMAP::default(); //monochrome 𝑏mask
     let mut bmX = BITMAP::default(); //color      𝑏map
@@ -228,6 +195,39 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       } if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     }
   }, //TODO: find a ↓ cursor colored, but NOT masked, to test
+  CursorColor::Color     => {let 𝑐ℕ = 4;  // 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, no 𝑏mask → draw color px directly
+    let mut bm = BITMAP::default();
+    let bm_sz = unsafe{ GetObjectW(cur𝑐.into(), size_of::<BITMAP>() as _, Some(&mut bm as *mut BITMAP as _)) };
+    if  bm_sz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
+
+    let w  	= bm.bmWidth     	; let w_sz  	= w   as usize;
+    let wb 	= bm.bmWidthBytes	; let row_sz	= wb  as usize; // aka stride
+    let h  	= bm.bmHeight    	; let h_sz  	= h   as usize;
+    let 𝑏pp	= bm.bmBitsPixel 	; let px_sz𝑏	= 𝑏pp as usize; let px_sz = (𝑏pp / 8) as usize;
+    let 𝑏pc	= 𝑏pp / 𝑐ℕ;
+
+    let buf_sz = (wb * h) as usize;
+
+    let pad = if h_sz <= 9 {1} else if h_sz <= 99 {2} else {3};
+    if is_s { *s.as_deref_mut().unwrap() += &format!(
+      "↔{w} ↕{h} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)\n");    }
+    let mut cur_buf = vec![0u8; buf_sz];
+    let ret = unsafe{GetBitmapBits(cur𝑐, cur_buf.len() as i32, cur_buf.as_mut_ptr() as *mut c_void,) };
+    if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
+
+    if is_s {*s.as_deref_mut().unwrap() += "——— Color 𝑏map ■dark¦□light¦•other ———\n";} //◧visually works best for greys
+    cur_buf.chunks(row_sz).enumerate().for_each(|(𝑖row, row)| {if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
+      row  .chunks( px_sz).enumerate().for_each(|(𝑗col, px )| {
+        if px != px0 {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
+          /**/        if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}  }
+        if is_s {(*s.as_deref_mut().unwrap()).push(
+          if              px0 == px  {' '
+          } else if is_px3_dark (px) {'■'
+          } else if is_px3_light(px) {'□'
+          } else                     {'•'})} //◧
+      });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
+    });
+  },
   }
   // todo: replace with unsafe pointer arithmetic? to avoid bound checks??
   // let mut src = row.as_ptr() as *const BGRA8;
