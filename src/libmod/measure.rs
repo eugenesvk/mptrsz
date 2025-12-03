@@ -161,7 +161,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     // }
   if is_s {*s.as_deref_mut().unwrap() += &format!(
     "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box (¬0 px, 0-based coords)\n",
-    most𑁱-most𐎓+1, most𖭪-most𖭩+1);}
+    most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1);}
 
   return Some(mptr_box{
     ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
