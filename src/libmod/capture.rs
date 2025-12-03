@@ -36,14 +36,16 @@ use docpos::*;
   ColorMasked	,
 }
 #[docpos] #[derive(Debug)] pub enum Mask { /// Type of pixel mask with the following combined effect:
-  ///⋀AND	⊻XOR	Display
-  /// 0  	0   	■ Black
-  /// 0  	1   	□ White
-  /// 1  	0   	🖵  Screen
-  /// 1  	1   	🖵◧ Screen reverse
-  And    	,///  ⋀AND mask
-         	 ///! ⊻XOR mask
-  Xor    	,
+  ///⋀AND🖵	  ⊻XOR🖵	  Both
+  /// 0  Δ	  0   =	  ■ Black     (=icon bitmap)
+  /// 0  Δ	  1   Δ	  □ White     (=icon bitmap)
+  /// 1  =	  0   =	  🖵  Screen  (=transparent)
+  /// 1  =	  1   Δ	  🖵◧ Screen reverse/invert
+  /// = screen pixel unchanged (1AND 0XOR)
+  /// Δ screen pixel   changed (0AND 1XOR)
+  And,/// ⋀AND mask
+    ///!  ⊻XOR mask
+  Xor,
 }
 
 #[derive(Copy,Clone,Debug,PartialOrd,PartialEq,Eq,Ord)] #[docpos]
