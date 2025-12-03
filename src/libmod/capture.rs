@@ -91,7 +91,7 @@ use std::mem::{size_of,zeroed};
 pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible), i.e., the minimal box that contains all the pointer pixels
   ///! store the text drawing of the pointer and print a few metrics (mostly for debugging)
   mut s:Option<&mut String>
-) -> Option<mptr_box>  {
+) -> Option<cur_box>  {
   let is_s = s.is_some(); //store a printout string of non-empty pixels
 
   let mut mon_scanner         	= Scanner::new()    .unwrap(); // Scanner to scan for monitors
@@ -243,10 +243,10 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       if is_s {*s.as_deref_mut().unwrap() += &format!("←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} true bounding box (non0 pixels, 0-based coords)\n",
         most𑁱-most𐎓+1, most𖭪-most𖭩+1);}
 
-      return Some(mptr_box{
+      return Some(cur_box{
         ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
         pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
-        hs :Point {x: hot_x, y: hot_y}})
+        hs :Some(Point {x: hot_x, y: hot_y})})
     },
   }
 }
