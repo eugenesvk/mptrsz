@@ -35,14 +35,15 @@ use docpos::*;
              	 ///! 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB with mask value @α bits	=_MASKED_COLOR
   ColorMasked	,
 }
-#[docpos] #[derive(Debug)] pub enum Mask { /// Type of pixel mask with the following combined effect:
-  ///⋀AND🖵	  ⊻XOR🖵	  Both
-  /// 0  Δ	  0   =	  ■ Black     (=icon bitmap)
-  /// 0  Δ	  1   Δ	  □ White     (=icon bitmap)
-  /// 1  =	  0   =	  🖵  Screen  (=transparent)
-  /// 1  =	  1   Δ	  🖵◧ Screen reverse/invert
-  /// = screen pixel unchanged (1AND 0XOR)
-  /// Δ screen pixel   changed (0AND 1XOR)
+#[docpos] #[derive(Debug)] pub enum Mask { /// Type of pixel mask with the following (combined) effects:
+  ///|⋀|0|1 |←⊻	|Base   	|
+  ///|-|-|--|--	|--     	|
+  ///|0|■|□ |Δ🗘	|🖰cursor	|
+  ///|1| |◧ |= 	|🖵Screen	|
+  ///| |=|Δ¡|🖵 	|       	|
+  ///</br> ■Black □White ␠Transparent ◧Inverted   base: Δ🗘 replace  Δ¡ invert
+  ///</br> 🖵= or ␠ screen pixel unchanged (1AND 0XOR)
+  ///</br> 🖵Δ or • screen pixel   changed (0AND 1XOR)
   And,/// ⋀AND mask
     ///!  ⊻XOR mask
   Xor,
