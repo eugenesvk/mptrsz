@@ -143,7 +143,9 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e.,
 
     if is_s { *s.as_deref_mut().unwrap() += &format!(
       "↔{w} ↕{h} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)");    }
-    let ptr_buff = unsafe{slice::from_raw_parts(bm.bmBits as *const u8, (wb*h) as usize)}; //№of elements=pixels, not bytes, but in this case split by bytes to fit old iteration logic
+    let mut ptr_buff = vec![0u8; buf_sz];
+    let ret = unsafe{GetBitmapBits(bm_h, ptr_buff.len() as i32, ptr_buff.as_mut_ptr() as *mut c_void,) };
+    if  ret == 0 {return None}; //todo: convert into a proper error
 
     ptr_buff.chunks(row_sz).enumerate().for_each(|(row   , chunk)| {
       if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
@@ -163,7 +165,9 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor, i.e.,
     // ■~black □~white •solid color replacement ◧result depends on bg, ⊻XOR (255,255,255,255 inverts colors?)
     if is_s { *s.as_deref_mut().unwrap() += &format!(
       "↔{w} ↕{h} ↔{wb}B  {ccol:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)");    }
-    let ptr_buff = unsafe{slice::from_raw_parts(bm.bmBits as *const u8, (wb*h) as usize)}; //№of elements=pixels, not bytes, but in this case split by bytes to fit old iteration logic
+    let mut ptr_buff = vec![0u8; buf_sz];
+    let ret = unsafe{GetBitmapBits(bm_h, ptr_buff.len() as i32, ptr_buff.as_mut_ptr() as *mut c_void,) };
+    if  ret == 0 {return None}; //todo: convert into a proper error
 
     ptr_buff.chunks(row_sz).enumerate().for_each(|(row   , chunk)| {
       if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
