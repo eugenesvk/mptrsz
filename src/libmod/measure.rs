@@ -13,13 +13,17 @@ use windows::Win32::{
 };
 
 #[docpos]
-pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that contains all pixels, based off its ⋀AND and ⊻XOR bitmasks from GetIconInfo
-  maskA  	: HBITMAP    	,/// ref to ⋀AND bitmask (mono cursors: includes ⊻XOR in bottom half) hbmMask
-  maskX  	: HBITMAP    	,/// ref to ⊻XOR bitmask (mono cursors: blank, included in maskA↑) hbmColor
-  cur_col	:&CursorColor	,/// Cursor color type, affects whether maskA also contains ⊻XOR
+pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that contains all pixels, based off its ⋀AND and ⊻XOR bitmasks from GetIconInfo.</br>Masks can be of different size depending on the desired effect, e.g., ⋀AND can be empty with all 1s to not overwrite any 🖵pixels, but ⊻XOR can be bigger and invert those pixels with 1s, so still have a visual effect, so the bounding box should be the bigger of the two: 0 ⋀AND.
+  𝑏mask	: HBITMAP    	,/// 🖰Mono       : ⋀AND top + ⊻XOR bottom
+    ///	  </br>      	     🖰ColorMasked: ⋀AND
+    ///	  </br>      	     🖰Color      : ✗
+  cur𝑐 	: HBITMAP    	,/// 🖰Mono       : ✗          (↑in 𝑏mask)
+    ///	  </br>      	     🖰ColorMasked: ⊻XOR
+    ///	  </br>      	     🖰Color      : replacement pixels (?todo)
+  cur𝑡 	:&CursorColor	,/// 🖰Type, affects whether 𝑏mask also contains ⊻XOR
   ///! store the text drawing of the cursor and print a few metrics (mostly for debugging)
   mut s:Option<&mut String>
-) -> Option<mptr_box>  {
+) -> Option<cur_box>  {
   let is_s = s.is_some(); //store a printout string of non-empty pixels
 
   let mut bmA = BITMAP::default();
