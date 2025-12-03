@@ -77,11 +77,14 @@ pub fn is_px3_light(px: &[u8]) -> bool{
     && px[2] > 𝑐light  {true} else {false}
 }
 
-use windows::Win32::Foundation::{POINT, BOOL, TRUE, FALSE,};
-use windows::Win32::Graphics::Gdi::{DeleteObject,GetObjectW,BITMAP,HGDIOBJ,HBITMAP,};
-use windows::Win32::UI::WindowsAndMessaging::{HICON, ICONINFO, CURSORINFO, HCURSOR, CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,};
-use windows::Win32::UI::WindowsAndMessaging::{GetCursor, GetCursorPos, GetCursorInfo, GetIconInfo};
+use windows::Win32::Foundation::{POINT,BOOL,TRUE,FALSE,};
+use windows::Win32::Graphics::Gdi::{BITMAP,HGDIOBJ,HBITMAP,
+  DeleteObject,GetObjectW,GetBitmapBits,GetDIBits};
+use windows::Win32::UI::WindowsAndMessaging::{HICON,ICONINFO,CURSORINFO,HCURSOR,CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,
+  GetCursor,GetCursorPos,GetCursorInfo,GetIconInfo};
 use std::slice;
+use core::ffi::c_void;
+use std::mem::{size_of,zeroed};
 
 
 #[docpos]
