@@ -53,11 +53,11 @@ use docpos::*;
 pub struct Point {pub x:i32, pub y:i32,}
 
 #[derive(Copy,Clone,Debug,PartialOrd,PartialEq,Eq,Ord)] #[docpos]
-pub struct mptr_box { /// 🖰Mouse cursor real bounding box around actualy drawn pixels, not just the containing bitmap rect
+pub struct cur_box { /// 🖰Mouse cursor real bounding box around actualy drawn pixels, not just the containing bitmap rect
   pub ptl:Point ,/// ↖ top-left     corner point coordinates (x,y) in bounding box coordinates (↖ box = 0,0)
   pub pbr:Point ,/// ↘ bottom-right …
                  ///!  position of the cursor's hot spot relative to its top-left pixel
-  pub hs :Point ,
+  pub hs :Option<Point> ,
 }
 
 // todo: add bounds checks
