@@ -29,7 +29,7 @@ use windows::{
 
 use std::path::PathBuf;
 use docpos::*;
-#[docpos] #[derive(Debug)] pub enum CursorColor { /// Similar to DXGI_OUTDUPL_POINTER_SHAPE_TYPE
+#[docpos] #[derive(Debug,PartialEq)] pub enum CursorColor { /// Similar to DXGI_OUTDUPL_POINTER_SHAPE_TYPE
   Mono       	,///  1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝      DIB ⋀AND mask + ⊻XOR mask  	=_MONOCHROME
   Color      	,///  4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB                        	=_COLOR
              	 ///! 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB with mask value @α bits	=_MASKED_COLOR
