@@ -28,9 +28,9 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
   /* BITMAP:
     bmType:i32=0   bmPlanes:u16=№color planes (❗NOT colors)
     bmWidth ¦ bmHeight	:i32        	>0 pixels
-    bmWidthBytes      	:i32        	№𝑏⁄line, must be EVEN as OS assumes that bit values of a bitmap form an array that is word aligned
+    bmWidthBytes      	:i32        	№𝑏⁄line, must be EVEN as OS assumes that bit values of a 𝑏map form an array that is word aligned
     bmBitsPixel       	:u16        	𝑏⁄𝑝
-    bmBits            	:*mut c_void	ptr to bitmap bits'. Its member must be a pointer to an array of character (1-byte) values. ❗null for cursors, use another API to get actual bits*/
+    bmBits            	:*mut c_void	ptr to 𝑏map bits'. Its member must be a pointer to an array of character (1-byte) values. ❗null for cursors, use another API to get actual bits*/
   // Store non-empty pixels closest to each of the 4 sides to get the cursor bounding box
     // !: empty cursor will have nonsensical →0 < ←w, this is not checked    ■•◧□
   let mut most𐎓	= usize::MAX; //pushed ← if a valid pixel found
@@ -38,7 +38,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
   let mut most𖭩	= usize::MAX;
   let mut most𖭪	= 0usize    ;
 
-  match cur𝑡 { // Iterate over mouse cursor bitmap buffer to detect blank pixels and bounding box size
+  match cur𝑡 { // Iterate over mouse cursor 𝑏map buffer to detect blank pixels and bounding box size
   CursorColor::Mono      => { let 𝑐ℕ = 1;  // 1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝, 𝑏mask has both ⋀AND and ⊻XOR masks
     let mut bmAX = BITMAP::default();
     let bmAXsz = unsafe{ GetObjectW(𝑏mask.into(), size_of::<BITMAP>() as _, Some(&mut bmAX as *mut BITMAP as _)) };
@@ -58,25 +58,27 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let ret = unsafe{GetBitmapBits(𝑏mask, cur_buf.len() as i32, cur_buf.as_mut_ptr() as *mut c_void,) };
     if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
 
-    /* Iterate over rows/pixels (px=1𝑏, so iterate BitSlice), calc bound box for ■□◧affected pixels
-      ⋀ 0 1 |←⊻	|Base
-      0|■ □ |Δ🗘	|🖰cursor
-      1|  ◧ |= 	|🖵Screen  only skip ⋀1⊻0 transparent
-        =|Δ¡|🖵  */
+    // 1. Print each mask separately, do box calculations later with both masks applied
     let pad = if h_sz <= 9 {1} else if h_sz <= 99 {2} else {3};
-    if is_s { // print each mask separately, do box calculations later with both masks applied
+    if is_s {
     cur_buf .chunks(row_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
       (    *s.as_deref_mut().unwrap()).push('¦');
       let 𝑖row0 = if 𝑖row < h_sz {𝑖row} else {𝑖row - h_sz}; // reset 𝑖row to begin from 0 for the 2nd half
       if 𝑖row < h_sz {if 𝑖row==0    {*s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1= 0Δ• ———¦\n¦";}
-        row𝑏.chunks(px_sz𝑏).enumerate().for_each(|(𝑗col, px )| { // px:&BitSlice<u8>,  conceptually a [bool] slice
+        row𝑏.chunks(px_sz𝑏).enumerate().for_each(|(𝑗col, px )| { // px:&BitSlice<u8>, conceptually [bool] slice
           (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
       } else         {if 𝑖row==h_sz {*s.as_deref_mut().unwrap() += "——— ⊻XOR Mono◧ bitmask 0= 1Δ• ———¦\n¦";}
         row𝑏.chunks(px_sz𝑏).enumerate().for_each(|(𝑗col, px )| {
           (*s.as_deref_mut().unwrap()).push(if  px[0] {'•'}else{' '})        });//Δ XOR
       }    *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row0:>pad$}\n",pad=pad);
-    });    *s.as_deref_mut().unwrap() += "¦——— ⋀AND + ⊻XOR Mono◧ bitmask 00•=■black 01••□white 11=•◧inverted🖵 ␠transparent🖵 ———¦\n";}
+    });   }
 
+    /* 2. Iterate over rows/pixels (px=1𝑏, so iterate BitSlice), calc bound box for ■□◧affected pixels
+      ⋀ 0 1 |←⊻	|Base
+      0|■ □ |Δ🗘	|🖰cursor
+      1|  ◧ |= 	|🖵Screen  only skip ⋀1⊻0 transparent
+        =|Δ¡|🖵  */
+    if   is_s { *s.as_deref_mut().unwrap() += "¦——— ⋀AND + ⊻XOR Mono◧ bitmask 00•=■black 01••□white 11=•◧inverted🖵 ␠transparent🖵 ———¦\n";}
     for   𝑖row in 0..h_sz { // mask is doubled, and we need to access both to determine pixel state
       if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
       let begA = (wb as usize) *  𝑖row        ; let endA = begA + row_sz;
