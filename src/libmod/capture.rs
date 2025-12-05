@@ -63,21 +63,13 @@ pub struct cur_box { /// 🖰Mouse cursor real bounding box around actualy drawn
 }
 
 // todo: add bounds checks
-pub fn is_px3_black(px: &[u8]) -> bool{
-  if   px[0] == 0
-    && px[1] == 0
-    && px[2] == 0  {true} else {false}
-}
-pub fn is_px3_dark(px: &[u8]) -> bool{
-  if   px[0] < 𝑐dark
-    && px[1] < 𝑐dark
-    && px[2] < 𝑐dark  {true} else {false}
-}
-pub fn is_px3_light(px: &[u8]) -> bool{
-  if   px[0] > 𝑐light
-    && px[1] > 𝑐light
-    && px[2] > 𝑐light  {true} else {false}
-}
+pub fn is_px3_black   (px:&[u8]) -> bool{px[0]==  0    && px[1]==  0    && px[2]==  0   }
+pub fn is_px3_blackish(px:&[u8]) -> bool{px[0]<   4    && px[1]<   4    && px[2]<   4   }
+pub fn is_px3_white   (px:&[u8]) -> bool{px[0]==255    && px[1]==255    && px[2]==255   }
+pub fn is_px3_whiteish(px:&[u8]) -> bool{px[0]> 252    && px[1]> 252    && px[2]> 252   }
+pub fn is_px3_dark    (px:&[u8]) -> bool{px[0]< 𝑐dark  && px[1]< 𝑐dark  && px[2]< 𝑐dark }
+pub fn is_px3_light   (px:&[u8]) -> bool{px[0]> 𝑐light && px[1]> 𝑐light && px[2]> 𝑐light}
+pub fn is_px3_grey    (px:&[u8]) -> bool{px[0]==px[1]  && px[1]==px[2]}
 
 use windows::Win32::Foundation::{POINT,BOOL,TRUE,FALSE,};
 use windows::Win32::Graphics::Gdi::{BITMAP,HGDIOBJ,HBITMAP,
