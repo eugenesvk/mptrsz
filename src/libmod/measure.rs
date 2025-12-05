@@ -129,6 +129,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let 𝑏ppX	= bmX.bmBitsPixel 	; let pxX_sz𝑏	= 𝑏ppX as usize; let pxX_sz = (𝑏ppX / 8) as usize;
     let 𝑏pcX	= 𝑏ppX / 𝑐ℕX;
     let bufX_sz = (wXb * hX) as usize;
+    let 𝑐ℕX_sz	= 𝑐ℕX        as usize;
 
     let mut curX_buf = vec![0u8; bufX_sz];
     let ret = unsafe{GetBitmapBits(cur𝑐, curX_buf.len() as i32, curX_buf.as_mut_ptr() as *mut c_void,) };
