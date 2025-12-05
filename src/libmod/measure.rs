@@ -13,6 +13,7 @@ use windows::Win32::{
 };
 fn print_bits (x:  u8) {for byte in x.to_be_bytes().iter() {print!("{:08b} ", byte);}}
 fn print𝑏_row (r:&[u8]){for x in r {print_bits(*x);}}
+fn print𝑏_slice(r:&BitSlice<u8,Msb0>){for x in r {print!("{}",if *x{1}else{0});}}
 
 #[docpos]
 pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that contains all pixels, based off its ⋀AND and ⊻XOR bitmasks from GetIconInfo.</br>Masks can be of different size depending on the desired effect, e.g., ⋀AND can be empty with all 1s to not overwrite any 🖵pixels, but ⊻XOR can be bigger and invert those pixels with 1s, so still have a visual effect, so the bounding box should be the bigger of the two: 0 ⋀AND.
