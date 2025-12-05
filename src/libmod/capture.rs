@@ -217,9 +217,16 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
             }
             if is_s {(*s.as_deref_mut().unwrap()).push(
               if         px[3] == 𝑐mask_rep { // only two mask values↓
-                      if is_px3_dark( px) {'■'
-                }else if is_px3_light(px) {'□'
-                }else                     {'•'}
+                       // if          px0 == px  {' ' // α stores a mask, not color transparency,…
+                // } else if          px1 == px  {'⎅' // … so ignore it, only check RGB
+                       if is_px3_black   (px) {'█'
+                } else if is_px3_blackish(px) {'▇'
+                } else if is_px3_dark    (px) {'▓'
+                } else if is_px3_white   (px) {'□'
+                } else if is_px3_whiteish(px) {'◻'//▯
+                } else if is_px3_light   (px) {'░'
+                } else if is_px3_grey    (px) {'▒'
+                } else                        {'•'}//◧
               } else  if px[3] == 𝑐mask_xor {
                       if is_px3_black(px) {' '
                   } else                  {'◧'}
