@@ -210,7 +210,8 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
           // if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
           chunk.chunks(  px_sz).enumerate().for_each(|(column, px   )| {
-            if px[3] == 0 { //mask    0: RGB value should replace screen px
+            if px[3] == 𝑐mask_rep || ( //replaced unconditionally
+               px[3] == 𝑐mask_xor && !is_px3_black(px)) { //0 is transparent, so nothing drawn, skip it
               if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
               if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}
             }
