@@ -181,15 +181,41 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
         let pxA = &rowA𝑏[begA..endA];
         let pxX = &rowX [begX..endX];
         let is_draw =
-          if        !pxA[0] { //↓ technically replaces screen px, but it's α=0, so transparent
+          if        !pxA[0] { //↓ technically replaces screen px, but its α=0, so transparent
             if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false
-            } else if       0   == pxX[3]{if is_s{(*s.as_deref_mut().unwrap()).push('α')}; true //technically transparent, does this XOR black from ■pxA or 🖵screen background? todo: test
-            } else if is_px3_dark (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('■')}; true
-            } else if is_px3_light(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('□')}; true
+            // todo: for 24bit cursors, α is always 0, but it doesn't mean anything, the regular color is still applied
+            // } else if       0   == pxX[3]{if is_s{(*s.as_deref_mut().unwrap()).push('α')}; true //technically transparent, does this XOR black from ■pxA or 🖵screen background? todo: test
+            } else if is_px3_black   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; true
+            } else if is_px3_blackish(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▇')}; true
+            } else if is_px3_dark    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▓')}; true
+            } else if is_px3_white   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('□')}; true
+            } else if is_px3_whiteish(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('◻')}; true
+            } else if is_px3_light   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('░')}; true
+            } else if is_px3_grey    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▒')}; true
             } else                         {if is_s {(*s.as_deref_mut().unwrap()).push('•')}; true} //◧
           } else if  pxA[0] { // ◧inverted🖵¦␠transparent🖵¦⊻XORed🖵
             if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false
-            } else if       0   == pxX[3]{if is_s{(*s.as_deref_mut().unwrap()).push('◧')}; true //inverts colors, but not α, is this just ⊻?
+            // todo: for 24bit cursors, α is always 0, but it doesn't mean anything, the result is pixel color, not blank? (so white for grabbing hand)
+            // is this about DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR Value: 0x4
+              // The pointer type is a masked color mouse pointer. A masked color mouse pointer is a 32 bpp ARGB format bitmap with the mask value in the alpha bits. The only allowed mask values are 0 and 0xFF. When the mask value is 0, the RGB value should replace the screen pixel. When the mask value is 0xFF, an XOR operation is performed on the RGB value and the screen pixel; the result replaces the screen pixel.
+            // α=0, so the pixel replaces
+            //
+            } else if       0   == pxX[3]{
+              // if 24bit cursor {
+            if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false
+            } else if is_px3_black   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; true
+            } else if is_px3_blackish(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▇')}; true
+            } else if is_px3_dark    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▓')}; true
+            } else if is_px3_white   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('□')}; true
+            } else if is_px3_whiteish(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('◻')}; true
+            } else if is_px3_light   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('░')}; true
+            } else if is_px3_grey    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▒')}; true
+            } else                         {if is_s {(*s.as_deref_mut().unwrap()).push('•')}; true} //◧
+              // } else {
+            // ↓ technically inverts screen px, but its α=0, so transparent
+            // if is_s{(*s.as_deref_mut().unwrap()).push(' ')}; true //inverts colors, but not α, is this just ⊻?
+              // }
+
             } else if       px1 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push('◧')}; true
             } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('⊻')}; true}
           } else {false}; // should be impossible todo: error here
