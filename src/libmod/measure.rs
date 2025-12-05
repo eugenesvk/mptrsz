@@ -56,7 +56,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let buf_sz = (wb * h) as usize;
 
     if is_s { *s.as_deref_mut().unwrap() += &format!(
-      "↔{w} ↕{h_sz} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (DIB ⋀AND mask + ⊻XOR mask)\n");    }
+      "↔{w} ↕{h_sz} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ}№𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (DIB ⋀AND mask + ⊻XOR mask)\n");    }
     let mut cur_buf = vec![0u8; buf_sz];
     let ret = unsafe{GetBitmapBits(𝑏mask, cur_buf.len() as i32, cur_buf.as_mut_ptr() as *mut c_void,) };
     if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
@@ -178,7 +178,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
         =|Δ¡|🖵  */
     if   is_s { *s.as_deref_mut().unwrap() += "¦——— ⋀AND Mono◧ 𝑏mask + ⊻XOR Color 0𝑐_••→■dark¦□light¦•other 1𝑐_␠•_◧inverted🖵¦␠transparent🖵¦⊻XORed🖵 ———¦\n";}
 
-    for   𝑖row in 0..hX_sz { // mask is doubled, and we need to access both to determine pixel state
+    for   𝑖row in 0..hX_sz { // both masks ⋀+⊻ are needed to determine pixel state
       if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
       let begA = (wAb as usize) * 𝑖row; let endA = begA + rowA_sz;
       let begX = (wXb as usize) * 𝑖row; let endX = begX + rowX_sz;
@@ -203,9 +203,9 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
             } else if is_px3_light   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('░')}; true
             } else if is_px3_grey    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▒')}; true
             } else                         {if is_s {(*s.as_deref_mut().unwrap()).push('•')}; true} //◧
-          } else if  pxA[0] { // ◧inverted🖵¦␠transparent🖵¦⊻XORed🖵
+          } else if  pxA[0] { //base=screen px   ◧inverted🖵¦␠transparent🖵¦⊻XORed🖵
             if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false
-            // todo: for 24bit cursors, α is always 0, but it doesn't mean anything, the result is pixel color, not blank? (so white for grabbing hand)
+            // 24bit cursors α is a mask, not transparency, and signals always 0, but it doesn't mean anything, the result is pixel color, not blank? (so white for grabbing hand)
             // is this about DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR Value: 0x4
               // The pointer type is a masked color mouse pointer. A masked color mouse pointer is a 32 bpp ARGB format bitmap with the mask value in the alpha bits. The only allowed mask values are 0 and 0xFF. When the mask value is 0, the RGB value should replace the screen pixel. When the mask value is 0xFF, an XOR operation is performed on the RGB value and the screen pixel; the result replaces the screen pixel.
             // α=0, so the pixel replaces
@@ -249,7 +249,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
 
     let pad = if h_sz <= 9 {1} else if h_sz <= 99 {2} else {3};
     if is_s { *s.as_deref_mut().unwrap() += &format!(
-      "↔{w} ↕{h} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ} №𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)\n");    }
+      "↔{w} ↕{h} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ}№𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)\n");    }
     let mut cur_buf = vec![0u8; buf_sz];
     let ret = unsafe{GetBitmapBits(cur𝑐, cur_buf.len() as i32, cur_buf.as_mut_ptr() as *mut c_void,) };
     if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
@@ -261,8 +261,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
           /**/        if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}  }
         if is_s {(*s.as_deref_mut().unwrap()).push(
           if              px0 == px  {' '
-          } else if is_px3_dark (px) {'■'
-          } else if is_px3_light(px) {'□'
+          } else if is_px3_dark (px) {'▓'//■
+          } else if is_px3_light(px) {'░'//❏
           } else                     {'•'})} //◧
       });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     });
