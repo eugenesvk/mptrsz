@@ -176,8 +176,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       let rowX = &curX_buf[begX..endX];
 
       for 𝑗col in 0..wX_sz {
-        let begA = 𝑗col; let endA = begA + (𝑐ℕA as usize);
-        let begX = 𝑗col; let endX = begX + (𝑐ℕX as usize);
+        let begA = 𝑗col         ; let endA = begA + (𝑐ℕA as usize);
+        let begX = 𝑗col * 𝑐ℕX_sz; let endX = begX + 𝑐ℕX_sz;
         let pxA = &rowA𝑏[begA..endA];
         let pxX = &rowX [begX..endX];
         let is_draw =
