@@ -34,7 +34,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     bmBitsPixel       	:u16        	𝑏⁄𝑝
     bmBits            	:*mut c_void	ptr to 𝑏map bits'. Its member must be a pointer to an array of character (1-byte) values. ❗null for cursors, use another API to get actual bits*/
   // Store non-empty pixels closest to each of the 4 sides to get the cursor bounding box
-    // !: empty cursor will have nonsensical →0 < ←w, this is not checked    ■•◧□
+    // !: empty cursor will have nonsensical →0 < ←w, this is not checked    ■•◧□ █▓░ ⬛■▣▩▦▧  ❏
   let mut most𐎓	= usize::MAX; //pushed ← if a valid pixel found
   let mut most𑁱	= 0usize    ; //pushed → …
   let mut most𖭩	= usize::MAX;
