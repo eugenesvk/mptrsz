@@ -15,8 +15,8 @@ pub const px1: [u8;4] = [255,255,255,255];
 pub const px_1: [u8;4] = [254,254,254,254];
 pub const 𝑐mask_rep:u8 =   0; //         RGB value                  replaces screen pixel
 pub const 𝑐mask_xor:u8 = 255; // ⊻XOR of RGB value & screen pixel → replaces screen pixel
-pub const 𝑐dark    :u8 =  50;
-pub const 𝑐light   :u8 = 150;
+pub const 𝑐dark    :u8 =  85; //≈ bottom 1/3 of 255
+pub const 𝑐light   :u8 = 170; //≈ top    1/3 of 255
 
 use std::mem;
 
