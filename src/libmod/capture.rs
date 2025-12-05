@@ -189,12 +189,12 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
               if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
               if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}
             }
-            if is_s {*s.as_deref_mut().unwrap() +=
-              if px == px0               {" "
-              } else if is_px3_dark( px) {"■"
-              } else if is_px3_light(px) {"□"
-              } else                     {"◧"}
-            }
+            if is_s {(*s.as_deref_mut().unwrap()).push(
+              if px == px0               {' '
+              } else if is_px3_dark( px) {'■'
+              } else if is_px3_light(px) {'□'
+              } else                     {'◧'}
+            )}
           });
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
         });
