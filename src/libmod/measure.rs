@@ -153,9 +153,18 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     curX_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {(*s.as_deref_mut().unwrap()).push('¦');
       row   .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {(*s.as_deref_mut().unwrap()).push(
         if              px0 == px  {' '
-        } else if       0   == px[3] {'α'  //technically transparent, but •mark them anyway since when XORed with screen α the 1,2,3 colors still have an effect? todo: test
-        } else if is_px3_dark (px) {'■'
-        } else if is_px3_light(px) {'□'
+        } else if       px1 == px  {'⎅'
+        } else if       px_1== px  {'⎅' //todo: why are some 254 instead of all 255? All White in editor
+        // } else if       0   == px[3]{'α' //α-transparent, but ■□•mark since XORing with ⋀0 will still result in color changes, same with ⋀1 and screen α
+        // todo: compare 24b with 32b and how to deal with the fact that 24b has no alpha
+        // is there a guaranteed way to detect 24b? if all α=0
+        } else if is_px3_black   (px) {'█'
+        } else if is_px3_blackish(px) {'▇'
+        } else if is_px3_dark    (px) {'▓'
+        } else if is_px3_white   (px) {'□'
+        } else if is_px3_whiteish(px) {'◻'//▯
+        } else if is_px3_light   (px) {'░'
+        } else if is_px3_grey    (px) {'▒'
         } else                     {'•'}) //◧
       });*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);
     });  }
