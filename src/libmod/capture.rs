@@ -215,16 +215,16 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
               if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
               if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}
             }
-            if is_s {*s.as_deref_mut().unwrap() +=
+            if is_s {(*s.as_deref_mut().unwrap()).push(
               if         px[3] == 𝑐mask_rep { // only two mask values↓
-                      if is_px3_dark( px) {"■"
-                }else if is_px3_light(px) {"□"
-                }else                     {"•"}
+                      if is_px3_dark( px) {'■'
+                }else if is_px3_light(px) {'□'
+                }else                     {'•'}
               } else  if px[3] == 𝑐mask_xor {
-                      if is_px3_black(px) {" "
-                  } else                  {"◧"}
-              } else                      {"ℯ"} //should be invalid as only 2 mask values are allowed
-            }
+                      if is_px3_black(px) {' '
+                  } else                  {'◧'}
+              } else                      {'ℯ'} //should be invalid as only 2 mask values are allowed
+            )}
           });
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
         });
