@@ -151,27 +151,27 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {𝑏pc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏 {hmask}hmask\n");}
         // scan_line_test = 90;
 
-        ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
+        ptr_buff.chunks(row_sz_b).enumerate().for_each(|(𝑖row, chunk)| {
           // if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
           let chunk𝑏 = BitSlice::<_,Msb0>::from_slice(&chunk);
-          if row < hmask {if row==0     {if is_s {*s.as_deref_mut().unwrap() += "———⋀AND bitmask———";}}
-            chunk𝑏.chunks(𝑏pc     ).enumerate().for_each(|(column, px   )| { // px: &BitSlice<u8>
+          if 𝑖row < hmask {if 𝑖row==0     {if is_s {*s.as_deref_mut().unwrap() += "———⋀AND bitmask———";}}
+            chunk𝑏.chunks(𝑏pc   ).enumerate().for_each(|(𝑗col, px   )| { // px: &BitSlice<u8>
               if   px[0] == false {
-                if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
-                if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}  }
+                if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
+                if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}  }
               if is_s {*s.as_deref_mut().unwrap() += if px[0]==false {"■"}else{" "}}
             });
-          } else         {if row==hmask {if is_s {*s.as_deref_mut().unwrap() += "———⊻XOR bitmask———";}}
-            let hrow = row - hmask;
-            chunk𝑏.chunks(𝑏pc     ).enumerate().for_each(|(column, px   )| { // px: &BitSlice<u8>
+          } else          {if 𝑖row==hmask {if is_s {*s.as_deref_mut().unwrap() += "———⊻XOR bitmask———";}}
+            let hrow = 𝑖row - hmask;
+            chunk𝑏.chunks(𝑏pc   ).enumerate().for_each(|(𝑗col, px   )| { // px: &BitSlice<u8>
               if   px[0] == true {
-                if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
+                if 𝑗col < most𐎓  	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱    	{most𑁱 = 𝑗col;}
                 if hrow   < most𖭩	{most𖭩 = hrow  ;} if hrow   > most𖭪	{most𖭪 = hrow  ;}  }
               if is_s {*s.as_deref_mut().unwrap() += if px[0]==true {"■"}else{" "}}
             });
           }
-          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
+          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row}\n");}
         });
 
       } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR        { //4c·8𝑏pc=32𝑏pp BGRα DIB
@@ -181,13 +181,13 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {𝑏pc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
         // scan_line_test = 54;
 
-        ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
-          // if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
+        ptr_buff.chunks(row_sz_b).enumerate().for_each(|(𝑖row, chunk)| {
+          // if is_s {if 𝑖row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
-          chunk.chunks(  px_sz).enumerate().for_each(|(column, px   )| {
+          chunk.chunks(  px_sz  ).enumerate().for_each(|(𝑗col, px   )| {
             if px != px0 {
-              if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
-              if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}
+              if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
+              if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}
             }
             if is_s {(*s.as_deref_mut().unwrap()).push(
               if px == px0               {' '
@@ -196,7 +196,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
               } else                     {'◧'}
             )}
           });
-          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
+          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row}\n");}
         });
       } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR { // 4c·8𝑏pc=32𝑏pp BGRα DIB with mask value in alpha bits
         // ■~black □~white •solid color replacement ◧result depends on bg, ⊻XOR (255,255,255,255 inverts colors?)
@@ -206,14 +206,14 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {𝑏pc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
         // scan_line_test = 35;
 
-        ptr_buff.chunks(row_sz_b).enumerate().for_each(|(row   , chunk)| {
-          // if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
+        ptr_buff.chunks(row_sz_b).enumerate().for_each(|(𝑖row, chunk)| {
+          // if is_s {if 𝑖row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
-          chunk.chunks(  px_sz).enumerate().for_each(|(column, px   )| {
+          chunk.chunks(  px_sz  ).enumerate().for_each(|(𝑗col, px   )| {
             if px[3] == 𝑐mask_rep || ( //replaced unconditionally
                px[3] == 𝑐mask_xor && !is_px3_black(px)) { //0 is transparent, so nothing drawn, skip it
-              if column < most𐎓	{most𐎓 = column;} if column > most𑁱	{most𑁱 = column;}
-              if row    < most𖭩	{most𖭩 = row   ;} if row    > most𖭪	{most𖭪 = row   ;}
+              if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
+              if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}
             }
             if is_s {(*s.as_deref_mut().unwrap()).push(
               if         px[3] == 𝑐mask_rep { // only two mask values↓
@@ -226,7 +226,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
               } else                      {'ℯ'} //should be invalid as only 2 mask values are allowed
             )}
           });
-          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{row}\n");}
+          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row}\n");}
         });
       }
       // todo: replace with unsafe pointer arithmetic?
