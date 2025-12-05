@@ -112,7 +112,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         let ptype = match ps_type {
           DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME  	=> "MonoChrome   (1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝 DIB ⋀AND mask + ⊻XOR mask)",
           DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR       	=> "Color        (4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB)",
-          DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR	=> "Masked_Color (4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB) with mask value @α bits",
+          DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR	=> "ColorMasked  (4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB) with mask value @α bits",
           _                                           	=> "?",
           // only two mask values:
             //    0: RGB value should replace screen pixel
