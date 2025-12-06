@@ -1,3 +1,4 @@
+use helperes::alias::type_name;
 use rusty_duplication::{FrameInfoExt, Scanner, VecCapturer, Monitor};
 use std::{fs::File, io::Write, thread, time::Duration};
 use bitvec::prelude::*; // to iterate over individual pixels packed in a byte
@@ -31,12 +32,36 @@ use windows::{
 
 use std::path::PathBuf;
 use docpos::*;
-#[docpos] #[derive(Debug,PartialEq)] pub enum CursorColor { /// Type of cursor color/mask
-  Mono       	,///  1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝      DIB ⋀AND mask + ⊻XOR mask
-  ColorMasked	,///  4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB ⋀AND mask + ⊻XOR mask
-             	 ///! 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB no masks (?todo)
+#[docpos] #[derive(PartialEq)] pub enum CursorColor { /// Type of cursor color/mask
+  Mono       	,///   1𝑐   ·1𝑏⁄𝑐= 1𝑏⁄𝑝      DIB, ⋀AND + ⊻XOR 𝑏mask
+  ColorMasked	,///  (3𝑐+α)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 4color 𝑏map
+             	 ///! (3𝑐+🆭)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 3color 𝑏map + 🆭=0=⋀AND ¦🆭=255=⊻XOR 𝑏mask  </br>
+             	 ///  🆭 0: RGB value should replace screen pixel  </br>
+             	 ///  🆭FF: ⊻XOR is performed on RGB value and screen pixel and replaces it
   Color      	,
 }
+use std::fmt; //{disp} {dbg:?} {disp_alt:#} {dbg_alt:?#}
+impl fmt::Display for CursorColor {fn fmt(&self, f:&mut fmt::Formatter) -> fmt::Result {
+  if !f.alternate() { let _ =    write!(f,"🖰 𝐶:"); match self {
+    CursorColor::Mono       	=> {write!(f,"𝟙" )},
+    CursorColor::Color      	=> {write!(f,"𝟛α")},
+    CursorColor::ColorMasked	=> {write!(f,"𝟛🆭")},   }
+  } else /*#*/      { let _ =     write!(f,"🖰 𝐶:"); match self {
+    CursorColor::Mono       	=> {write!(f,"Mono"  )},
+    CursorColor::Color      	=> {write!(f,"All"  )},
+    CursorColor::ColorMasked	=> {write!(f,"Masked")},   }
+}}   }
+impl fmt::Debug   for CursorColor {fn fmt(&self, f:&mut fmt::Formatter) -> fmt::Result {
+  if !f.alternate() {let _ = fmt::write(f,format_args!("{}::",type_name::<CursorColor>())); match self {
+    CursorColor::Mono       	=> {write!(f,"𝟙" )},
+    CursorColor::Color      	=> {write!(f,"𝟛α")},
+    CursorColor::ColorMasked	=> {write!(f,"𝟛🆭")},   }
+  } else /*?#*/     {                                                                       match self {
+    CursorColor::Mono       	=> {write!(f," 1𝑐   ·1𝑏⁄𝑐= 1𝑏⁄𝑝      DIB, ⋀AND + ⊻XOR 𝑏mask"  )},
+    CursorColor::Color      	=> {write!(f,"(3𝑐+α)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 4color 𝑏map"   )},
+    CursorColor::ColorMasked	=> {write!(f,"(3𝑐+🆭)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 3color 𝑏map + 🆭=0=⋀AND ¦🆭=255=⊻XOR 𝑏mask")},   }
+}} }
+
 #[docpos] #[derive(Debug)] pub enum Mask { /// Type of pixel mask with the following (combined) effects:
   ///|⋀|0|1 |←⊻	|Base   	|
   ///|-|-|--|--	|--     	|
