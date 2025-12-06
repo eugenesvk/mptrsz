@@ -187,7 +187,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       // Iterate over mouse pointer buffer to detect blank pixels and true box size
 
       if        ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME   { //1c·1𝑏pc=1𝑏pp DIB ⋀AND mask + ⊻XOR mask (⋅2))
-        // ■black □white
+        // █black □white
         let hmask = (h/2) as usize; // split between ⋀AND and ⊻XOR masks
         let 𝑐ℕ=1; let 𝑏pc=1; let px_sz = 𝑐ℕ * 𝑏pc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
@@ -203,7 +203,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
               if   px[0] == false {
                 if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
                 if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}  }
-              if is_s {*s.as_deref_mut().unwrap() += if px[0]==false {"■"}else{" "}}
+              if is_s {(*s.as_deref_mut().unwrap()).push(if px[0]==false {'█'}else{' '})}
             });
           } else          {if 𝑖row==hmask {if is_s {*s.as_deref_mut().unwrap() += "———⊻XOR bitmask———";}}
             let hrow = 𝑖row - hmask;
@@ -211,14 +211,14 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
               if   px[0] == true {
                 if 𝑗col < most𐎓  	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱    	{most𑁱 = 𝑗col;}
                 if hrow   < most𖭩	{most𖭩 = hrow  ;} if hrow   > most𖭪	{most𖭪 = hrow  ;}  }
-              if is_s {*s.as_deref_mut().unwrap() += if px[0]==true {"■"}else{" "}}
+              if is_s {(*s.as_deref_mut().unwrap()).push(if px[0]==true  {'█'}else{' '})}
             });
           }
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row}\n");}
         });
 
       } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR        { //4c·8𝑏pc=32𝑏pp BGRα DIB
-        // ■~black □~white ◧other color (visually works best for greys)
+        // █black ■~black □~white ◧other color (visually works best for greys)
         let 𝑐ℕ=4; let 𝑏pc=8; let px_sz = 𝑐ℕ * 𝑏pc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
         if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {𝑏pc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
