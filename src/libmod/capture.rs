@@ -32,12 +32,39 @@ use windows::{
 
 use std::path::PathBuf;
 use docpos::*;
-#[docpos] #[derive(PartialEq)] pub enum CursorColor { /// Type of cursor color/mask
+#[docpos] #[derive(PartialEq)] pub enum CursorColor { /// Type of cursor color/mask <br>
+  /// Example of mask data for various cursor types:
+  /// |Color        | ⋀   | ⋀   | ⊻     | ⊻     | ⋀⊻     | ⋀⊻    |
+  /// |-----------  |---- |---- |------ |----   |------- |-----  |
+  /// |             | 24𝑏 | 32𝑏 |24𝑏    | 32𝑏   |dxCM    |dxC    |
+  /// |█ Black      | •0  | •0  |␠0  α0 |█0 α1₈ |█0  🆭0  |█0 α1₈ |
+  /// |□ White      | •0  | •0  |□1₈ α0 |       |□1₈ 🆭0  |□1₈α1₈ |
+  /// |¡ Inverted   | ␠1  | ✗   |□1₈ α0 | ✗     |□1₈ 🆭1₈ | ✗     |
+  /// |α-Grey       |  ✗  | •0  | ✗     |       |•𝑐  🆭0  |▓0 αAA |
+  /// |␠Transparent |     |     |       |       | 0  🆭1₈ | 0 α0  |
+  ///
+  /// - `•0` means printed output is `•` and underlying mask data is `0`
+  ///   - `1₈` is 1𝑏⋅8 times = `0b11111111` = `0xFF` = `255`
+  /// - Color is always in the native BGRα or `0xBBGGRRαα` 32𝑏 data format
+  /// - `24𝑏`: TrueColor
+  ///   - with no `α`-transparency (so `α`-channel is all `0`s)
+  ///   - with `α`-channel acting as a mask to invert screen colors in [CursorColor::ColorMasked]
+  /// - `32𝑏`: TrueColor +  `α`<br>
+  ///   ⊻ mask sometimes stores pure black with non-pure α: `0₃,255`, `0₃,253`, `0₃,253`, depending on an app<br>
+  ///  (e.g., Sib Cursor Editor does that while RealWorld Cursor Editor seems to have `255` all the time)
+  ///   - does __NOT__ support Inverted colors, [OS limitation](rw-designer.com/forum/1348)
+  ///
+  /// DirectX Duplication interface:
+  ///   - `dxC`  `DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR`
+  ///   - `dxCM` `DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR`
+  ///     - `🆭` is a mask in `α`-channel, replaces α as transparency
+  ///     - `α-Grey` would be a regular color with "transparency" "blended", so not actually transparent
+  ///
   Mono       	,///   1𝑐   ·1𝑏⁄𝑐= 1𝑏⁄𝑝      DIB, ⋀AND + ⊻XOR 𝑏mask
   ColorMasked	,///  (3𝑐+α)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 4color 𝑏map
-             	 ///! (3𝑐+🆭)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 3color 𝑏map + 🆭=0=⋀AND ¦🆭=255=⊻XOR 𝑏mask  </br>
-             	 ///  🆭 0: RGB value should replace screen pixel  </br>
-             	 ///  🆭FF: ⊻XOR is performed on RGB value and screen pixel and replaces it
+             	 ///! (3𝑐+🆭)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 3color 𝑏map + 🆭=0=⋀AND ¦🆭=255=⊻XOR 𝑏mask  <br>
+             	 ///  🆭 0: RGB value replaces the screen pixel  <br>
+             	 ///  🆭FF: ⊻XOR is performed on the RGB value and the screen pixel to replace it
   Color      	,
 }
 use std::fmt; //{disp} {dbg:?} {disp_alt:#} {dbg_alt:?#}
@@ -62,47 +89,24 @@ impl fmt::Debug   for CursorColor {fn fmt(&self, f:&mut fmt::Formatter) -> fmt::
     CursorColor::ColorMasked	=> {write!(f,"(3𝑐+🆭)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 3color 𝑏map + 🆭=0=⋀AND ¦🆭=255=⊻XOR 𝑏mask")},   }
 }} }
 
-#[docpos] #[derive(Debug)] pub enum Mask { /// Type of pixel mask with the following (combined) effects:
-  ///|⋀|0|1 |←⊻	|Base   	|
-  ///|-|-|--|--	|--     	|
-  ///|0|■|□ |Δ🗘	|🖰cursor	|
-  ///|1| |◧ |= 	|🖵Screen	|
-  ///| |=|Δ¡|🖵 	|       	|
-  ///</br> ■Black □White ␠Transparent ◧Inverted   base: Δ🗘 replace  Δ¡ invert
-  ///</br> 🖵= or ␠ screen pixel unchanged (1AND 0XOR)
-  ///</br> 🖵Δ or • screen pixel   changed (0AND 1XOR)
+#[docpos] #[derive(Debug)] pub enum Mask { /// Type of pixel mask with the following (combined) effects:<br>
+  /// (`⋀` AND mask, `⊻` OR mask)<br>
+  /// |⋀|0|1 |←⊻ |Base    |
+  /// |-|-|--|-- |------- |
+  /// |0|█|□ |Δ🗘|🖰cursor |
+  /// |1| |◧ |=  |🖵screen|
+  /// | |=|Δ¡|   |        |
   ///
+  /// - `█`Black `□`White `␠`Transparent `◧`Inverted
+  /// - mask effect on a pixel:
+  ///   - `=` unchanged (`1`⋀AND `0`⊻XOR)
+  ///   - `Δ` changed   (`0`⋀AND `1`⊻XOR):
+  ///     - `Δ🗘` replaced (⋀AND)
+  ///     - `Δ¡` inverted (⊻XOR)
   ///
-  ///Type    color α
-  // me confused:
-    // source: 1    1  some fully opaque color
-    // XOR   : 0    1  color mask I get for black  █0 α1₈  all colors are 0,0,0, but α is 255
-    // result: 1    0  same color, but now fully transparent???
-  // resolved? alpha channel isn't part of the AND/XOR masking:
-    // source: 1    1  some fully opaque color
-    // XOR   : 0       color mask I get for black  █0 α1₈  all colors are 0,0,0, but α is 255
-    // result: 1    1  same color, with the new α1₈ (which was the same as old)
-  ///Example of various cursor type values:</br>
-  ///|Color      	| ⋀  	| ⋀  	| ⊻     	| ⊻    	| ⋀⊻    	| ⋀⊻   	|
-  ///|-----------	|----	|----	|-------	|----  	|-------	|----- 	|
-  ///|           	| 24𝑏	| 32𝑏	|24𝑏    	| 32𝑏  	|dxCM   	|dxC   	|
-  ///|Black      	| •0 	| •0 	|␠0  α0 	|█0 α1₈	|█0  μ0 	|█0 α1₈	|
-  ///|White      	| •0 	| •0 	|□1₈ α0 	|      	|□1₈ μ0 	|□1₈α1₈	|
-  ///|Inverted   	| ␠1 	| ✗  	|□1₈ α0 	| ✗    	|□1₈ μ1₈	| ✗    	|
-  ///|αGrey B66% 	|  ✗ 	| •0 	| ✗     	|      	|•𝑐  μ0 	|▓0 αAA	|
-  ///|Transparent	|    	|    	|       	|      	| 0  μ1₈	| 0 α0 	|
-  ///24b: TrueCol no α (but can be MaskedColor with α acting as a mask, so will h ave 32b data)
-  ///32b: TrueCol +  α: ⊻ sometimes pure black has diff α: 0₃,255, 0₃,253, 0₃,253, but this is Sib Cursor Editor's fault, RealWorld Cursor Editor has 255 all the time
-  ///1₈ = 8⋅1 = 0b11111111 = 0xFF = 255
-  /// color in native BGRα or 0xBBGGRRαα
-  /// DirectX Duplication interface
-  ///   - dxC  DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR
-  ///   - dxCM DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR
-  ///     - μ is a mask in α-channel, replaces α as transparency, 0replace 0xFF XOR
-  ///     - αGrey B66% would be a regular color with "transparency" blended, but not actually transparent
-  /// 32b with α doesn't support Inverted colors, OS limitation: rw-designer.com/forum/1348
-  And,/// ⋀AND mask
-    ///!  ⊻XOR mask
+  /// For example, `0` ⋀AND mask `Δ🗘` replaces the screen pixel with the `0` black cursor pixel (`0 ⋀ x = 0`), which will then either be `=` unchanged with `0` ⊻XOR or `Δ¡` inverted with `1` ⊻XOR
+  And,/// ⋀ AND mask
+    ///!  ⊻ XOR mask
   Xor,
 }
 
