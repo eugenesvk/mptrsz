@@ -191,10 +191,14 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
         let pxA = &rowA𝑏[begA..endA];
         let pxX = &rowX [begX..endX];
         let is_draw =
-          if        !pxA[0] { //↓ technically replaces screen px, but its α=0, so transparent
-            if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false
-            // todo: for 24bit cursors, α is always 0, but it doesn't mean anything, the regular color is still applied
-            // } else if       0   == pxX[3]{if is_s{(*s.as_deref_mut().unwrap()).push('α')}; true //technically transparent, does this XOR black from ■pxA or 🖵screen background? todo: test
+          if        !pxA[0] { //base=cursor px
+            if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; false
+              //↑1a technically replaces screen px, but its α=0, so transparent ' '
+                // but a transparent pixel would have pxA=1, so wouldn't appear here
+              //↑1b unless its ColorMasked, in which case 𝑎 is not transparency, but a flag for RGB=0,0,0'█' to replace screen
+            // } else if       0   == pxX[3]{if is_s{(*s.as_deref_mut().unwrap()).push('α')}; true
+              //↑2a again, real transparent XOR would have pxA=1, so wouldn't appear here 'α'
+              //↑2b for ColorMasked α=0 is a flag to replace with px RGB '•', not α-transparent
             } else if is_px3_black   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; true
             } else if is_px3_blackish(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▇')}; true
             } else if is_px3_dark    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▓')}; true
