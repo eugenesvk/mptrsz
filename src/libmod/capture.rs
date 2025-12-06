@@ -171,6 +171,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         // position of the cursor's hot spot relative to its upper-left pixel
         // app doesn't use hot spot when it determines where to draw the cursor shape
       let ps_type = DXGI_OUTDUPL_POINTER_SHAPE_TYPE(ptr_shape.Type as i32);
+      let pad = if h <= 9 {1} else if h <= 99 {2} else {3};
 
       // let mut scan_line_test     = 0;
       // let mut chunk_test:Vec<u8> = vec![];
@@ -193,6 +194,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       if        ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME   { //1c·1𝑏pc=1𝑏pp DIB ⋀AND mask + ⊻XOR mask (⋅2))
         // █black □white
         let hmask = (h/2) as usize; // split between ⋀AND and ⊻XOR masks
+        let pad = if hmask <= 9 {1} else if hmask <= 99 {2} else {3};
         let 𝑐ℕ=1; let 𝑏pc=1; let px_sz = 𝑐ℕ * 𝑏pc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
         if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {𝑏pc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏 {hmask}hmask\n");}
@@ -251,7 +253,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
               } else                        {'•'}//◧
             )}
           });
-          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row}\n");}
+          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
         });
       } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR { // 4c·8𝑏pc=32𝑏pp BGRα DIB with mask value in alpha bits
         // ■~black □~white •solid color replacement ◧result depends on bg, ⊻XOR (255,255,255,255 inverts colors?)
@@ -288,7 +290,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
               } else                      {'ℯ'} //should be invalid as only 2 mask values are allowed
             )}
           });
-          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row}\n");}
+          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
         });
       }
       // todo: replace with unsafe pointer arithmetic?
@@ -305,7 +307,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
           } else    if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR	{CursorColor::ColorMasked
           } else                                                              	{CursorColor::Color};
         *s.as_deref_mut().unwrap() += &format!("{}\n{}\n\
-          {w} {h}  {hot_x} {hot_y}  {}b  {wb}  {mcur𝑡:#?}"
+          {w} {h}  {hot_x} {hot_y}  {}b  {wb} {mcur𝑡} {mcur𝑡:#?}"
           ,"       Hotspot Bytes B Type"
           ," ↔   ↕  x  y   Size  ↔              №𝑐 𝑏⁄𝑐 𝑏⁄𝑝", ptr_buff.len());
       }
