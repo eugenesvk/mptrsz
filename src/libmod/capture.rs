@@ -233,10 +233,18 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
               if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}
             }
             if is_s {(*s.as_deref_mut().unwrap()).push(
-              if px == px0               {' '
-              } else if is_px3_dark( px) {'■'
-              } else if is_px3_light(px) {'□'
-              } else                     {'◧'}
+              if                 px0 == px  {' '
+              } else if          px1 == px  {'⎅'
+              } else if is_px4_black   (px) {'█'
+              } else if is_px4_blackish(px) {'▇'
+              } else if is_px4_grey_d  (px) {'▓'
+              } else if is_px4_grey_l  (px) {'▒'
+              } else if is_px3_dark    (px) {'▓'
+              } else if is_px3_white   (px) {'□'
+              } else if is_px3_whiteish(px) {'◻'//▯
+              } else if is_px3_light   (px) {'░'
+              } else if is_px3_grey    (px) {'▒'
+              } else                        {'•'}//◧
             )}
           });
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row}\n");}
