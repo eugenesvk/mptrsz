@@ -46,6 +46,36 @@ use docpos::*;
   ///</br> ■Black □White ␠Transparent ◧Inverted   base: Δ🗘 replace  Δ¡ invert
   ///</br> 🖵= or ␠ screen pixel unchanged (1AND 0XOR)
   ///</br> 🖵Δ or • screen pixel   changed (0AND 1XOR)
+  ///
+  ///
+  ///Type    color α
+  // me confused:
+    // source: 1    1  some fully opaque color
+    // XOR   : 0    1  color mask I get for black  █0 α1₈  all colors are 0,0,0, but α is 255
+    // result: 1    0  same color, but now fully transparent???
+  // resolved? alpha channel isn't part of the AND/XOR masking:
+    // source: 1    1  some fully opaque color
+    // XOR   : 0       color mask I get for black  █0 α1₈  all colors are 0,0,0, but α is 255
+    // result: 1    1  same color, with the new α1₈ (which was the same as old)
+  ///Example of various cursor type values:</br>
+  ///|Color      	| ⋀  	| ⋀  	| ⊻     	| ⊻    	| ⋀⊻    	| ⋀⊻   	|
+  ///|-----------	|----	|----	|-------	|----  	|-------	|----- 	|
+  ///|           	| 24𝑏	| 32𝑏	|24𝑏    	| 32𝑏  	|dxCM   	|dxC   	|
+  ///|Black      	| •0 	| •0 	|␠0  α0 	|█0 α1₈	|█0  μ0 	|█0 α1₈	|
+  ///|White      	| •0 	| •0 	|□1₈ α0 	|      	|□1₈ μ0 	|□1₈α1₈	|
+  ///|Inverted   	| ␠1 	| ✗  	|□1₈ α0 	| ✗    	|□1₈ μ1₈	| ✗    	|
+  ///|αGrey B66% 	|  ✗ 	| •0 	| ✗     	|      	|•𝑐  μ0 	|▓0 αAA	|
+  ///|Transparent	|    	|    	|       	|      	| 0  μ1₈	| 0 α0 	|
+  ///24b: TrueCol no α (but can be MaskedColor with α acting as a mask, so will h ave 32b data)
+  ///32b: TrueCol +  α: ⊻ sometimes pure black has diff α: 0₃,255, 0₃,253, 0₃,253, but this is Sib Cursor Editor's fault, RealWorld Cursor Editor has 255 all the time
+  ///1₈ = 8⋅1 = 0b11111111 = 0xFF = 255
+  /// color in native BGRα or 0xBBGGRRαα
+  /// DirectX Duplication interface
+  ///   - dxC  DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR
+  ///   - dxCM DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR
+  ///     - μ is a mask in α-channel, replaces α as transparency, 0replace 0xFF XOR
+  ///     - αGrey B66% would be a regular color with "transparency" blended, but not actually transparent
+  /// 32b with α doesn't support Inverted colors, OS limitation: rw-designer.com/forum/1348
   And,/// ⋀AND mask
     ///!  ⊻XOR mask
   Xor,
