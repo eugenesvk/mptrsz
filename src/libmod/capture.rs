@@ -167,22 +167,6 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         // position of the cursor's hot spot relative to its upper-left pixel
         // app doesn't use hot spot when it determines where to draw the cursor shape
       let ps_type = DXGI_OUTDUPL_POINTER_SHAPE_TYPE(ptr_shape.Type as i32);
-      if is_s {
-        let ptype = match ps_type {
-          DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME  	=> "MonoChrome   (1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝 DIB ⋀AND mask + ⊻XOR mask)",
-          DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR       	=> "Color        (4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB)",
-          DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR	=> "ColorMasked  (4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB) with mask value @α bits",
-          _                                           	=> "?",
-          // only two mask values:
-            //    0: RGB value should replace screen pixel
-            // 0xFF: ⊻XOR is performed on RGB value and screen pixel; result replaces the screen pixel
-        };
-        *s.as_deref_mut().unwrap() += &format!("{}\n{}\n\
-          {w} {h}  {hot_x} {hot_y}  {}b  {wb}  {ptype}"
-          ,"       Hotspot Bytes B Type"
-          ," ↔   ↕  x  y   Size  ↔              №𝑐 𝑏⁄𝑐 𝑏⁄𝑝", ptr_buff.len());
-      }
-
 
       // let mut scan_line_test     = 0;
       // let mut chunk_test:Vec<u8> = vec![];
@@ -300,9 +284,19 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       // let    stop = src.add(h as usize);
       // while src != stop {src = src.add(1);}
       // }
-      // if is_s {*s.as_deref_mut().unwrap() += &format!("№{scan_line_test} = chunk {chunk_test:?}\n");}
-      if is_s {*s.as_deref_mut().unwrap() += &format!("←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} true bounding box (non0 pixels, 0-based coords)\n",
-        most𑁱-most𐎓+1, most𖭪-most𖭩+1);}
+      if is_s {
+        // *s.as_deref_mut().unwrap() += &format!("№{scan_line_test} = chunk {chunk_test:?}\n");
+        *s.as_deref_mut().unwrap() += &format!("←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} true bounding box (non0 pixels, 0-based coords )\n",
+        most𑁱-most𐎓+1, most𖭪-most𖭩+1);
+        let mcur𝑡 = if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME  	{CursorColor::Mono
+          } else    if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR       	{CursorColor::Color
+          } else    if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR	{CursorColor::ColorMasked
+          } else                                                              	{CursorColor::Color};
+        *s.as_deref_mut().unwrap() += &format!("{}\n{}\n\
+          {w} {h}  {hot_x} {hot_y}  {}b  {wb}  {mcur𝑡:#?}"
+          ,"       Hotspot Bytes B Type"
+          ," ↔   ↕  x  y   Size  ↔              №𝑐 𝑏⁄𝑐 𝑏⁄𝑝", ptr_buff.len());
+      }
 
       return Some(cur_box{
         ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
