@@ -94,17 +94,17 @@ impl fmt::Debug   for CursorColor {fn fmt(&self, f:&mut fmt::Formatter) -> fmt::
   /// |⋀|0|1 |←⊻ |Base    |
   /// |-|-|--|-- |------- |
   /// |0|█|□ |Δ🗘|🖰cursor |
-  /// |1| |◧ |=  |🖵screen|
-  /// | |=|Δ¡|   |        |
+  /// |1| |◧ |≝  |🖵screen|
+  /// | |≝|Δ¡|   |        |
   ///
   /// - `█`Black `□`White `␠`Transparent `◧`Inverted
   /// - mask effect on a pixel:
-  ///   - `=` unchanged (`1`⋀AND `0`⊻XOR)
+  ///   - `≝` unchanged (`1`⋀AND `0`⊻XOR)
   ///   - `Δ` changed   (`0`⋀AND `1`⊻XOR):
   ///     - `Δ🗘` replaced (⋀AND)
   ///     - `Δ¡` inverted (⊻XOR)
   ///
-  /// For example, `0` ⋀AND mask `Δ🗘` replaces the screen pixel with the `0` black cursor pixel (`0 ⋀ x = 0`), which will then either be `=` unchanged with `0` ⊻XOR or `Δ¡` inverted with `1` ⊻XOR
+  /// For example, `0` ⋀AND mask `Δ🗘` replaces the screen pixel with the `0` black cursor pixel (`0 ⋀ x = 0`), which will then either be `≝` unchanged with `0` ⊻XOR or `Δ¡` inverted with `1` ⊻XOR
   And,/// ⋀ AND mask
     ///!  ⊻ XOR mask
   Xor,
@@ -220,7 +220,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
               if is_s {(*s.as_deref_mut().unwrap()).push(if px[0]==true  {'█'}else{' '})}
             });
           }
-          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row}\n");}
+          if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
         });
 
       } else if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR        { //4c·8𝑏pc=32𝑏pp BGRα DIB
