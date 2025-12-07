@@ -67,10 +67,10 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     cur_buf .chunks(row_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
       (    *s.as_deref_mut().unwrap()).push('¦');
       let 𝑖row0 = if 𝑖row < h_sz {𝑖row} else {𝑖row - h_sz}; // reset 𝑖row to begin from 0 for the 2nd half
-      if 𝑖row < h_sz {if 𝑖row==0    {*s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1= 0Δ• ———¦\n¦";}
+      if 𝑖row < h_sz {if 𝑖row==0    {*s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n¦";}
         row𝑏.chunks(px_sz𝑏).enumerate().for_each(|(𝑗col, px )| { // px:&BitSlice<u8>, conceptually [bool] slice
           (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
-      } else         {if 𝑖row==h_sz {*s.as_deref_mut().unwrap() += "——— ⊻XOR Mono◧ bitmask 0= 1Δ• ———¦\n¦";}
+      } else         {if 𝑖row==h_sz {*s.as_deref_mut().unwrap() += "——— ⊻XOR Mono◧ bitmask 0≝ 1Δ• ———¦\n¦";}
         row𝑏.chunks(px_sz𝑏).enumerate().for_each(|(𝑗col, px )| {
           (*s.as_deref_mut().unwrap()).push(if  px[0] {'•'}else{' '})        });//Δ XOR
       }    *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row0:>pad$}\n",pad=pad);
@@ -140,8 +140,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let pad = if hX_sz <= 9 {1} else if hX_sz <= 99 {2} else {3};
     if is_s {
          *s.as_deref_mut().unwrap() += &format!(
-      "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA} №𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz} ■sz Mono◧ 𝑏mask (BGRα DIB)\n");
-         *s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1= 0Δ• ———¦\n¦";
+      "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA}№𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz} ■sz Mono◧ 𝑏mask (BGRα DIB)\n");
+         *s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n";
     curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
       (  *s.as_deref_mut().unwrap()).push('¦');
       row𝑏  .chunks(pxA_sz𝑏).enumerate().for_each(|(𝑗col, px )| { // px:&BitSlice<u8>, conceptually [bool] slice
@@ -155,7 +155,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       row   .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {(*s.as_deref_mut().unwrap()).push(
         if              px0 == px  {' '
         } else if       px1 == px  {'⎅'
-        } else if       px_1== px  {'⎅' //todo: why are some 254 instead of all 255? All White in editor
+        } else if       px_1== px  {'⎅' // some apps like Sib output 254 instead of all 255
         // } else if       0   == px[3]{'α' //α-transparent, but ■□•mark since XORing with ⋀0 will still result in color changes, same with ⋀1 and screen α
         // todo: compare 24b with 32b and how to deal with the fact that 24b has no alpha
         // is there a guaranteed way to detect 24b? if all α=0
