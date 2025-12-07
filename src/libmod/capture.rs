@@ -298,6 +298,9 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       // let    stop = src.add(h as usize);
       // while src != stop {src = src.add(1);}
       // }
+      if  most𐎓 > most𑁱 // todo: convert to proper error
+       || most𖭩 > most𖭪 {return None}
+
       if is_s {
         // *s.as_deref_mut().unwrap() += &format!("№{scan_line_test} = chunk {chunk_test:?}\n");
         *s.as_deref_mut().unwrap() += &format!("←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} true bounding box (non0 pixels, 0-based coords )\n",
