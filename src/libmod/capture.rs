@@ -60,33 +60,33 @@ use docpos::*;
   ///     - `🆭` is a mask in `α`-channel, replaces α as transparency
   ///     - `α-Grey` would be a regular color with "transparency" "blended", so not actually transparent
   ///
-  Mono       	,///   1𝑐   ·1𝑏⁄𝑐= 1𝑏⁄𝑝      DIB, ⋀AND + ⊻XOR 𝑏mask
-  ColorMasked	,///  (3𝑐+α)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 4color 𝑏map
-             	 ///! (3𝑐+🆭)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 3color 𝑏map + 🆭=0=⋀AND ¦🆭=255=⊻XOR 𝑏mask  <br>
-             	 ///  🆭 0: RGB value replaces the screen pixel  <br>
-             	 ///  🆭FF: ⊻XOR is performed on the RGB value and the screen pixel to replace it
-  Color      	,
+  Mono  	,///   1𝑐   ·1𝑏⁄𝑐= 1𝑏⁄𝑝      DIB, ⋀AND + ⊻XOR 𝑏mask
+  Colorμ	,///  (3𝑐+α)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 4color 𝑏map
+        	 ///! (3𝑐+🆭)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 3color 𝑏map + 🆭=0=⋀AND ¦🆭=255=⊻XOR 𝑏mask  <br>
+        	 ///  🆭 0: RGB value replaces the screen pixel  <br>
+        	 ///  🆭FF: ⊻XOR is performed on the RGB value and the screen pixel to replace it
+  Colorα	,
 }
 use std::fmt; //{disp} {dbg:?} {disp_alt:#} {dbg_alt:?#}
 impl fmt::Display for CursorColor {fn fmt(&self, f:&mut fmt::Formatter) -> fmt::Result {
   if !f.alternate() { let _ =    write!(f,"🖰 𝐶:"); match self {
-    CursorColor::Mono       	=> {write!(f,"𝟙" )},
-    CursorColor::Color      	=> {write!(f,"𝟛α")},
-    CursorColor::ColorMasked	=> {write!(f,"𝟛🆭")},   }
+    CursorColor::Mono  	=> {write!(f,"𝟙" )},
+    CursorColor::Colorα	=> {write!(f,"𝟛α")},
+    CursorColor::Colorμ	=> {write!(f,"𝟛🆭")},   }
   } else /*#*/      { let _ =     write!(f,"🖰 𝐶:"); match self {
-    CursorColor::Mono       	=> {write!(f,"Mono"  )},
-    CursorColor::Color      	=> {write!(f,"All"  )},
-    CursorColor::ColorMasked	=> {write!(f,"Masked")},   }
+    CursorColor::Mono  	=> {write!(f,"Mono"  )},
+    CursorColor::Colorα	=> {write!(f,"All"  )},
+    CursorColor::Colorμ	=> {write!(f,"Masked")},   }
 }}   }
 impl fmt::Debug   for CursorColor {fn fmt(&self, f:&mut fmt::Formatter) -> fmt::Result {
   if !f.alternate() {let _ = fmt::write(f,format_args!("{}::",type_name::<CursorColor>())); match self {
-    CursorColor::Mono       	=> {write!(f,"𝟙" )},
-    CursorColor::Color      	=> {write!(f,"𝟛α")},
-    CursorColor::ColorMasked	=> {write!(f,"𝟛🆭")},   }
+    CursorColor::Mono  	=> {write!(f,"𝟙" )},
+    CursorColor::Colorα	=> {write!(f,"𝟛α")},
+    CursorColor::Colorμ	=> {write!(f,"𝟛🆭")},   }
   } else /*?#*/     {                                                                       match self {
-    CursorColor::Mono       	=> {write!(f," 1𝑐   ·1𝑏⁄𝑐= 1𝑏⁄𝑝      DIB, ⋀AND + ⊻XOR 𝑏mask"  )},
-    CursorColor::Color      	=> {write!(f,"(3𝑐+α)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 4color 𝑏map"   )},
-    CursorColor::ColorMasked	=> {write!(f,"(3𝑐+🆭)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 3color 𝑏map + 🆭=0=⋀AND ¦🆭=255=⊻XOR 𝑏mask")},   }
+    CursorColor::Mono  	=> {write!(f," 1𝑐   ·1𝑏⁄𝑐= 1𝑏⁄𝑝      DIB, ⋀AND + ⊻XOR 𝑏mask"  )},
+    CursorColor::Colorα	=> {write!(f,"(3𝑐+α)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 4color 𝑏map"   )},
+    CursorColor::Colorμ	=> {write!(f,"(3𝑐+🆭)·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, ⋀AND 𝑏mask + 3color 𝑏map + 🆭=0=⋀AND ¦🆭=255=⊻XOR 𝑏mask")},   }
 }} }
 
 #[docpos] #[derive(Debug)] pub enum Mask { /// Type of pixel mask with the following (combined) effects:<br>
@@ -306,9 +306,9 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         *s.as_deref_mut().unwrap() += &format!("←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} true bounding box (non0 pixels, 0-based coords )\n",
         most𑁱-most𐎓+1, most𖭪-most𖭩+1);
         let mcur𝑡 = if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME  	{CursorColor::Mono
-          } else    if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR       	{CursorColor::Color
-          } else    if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR	{CursorColor::ColorMasked
-          } else                                                              	{CursorColor::Color};
+          } else    if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR       	{CursorColor::Colorα
+          } else    if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR	{CursorColor::Colorμ
+          } else                                                              	{CursorColor::Colorα};
         *s.as_deref_mut().unwrap() += &format!("{}\n{}\n\
           {w} {h}  {hot_x} {hot_y}  {}b  {wb} {mcur𝑡} {mcur𝑡:#?}"
           ,"       Hotspot Bytes B Type"
