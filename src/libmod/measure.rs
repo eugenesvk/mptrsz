@@ -154,6 +154,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA}№𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz} ■sz Mono◧ 𝑏mask (BGRα DIB)\n");
          *s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n";
     curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
+      // if 𝑖row==0 || 𝑖row==1 || 𝑖row==3 {print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(&row);println!("");} //todo: delete / uncomment debug print //|| 𝑖row==12 || 𝑖row==13 || 𝑖row==24 || 𝑖row==25
       (  *s.as_deref_mut().unwrap()).push('¦');
       row𝑏  .chunks(pxA_sz𝑏).enumerate().for_each(|(𝑗col, px )| { // px:&BitSlice<u8>, conceptually [bool] slice
         (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
@@ -164,6 +165,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       "↔{wX} ↕{hX} ↔{wXb}B  {cur𝑡:?}   {𝑐ℕX}№𝑐⋅{𝑏pcX}𝑏⁄𝑐={𝑏ppX}𝑏⁄𝑝 {pxX_sz} ■sz Color 𝑏map (BGRα DIB)\n");
          *s.as_deref_mut().unwrap() += "——— ⊻XOR Color bitmap 0≝ 1Δ• ———¦\n";
     curX_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {(*s.as_deref_mut().unwrap()).push('¦');
+      // if 𝑖row==0 || 𝑖row==1 || 𝑖row==3 {println!("№{𝑖row:>pad$} {row:?}",pad=pad);}// || 𝑖row==12 || 𝑖row==13 || 𝑖row==24 || 𝑖row==25
       row   .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {(*s.as_deref_mut().unwrap()).push(
         if              px0 == px  {' '
         } else if       px1 == px  {'⎅'
@@ -197,11 +199,15 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       let rowA = &curA_buf[begA..endA]; let rowA𝑏 = BitSlice::<_,Msb0>::from_slice(&rowA);
       let rowX = &curX_buf[begX..endX];
 
+      // if 𝑖row==0 || 𝑖row==1 || 𝑖row==2 { // 𝑖row==12 || 𝑖row==13 || 𝑖row==24 || 𝑖row==25 {
+      // print!(  "№{𝑖row:>pad$}𝑏= "        ,pad=pad);print𝑏_row(&rowA);println!("");
+      // println!("№{𝑖row:>pad$} = {rowX:?}",pad=pad);}
       for 𝑗col in 0..wX_sz {
         let begA = 𝑗col         ; let endA = begA + (𝑐ℕA as usize);
         let begX = 𝑗col * 𝑐ℕX_sz; let endX = begX + 𝑐ℕX_sz;
         let pxA = &rowA𝑏[begA..endA];
         let pxX = &rowX [begX..endX];
+        // if 𝑖row==0 {print!("№{𝑖row:>pad$}𝑏¦№{𝑗col:>pad$} = ",pad=pad);print𝑏_slice(pxA);println!(" ¦ {pxX:?}");} //todo: delete / uncomment debug print
         let is_draw =
           if        !pxA[0] { //base=cursor px
             if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; false
@@ -223,6 +229,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
             } else if is_px3_white(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('⎅')}; true
             } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('◧')}; true}//⊻
           } else {false}; // should be impossible todo: error here
+          // println!("i{𝑖row} j{𝑗col} px={pxX:?}");
           if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱 {most𑁱 = 𝑗col;}
             /**/      if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪 {most𖭪 = 𝑖row;}  }
       } if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
