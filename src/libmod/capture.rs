@@ -173,8 +173,8 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       let ps_type = DXGI_OUTDUPL_POINTER_SHAPE_TYPE(ptr_shape.Type as i32);
       let pad = if h <= 9 {1} else if h <= 99 {2} else {3};
 
-      // let mut scan_line_test     = 0;
-      // let mut chunk_test:Vec<u8> = vec![];
+      let mut scan_line_test     = 0;
+      let mut chunk_test:Vec<u8> = vec![];
       // !: empty pointer will have nonsensical →0 < ←w, this is not checked    ■•◧□
       let mut most𐎓	= w as usize; //pushed ← if a valid pixel found
       let mut most𑁱	= 0         ; //pushed → …
@@ -198,10 +198,10 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         let 𝑐ℕ=1; let 𝑏pc=1; let px_sz = 𝑐ℕ * 𝑏pc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
         if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {𝑏pc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏 {hmask}hmask\n");}
-        // scan_line_test = 90;
+        // scan_line_test = 24;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(𝑖row, chunk)| {
-          // if is_s {if row == scan_line_test {chunk_test = chunk.into();}}
+          if is_s {if 𝑖row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
           let chunk𝑏 = BitSlice::<_,Msb0>::from_slice(&chunk);
           if 𝑖row < hmask {if 𝑖row==0     {if is_s {*s.as_deref_mut().unwrap() += "———⋀AND bitmask———";}}
@@ -228,10 +228,10 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         let 𝑐ℕ=4; let 𝑏pc=8; let px_sz = 𝑐ℕ * 𝑏pc / 8;
         let row_sz_b = ptr_shape.Pitch as usize; // Pitch = 🡘b width in bytes of mouse pointer
         if is_s {*s.as_deref_mut().unwrap() += &format!("{𝑐ℕ} 𝑐ℕ {𝑏pc} 𝑏⁄𝑐 {px_sz} ■sz𝑏 {row_sz_b} row_sz𝑏\n");}
-        // scan_line_test = 54;
+        // scan_line_test = 24;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(𝑖row, chunk)| {
-          // if is_s {if 𝑖row == scan_line_test {chunk_test = chunk.into();}}
+          if is_s {if 𝑖row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
           chunk.chunks(  px_sz  ).enumerate().for_each(|(𝑗col, px   )| {
             if px != px0 {
@@ -264,7 +264,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         // scan_line_test = 35;
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(𝑖row, chunk)| {
-          // if is_s {if 𝑖row == scan_line_test {chunk_test = chunk.into();}}
+          if is_s {if 𝑖row == scan_line_test {chunk_test = chunk.into();}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
           chunk.chunks(  px_sz  ).enumerate().for_each(|(𝑗col, px   )| {
             if px[3] == 𝑐mask_rep || ( //replaced unconditionally
@@ -302,7 +302,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
        || most𖭩 > most𖭪 {return None}
 
       if is_s {
-        // *s.as_deref_mut().unwrap() += &format!("№{scan_line_test} = chunk {chunk_test:?}\n");
+        *s.as_deref_mut().unwrap() += &format!("№{scan_line_test} = chunk {chunk_test:?}\n");
         *s.as_deref_mut().unwrap() += &format!("←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} true bounding box (non0 pixels, 0-based coords )\n",
         most𑁱-most𐎓+1, most𖭪-most𖭩+1);
         let mcur𝑡 = if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME  	{CursorColor::Mono
