@@ -40,8 +40,9 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
   let mut most𖭩	= usize::MAX;
   let mut most𖭪	= 0usize    ;
 
-  match cur𝑡 { // Iterate over mouse cursor 𝑏map buffer to detect blank pixels and bounding box size
-  CursorColor::Mono      => { let 𝑐ℕ = 1;  // 1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝, 𝑏mask has both ⋀AND and ⊻XOR masks
+  // Iterate over mouse cursor 𝑏map buffer to detect blank pixels and bounding box size
+  if cur𝑐.is_invalid() { let cur𝑡 = CursorColor::Mono; // 1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝, 𝑏mask has both ⋀AND and ⊻XOR masks
+    let 𝑐ℕ = 1;
     let mut bmAX = BITMAP::default();
     let bmAXsz = unsafe{ GetObjectW(𝑏mask.into(), size_of::<BITMAP>() as _, Some(&mut bmAX as *mut BITMAP as _)) };
     if  bmAXsz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
@@ -101,8 +102,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
             /**/      if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪 {most𖭪 = 𝑖row;}  }
       } if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     }
-  },
-  CursorColor::ColorMasked => { let 𝑐ℕA = 1; let 𝑐ℕX = 4; //4c·8𝑏pc=32𝑏pp BGRα DIB  both 𝑏mask and color 𝑏map
+  } else { // 1st check if α is > 0 to detect Colorμ, then parse the 𝑏map buffer (both Colorα and Colorμ are technically 32𝑏⁄𝑝 with Colorμ having α=0)
+    // Parse both mono 𝑏mask and color 𝑏map then get image bits to detect cursor type
     let mut bmA = BITMAP::default(); //monochrome 𝑏mask
     let mut bmX = BITMAP::default(); //color      𝑏map
     let bmAsz = unsafe{ GetObjectW(𝑏mask.into(), size_of::<BITMAP>() as _, Some(&mut bmA as *mut BITMAP as _)) };
@@ -111,6 +112,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     if  bmXsz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
 
     // Monochrome 𝑏mask
+    let 𝑐ℕA 	= 1;
     let wA  	= bmA.bmWidth     	; let wA_sz  	= wA   as usize;
     let wAb 	= bmA.bmWidthBytes	; let rowA_sz	= wAb  as usize; // aka stride
     let hA  	= bmA.bmHeight    	; let hA_sz  	= hA   as usize;
@@ -123,6 +125,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
 
     // Color bits
+    let 𝑐ℕX 	= 4; //unknown whether the 4th color is 0s (masked 24𝑏) before parsing the α channel
     let wX  	= bmX.bmWidth     	; let wX_sz  	= wX   as usize;
     let wXb 	= bmX.bmWidthBytes	; let rowX_sz	= wXb  as usize; // aka stride
     let hX  	= bmX.bmHeight    	; let hX_sz  	= hX   as usize;
@@ -135,6 +138,15 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let ret = unsafe{GetBitmapBits(cur𝑐, curX_buf.len() as i32, curX_buf.as_mut_ptr() as *mut c_void,) };
     if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
 
+    let mut isα = false; // Detect α bits
+    curX_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {
+      row   .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {
+        if px[3] != 0 {isα = true}      });    });
+
+    let is_colα	=  isα;
+    let is_colμ	= !isα;
+
+  if is_colμ {let cur𝑡 = CursorColor::Colorμ; //4c·8𝑏pc=32𝑏pp BGRα DIB  both 𝑏mask and color 𝑏map
     // 1. Print each mask separately, do box calculations later with both masks applied
     let pad = if hX_sz <= 9 {1} else if hX_sz <= 99 {2} else {3};
     if is_s {
@@ -149,7 +161,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     });
 
          *s.as_deref_mut().unwrap() += &format!(
-      "↔{wX} ↕{hX} ↔{wXb}B  {cur𝑡:?}   {𝑐ℕX} №𝑐⋅{𝑏pcX}𝑏⁄𝑐={𝑏ppX}𝑏⁄𝑝 {pxX_sz} ■sz Color 𝑏map (BGRα DIB)\n");
+      "↔{wX} ↕{hX} ↔{wXb}B  {cur𝑡:?}   {𝑐ℕX}№𝑐⋅{𝑏pcX}𝑏⁄𝑐={𝑏ppX}𝑏⁄𝑝 {pxX_sz} ■sz Color 𝑏map (BGRα DIB)\n");
+         *s.as_deref_mut().unwrap() += "——— ⊻XOR Color bitmap 0≝ 1Δ• ———¦\n";
     curX_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {(*s.as_deref_mut().unwrap()).push('¦');
       row   .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {(*s.as_deref_mut().unwrap()).push(
         if              px0 == px  {' '
@@ -192,12 +205,9 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
         let is_draw =
           if        !pxA[0] { //base=cursor px
             if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; false
-              //↑1a technically replaces screen px, but its α=0, so transparent ' '
-                // but a transparent pixel would have pxA=1, so wouldn't appear here
-              //↑1b unless its ColorMasked, in which case 𝑎 is not transparency, but a flag for RGB=0,0,0'█' to replace screen
+              //α is not transparency, but a flag for RGB=0,0,0'█' to replace screen
             // } else if       0   == pxX[3]{if is_s{(*s.as_deref_mut().unwrap()).push('α')}; true
-              //↑2a again, real transparent XOR would have pxA=1, so wouldn't appear here 'α'
-              //↑2b for ColorMasked α=0 is a flag to replace with px RGB '•', not α-transparent
+              //α=0 is a flag to replace with px RGB '•', not α-transparen, but we differentiate shades↓
             } else if is_px3_black   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; true
             } else if is_px3_blackish(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▇')}; true
             } else if is_px3_dark    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▓')}; true
@@ -206,70 +216,39 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
             } else if is_px3_light   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('░')}; true
             } else if is_px3_grey    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▒')}; true
             } else                         {if is_s {(*s.as_deref_mut().unwrap()).push('•')}; true} //◧
-          } else if  pxA[0] { //base=screen px   ◧inverted🖵¦␠transparent🖵¦⊻XORed🖵
+          } else if  pxA[0] { //⋀1→base=🖵screen px   ◧inverted🖵 or ⊻XORed🖵¦␠transparent🖵
             if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false
-            // 24bit cursors α is a mask, not transparency, and signals always 0, but it doesn't mean anything, the result is pixel color, not blank? (so white for grabbing hand)
-            // is this about DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR Value: 0x4
-              // The pointer type is a masked color mouse pointer. A masked color mouse pointer is a 32 bpp ARGB format bitmap with the mask value in the alpha bits. The only allowed mask values are 0 and 0xFF. When the mask value is 0, the RGB value should replace the screen pixel. When the mask value is 0xFF, an XOR operation is performed on the RGB value and the screen pixel; the result replaces the screen pixel.
-            // α=0, so the pixel replaces
-            //
-            } else if       0   == pxX[3]{
-              // if 24bit cursor {
-            if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false
-            } else if is_px3_black   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; true
-            } else if is_px3_blackish(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▇')}; true
-            } else if is_px3_dark    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▓')}; true
-            } else if is_px3_white   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('□')}; true
-            } else if is_px3_whiteish(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('◻')}; true
-            } else if is_px3_light   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('░')}; true
-            } else if is_px3_grey    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▒')}; true
-            } else                         {if is_s {(*s.as_deref_mut().unwrap()).push('•')}; true} //◧
-              // } else {
-            // ↓ technically inverts screen px, but its α=0, so transparent
-            // if is_s{(*s.as_deref_mut().unwrap()).push(' ')}; true //inverts colors, but not α, is this just ⊻?
-              // }
-
-            } else if       px1 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push('◧')}; true
-            } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('⊻')}; true}
+            // } else if       0   == pxX[3]{ //24𝑏 has zeroed α=🆭=0
+            } else if is_px3_black(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false //should not exist as α=0, so same as ↑
+            } else if is_px3_white(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('⎅')}; true
+            } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('◧')}; true}//⊻
           } else {false}; // should be impossible todo: error here
           if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱 {most𑁱 = 𝑗col;}
             /**/      if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪 {most𖭪 = 𝑖row;}  }
       } if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     }
-  }, //TODO: find a ↓ cursor colored, but NOT masked, to test
-  CursorColor::Color     => {let 𝑐ℕ = 4;  // 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, no 𝑏mask → draw color px directly
-    let mut bm = BITMAP::default();
-    let bm_sz = unsafe{ GetObjectW(cur𝑐.into(), size_of::<BITMAP>() as _, Some(&mut bm as *mut BITMAP as _)) };
-    if  bm_sz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
-
-    let w  	= bm.bmWidth     	; let w_sz  	= w   as usize;
-    let wb 	= bm.bmWidthBytes	; let row_sz	= wb  as usize; // aka stride
-    let h  	= bm.bmHeight    	; let h_sz  	= h   as usize;
-    let 𝑏pp	= bm.bmBitsPixel 	; let px_sz𝑏	= 𝑏pp as usize; let px_sz = (𝑏pp / 8) as usize;
-    let 𝑏pc	= 𝑏pp / 𝑐ℕ;
-
-    let buf_sz = (wb * h) as usize;
-
-    let pad = if h_sz <= 9 {1} else if h_sz <= 99 {2} else {3};
+  } else     {let cur𝑡 = CursorColor::Colorα; // 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, no 𝑏mask → draw color px directly
+    let pad = if hX_sz <= 9 {1} else if hX_sz <= 99 {2} else {3};
     if is_s { *s.as_deref_mut().unwrap() += &format!(
-      "↔{w} ↕{h} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ}№𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (BGRα DIB)\n");    }
-    let mut cur_buf = vec![0u8; buf_sz];
+      "↔{wX} ↕{hX} ↔{wXb}B  {cur𝑡:?}   {𝑐ℕX}№𝑐⋅{𝑏pcX}𝑏⁄𝑐={𝑏ppX}𝑏⁄𝑝 {pxX_sz} ■sz (BGRα DIB)\n");    }
+    let mut cur_buf = vec![0u8; bufX_sz];
     let ret = unsafe{GetBitmapBits(cur𝑐, cur_buf.len() as i32, cur_buf.as_mut_ptr() as *mut c_void,) };
     if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
 
     if is_s {*s.as_deref_mut().unwrap() += "——— Color 𝑏map ■dark¦□light¦•other ———\n";} //◧visually works best for greys
-    cur_buf.chunks(row_sz).enumerate().for_each(|(𝑖row, row)| {if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
-      row  .chunks( px_sz).enumerate().for_each(|(𝑗col, px )| {
+    cur_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
+      row  .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {
         if px != px0 {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
           /**/        if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}  }
         if is_s {(*s.as_deref_mut().unwrap()).push(
           if              px0 == px  {' '
+          } else if         0 == px[3]{' ' //transparency also affects RGB, so it's 15,15,15,15 or with α=0 would be px0, so this should be redundant?
           } else if is_px3_dark (px) {'▓'//■
           } else if is_px3_light(px) {'░'//❏
           } else                     {'•'})} //◧
       });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     });
-  },
+  }
   }
   // todo: replace with unsafe pointer arithmetic? to avoid bound checks??
   // let mut src = row.as_ptr() as *const BGRA8;
