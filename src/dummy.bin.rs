@@ -60,6 +60,8 @@ fn parse_cursor_h(cur_h:HCURSOR) -> Option<cur_box> {
     let coords = if dbg {let mut out_str = String::new();
       let _r	=measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, &cur_col, Some(&mut out_str)); println!("{}",out_str); _r
     } else  	{measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, &cur_col, None)};
+    // let bm_h = if iℹ.hbmColor.is_invalid() {iℹ.hbmMask} else {iℹ.hbmColor};
+    // test_GetDIBits(bm_h);
 
     // Avoid resource leaks    DeleteObject(ho:HGDIOBJ) -> BOOL
     let _d1 = if iℹ.hbmMask .is_invalid(){TRUE}else{unsafe{DeleteObject(iℹ.hbmMask .into())}};
