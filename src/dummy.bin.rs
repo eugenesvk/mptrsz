@@ -115,16 +115,16 @@ fn main() {
     };
   }
 
-  // 2 🖰 Current cursor
-  let cur_h:HCURSOR =  unsafe{GetCursor()}; if cur_h.is_invalid() {println!("2.1) ✗ GetCursor");}else{
-    println!("2.1) 🖰 current: +handle (GetCursor)");
-    // 2.2 Get handle(s) to the cursor bitmap mask(s)
-    let coords = parse_cursor_h(cur_h);
-    match coords {
-      Some(c)	=> {println!("current 🖰 𝑏map: coords {:?}",c);},
-      None   	=> {println!("current 🖰 𝑏map: no mouse pointer shape captured");},
-    };
-  }
+  // 2 🖰 Current cursor (mostly busy even if it's invisible during fast run)
+  // let cur_h:HCURSOR =  unsafe{GetCursor()}; if cur_h.is_invalid() {println!("2.1) ✗ GetCursor");}else{
+  //   println!("2.1) 🖰 current: +handle (GetCursor)");
+  //   // 2.2 Get handle(s) to the cursor bitmap mask(s)
+  //   let coords = parse_cursor_h(cur_h);
+  //   match coords {
+  //     Some(c)	=> {println!("current 🖰 𝑏map: coords {:?}",c);},
+  //     None   	=> {println!("current 🖰 𝑏map: no mouse pointer shape captured");},
+  //   };
+  // }
 
 
   // 3 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
