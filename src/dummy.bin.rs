@@ -148,7 +148,7 @@ fn main() {
 }
 
 
-use core::ffi::c_void;
+use core::ffi::{c_void,c_int,};
 use std::ptr::null_mut;
 use windows::Win32::Graphics::Gdi::{HDC};
 use windows::Win32::Graphics::Gdi::{GetDC};
