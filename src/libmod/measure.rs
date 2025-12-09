@@ -209,7 +209,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
         let pxX = &rowX [begX..endX];
         // if 𝑖row==0 {print!("№{𝑖row:>pad$}𝑏¦№{𝑗col:>pad$} = ",pad=pad);print𝑏_slice(pxA);println!(" ¦ {pxX:?}");} //todo: delete / uncomment debug print
         let is_draw =
-          if        !pxA[0] { //base=cursor px
+          if        !pxA[0] { //base=🖰cursor px 0█ 1□
             if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; false
               //α is not transparency, but a flag for RGB=0,0,0'█' to replace screen
             // } else if       0   == pxX[3]{if is_s{(*s.as_deref_mut().unwrap()).push('α')}; true
