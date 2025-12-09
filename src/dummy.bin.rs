@@ -43,23 +43,14 @@ fn parse_cursor_h(cur_h:HCURSOR) -> Option<cur_box> {
     hbmColor:hBitMap	icon color           bitmap. NULL for monochrome*/
   // todo: convert to a proper error
   let res = unsafe { GetIconInfo(cur_h.into(), &mut iℹ) }; if !res.is_ok() {println!("1) ✗ GetIconInfo");None}else{
-    let iℹ_T   	= if iℹ.fIcon == TRUE {'🖼'}else{'🖰'};
-    let hot_x  	=    iℹ.xHotspot; let hot_y = iℹ.yHotspot;
-    let is_mono	=    iℹ.hbmColor.is_invalid();
-    let is_col 	=   !iℹ.hbmColor.is_invalid();
-    let is_mask	=   !iℹ.hbmMask .is_invalid();
-    // TODO: this is definitely wrong, ColorMasked is defined by the α-channel state at the source, if it's used for transparency, then it's a 32b Color cursor, if it's used for a 0/1 mask, then it's a ColorMasked type, but in both of these cases the cursor bitmap will be 32b BGRα
-    let cur_col = if  is_mask && !is_col	{CursorColor::Mono
-      } else      if !is_mask &&  is_col	{CursorColor::Color
-      } else      if  is_mask &&  is_col	{CursorColor::ColorMasked
-      } else                            	{CursorColor::Color};
-    println!("2) T={iℹ_T} {}  hot_x{hot_x} y{hot_y} CT={cur_col:?} (GetIconInfo)",if iℹ_T=='🖰'{"≝🖰"}else{"!!! should be 🖰 !!!"});
+    let iℹ_T 	= if iℹ.fIcon == TRUE {'🖼'}else{'🖰'};
+    let hot_x	=    iℹ.xHotspot; let hot_y = iℹ.yHotspot;
+    if dbg {println!("2) T={iℹ_T} {}  hot_x{hot_x} y{hot_y} (GetIconInfo)",if iℹ_T=='🖰'{"≝🖰"}else{"!!! should be 🖰 !!!"});}
 
     // 3 Get handle(s) to the cursor bitmap mask(s)
-    let bm_h = if let CursorColor::Mono = cur_col {iℹ.hbmMask} else {iℹ.hbmColor};
     let coords = if dbg {let mut out_str = String::new();
-      let _r	=measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, &cur_col, Some(&mut out_str)); println!("{}",out_str); _r
-    } else  	{measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, &cur_col, None)};
+      let _r	=measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, Some(&mut out_str)); println!("{}",out_str); _r
+    } else  	{measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, None)};
     // let bm_h = if iℹ.hbmColor.is_invalid() {iℹ.hbmMask} else {iℹ.hbmColor};
     // test_GetDIBits(bm_h);
 
