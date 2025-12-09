@@ -48,11 +48,11 @@ use docpos::*;
   /// - Color is always in the native BGRα or `0xBBGGRRαα` 32𝑏 data format
   /// - `24𝑏`: TrueColor
   ///   - with no `α`-transparency (so `α`-channel is all `0`s)
-  ///   - with `α`-channel acting as a mask to invert screen colors in [CursorColor::ColorMasked]
+  ///   - with `α`-channel acting as a 🆭mask to invert screen colors in [CursorColor::Colorμ]
   /// - `32𝑏`: TrueColor +  `α`<br>
   ///   ⊻ mask sometimes stores pure black with non-pure α: `0₃,255`, `0₃,253`, `0₃,253`, depending on an app<br>
   ///  (e.g., Sib Cursor Editor does that while RealWorld Cursor Editor seems to have `255` all the time)
-  ///   - does __NOT__ support Inverted colors, [OS limitation](rw-designer.com/forum/1348)
+  ///   - does __NOT__ support Inverted colors, [OS limitation](rw-designer.com/forum/1348). To be more precise: the format itself does, but only if it doesn't have real 32𝑏 data with α>0, otherwise `255₃,0α` will behave exactly like it does in a 24𝑏 format - inverting screen colors (and will be detected as Colorμ by DXGI duplication APIs).
   ///
   /// DirectX Duplication interface:
   ///   - `dxC`  `DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR`
