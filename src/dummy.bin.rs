@@ -27,7 +27,7 @@ const dbg:bool = true;
 
 use windows::Win32::Foundation::{POINT,BOOL,TRUE,FALSE,};
 use windows::Win32::Graphics::Gdi::{BITMAP,HGDIOBJ,HBITMAP,};
-use windows::Win32::Graphics::Gdi::{DeleteObject,GetObjectW,GetBitmapBits,GetDIBits};
+use windows::Win32::Graphics::Gdi::{DeleteObject,GetObjectW,GetBitmapBits,GetDIBits,ReleaseDC,};
 use windows::Win32::UI::WindowsAndMessaging::{HICON, ICONINFO, CURSORINFO, HCURSOR, CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,};
 use windows::Win32::UI::WindowsAndMessaging::{GetCursor, GetCursorPos, GetCursorInfo, GetIconInfo};
 
@@ -64,7 +64,7 @@ fn parse_cursor_h(cur_h:HCURSOR) -> Option<cur_box> {
 }
 
 fn parse_cursor_dxgi() -> Option<cur_box> {
-  if dbg {println!("\n\n\n——————————————— 2. DXGI duplication API\n———————————————\n\n");}
+  if dbg {println!("\n\n\n——————————————— 2. DXGI duplication API\n");}
   if dbg {let mut out_str = String::new();
     let _r	=get_mptr_sz(Some(&mut out_str)); println!("{}",out_str); _r
   } else  	{get_mptr_sz(None)}
