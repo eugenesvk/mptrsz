@@ -258,14 +258,14 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     if is_s {*s.as_deref_mut().unwrap() += "——— Color 𝑏map ■dark¦□light¦•other ———\n";} //◧visually works best for greys
     cur_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
       row  .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {
-        if px != px0 {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
-          /**/        if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}  }
-        if is_s {(*s.as_deref_mut().unwrap()).push(
-          if              px0 == px  {' '
-          } else if         0 == px[3]{' ' //transparency also affects RGB, so it's 15,15,15,15 or with α=0 would be px0, so this should be redundant?
-          } else if is_px3_dark (px) {'▓'//■
-          } else if is_px3_light(px) {'░'//❏
-          } else                     {'•'})} //◧
+        let is_draw =
+          if              px0 == px   {if is_s {(*s.as_deref_mut().unwrap()).push(' ')};false
+          } else if         0 == px[3]{if is_s {(*s.as_deref_mut().unwrap()).push(' ')};false//transparency also affects RGB, so it's 15,15,15,15 or with α=0 would be px0, so this should be redundant? No, can be forced to have 255,255,255,0 in an app for 'inverted' color that has no effect in a non-masked format
+          } else if is_px3_dark (px)  {if is_s {(*s.as_deref_mut().unwrap()).push('▓')};true//■
+          } else if is_px3_light(px)  {if is_s {(*s.as_deref_mut().unwrap()).push('░')};true//❏
+          } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('•')};true};//◧
+        if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱 {most𑁱 = 𝑗col;}
+            /**/    if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪 {most𖭪 = 𝑖row;}  }
       });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     });
   }
