@@ -226,10 +226,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
             } else                         {if is_s {(*s.as_deref_mut().unwrap()).push('•')}; true} //◧
           } else if  pxA[0] { //⋀1→base=🖵screen px   ◧inverted🖵 or ⊻XORed🖵¦␠transparent🖵
             if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false
-            // } else if       0   == pxX[3]{ //24𝑏 has zeroed α=🆭=0
-            } else if is_px3_black(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false //should not exist as α=0, so same as ↑
-            } else if is_px3_white(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('⎅')}; true
-            } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('◧')}; true}//⊻
+            } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('◧')}; true}//⊻color mask
           } else {false}; // should be impossible todo: error here
           // println!("i{𝑖row} j{𝑗col} px={pxX:?}");
           if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱 {most𑁱 = 𝑗col;}
