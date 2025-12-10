@@ -235,6 +235,20 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     }
   } else     {let cur𝑡 = CursorColor::Colorα; // 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, no 𝑏mask → draw color px directly
     let pad = if hX_sz <= 9 {1} else if hX_sz <= 99 {2} else {3};
+
+    if is_s {
+         *s.as_deref_mut().unwrap() += &format!(
+      "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA}№𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz} ■sz Mono◧ 𝑏mask (BGRα DIB)\n");
+         *s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n";
+    curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
+      if φL>=3&&row_p.contains(&𝑖row){print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(&row);println!("");}
+      (  *s.as_deref_mut().unwrap()).push('¦');
+      row𝑏  .chunks(pxA_sz𝑏).enumerate().for_each(|(𝑗col, px )| { // px:&BitSlice<u8>, conceptually [bool] slice
+        (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
+         *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);
+    });
+    }
+
     if is_s { *s.as_deref_mut().unwrap() += &format!(
       "↔{wX} ↕{hX} ↔{wXb}B  {cur𝑡:?}   {𝑐ℕX}№𝑐⋅{𝑏pcX}𝑏⁄𝑐={𝑏ppX}𝑏⁄𝑝 {pxX_sz} ■sz (BGRα DIB)\n");    }
     let mut cur_buf = vec![0u8; bufX_sz];
