@@ -1,3 +1,4 @@
+use crate::*;
 use bitvec::prelude::{BitSlice,Msb0,};
 use crate::libmod::*;
 use docpos::docpos;
@@ -145,6 +146,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
 
     let is_colα	=  isα;
     let is_colμ	= !isα;
+    let row_p = [0,1,3,4];
 
   if is_colμ {let cur𝑡 = CursorColor::Colorμ; //4c·8𝑏pc=32𝑏pp BGRα DIB  both 𝑏mask and color 𝑏map
     // 1. Print each mask separately, do box calculations later with both masks applied
@@ -154,7 +156,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA}№𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz} ■sz Mono◧ 𝑏mask (BGRα DIB)\n");
          *s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n";
     curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
-      // if 𝑖row==0 || 𝑖row==1 || 𝑖row==3 {print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(&row);println!("");} //todo: delete / uncomment debug print //|| 𝑖row==12 || 𝑖row==13 || 𝑖row==24 || 𝑖row==25
+      if φL>=3&&row_p.contains(&𝑖row){print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(&row);println!("");}
       (  *s.as_deref_mut().unwrap()).push('¦');
       row𝑏  .chunks(pxA_sz𝑏).enumerate().for_each(|(𝑗col, px )| { // px:&BitSlice<u8>, conceptually [bool] slice
         (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
@@ -165,7 +167,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       "↔{wX} ↕{hX} ↔{wXb}B  {cur𝑡:?}   {𝑐ℕX}№𝑐⋅{𝑏pcX}𝑏⁄𝑐={𝑏ppX}𝑏⁄𝑝 {pxX_sz} ■sz Color 𝑏map (BGRα DIB)\n");
          *s.as_deref_mut().unwrap() += "——— ⊻XOR Color bitmap 0≝ 1Δ• ———¦\n";
     curX_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {(*s.as_deref_mut().unwrap()).push('¦');
-      // if 𝑖row==0 || 𝑖row==1 || 𝑖row==3 {println!("№{𝑖row:>pad$} {row:?}",pad=pad);}// || 𝑖row==12 || 𝑖row==13 || 𝑖row==24 || 𝑖row==25
+      if φL>=3&&row_p.contains(&𝑖row){pp!("№{𝑖row:>pad$} {row:?}",pad=pad);}
       row   .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {(*s.as_deref_mut().unwrap()).push(
         if              px0 == px  {' '
         } else if       px1 == px  {'⎅'
@@ -199,9 +201,9 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       let rowA = &curA_buf[begA..endA]; let rowA𝑏 = BitSlice::<_,Msb0>::from_slice(&rowA);
       let rowX = &curX_buf[begX..endX];
 
-      // if 𝑖row==0 || 𝑖row==1 || 𝑖row==2 { // 𝑖row==12 || 𝑖row==13 || 𝑖row==24 || 𝑖row==25 {
-      // print!(  "№{𝑖row:>pad$}𝑏= "        ,pad=pad);print𝑏_row(&rowA);println!("");
-      // println!("№{𝑖row:>pad$} = {rowX:?}",pad=pad);}
+      if φL>=4&&row_p.contains(&𝑖row){//12,13,24,25
+      print!("№{𝑖row:>pad$}𝑏= "        ,pad=pad);print𝑏_row(&rowA);println!("");
+      pp!(   "№{𝑖row:>pad$} = {rowX:?}",pad=pad);}
       for 𝑗col in 0..wX_sz {
         let begA = 𝑗col         ; let endA = begA + (𝑐ℕA as usize);
         let begX = 𝑗col * 𝑐ℕX_sz; let endX = begX + 𝑐ℕX_sz;
