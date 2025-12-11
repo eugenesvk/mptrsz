@@ -24,10 +24,10 @@ use std  	::{env,fs,
 fn main() -> anyhow::Result<()> {
   try_main()
 }
-use dummy_lib::*;
+use mouse_sz_lib::*;
 fn try_main() -> anyhow::Result<()> {
   let task = env::args().nth(1);
-  p!("task_arg1 = {:?} lib = {:?}", task, dummy_lib::lib());
+  p!("task_arg1 = {:?} lib = {:?}", task, mouse_sz_lib::lib());
   match task {
     None           	=> tasks::print_help(),
     Some(t)        	=> match t.as_str() {

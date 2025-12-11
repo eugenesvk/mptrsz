@@ -9,7 +9,7 @@ pub use ::h::helper	::*;
 
 _mod!(binmod); //→ #[path="binmod/[binmod].rs"] pub mod binmod;
 use crate::binmod::print42;
-use dummy_lib::libmod::{ret42,get_mptr_sz,measure_mcursor_bm,cur_box,};
+use mouse_sz_lib::libmod::{ret42,get_mptr_sz,measure_mcursor_bm,cur_box,};
 
 use std::error::Error;
 use std::result;
@@ -33,7 +33,7 @@ use windows::Win32::UI::WindowsAndMessaging::{GetCursor, GetCursorPos, GetCursor
 
 use std::path::PathBuf;
 use docpos::*;
-use dummy_lib::libmod::CursorColor;
+use mouse_sz_lib::libmod::CursorColor;
 
 fn parse_cursor_h(cur_h:HCURSOR) -> Option<cur_box> {
   let mut iℹ = ICONINFO::default();

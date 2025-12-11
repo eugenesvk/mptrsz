@@ -13,8 +13,8 @@ name	= "dummy_bin"
 path	= "src/dummy.bin.rs"
 
 [lib]
-name      	= "dummy_lib"
-path      	= "src/dummy.lib.rs"
+name      	= "mouse_sz_lib"
+path      	= "src/mouse_sz.lib.rs"
 crate-type	= ['lib','cdylib']
 
 [dependencies]
