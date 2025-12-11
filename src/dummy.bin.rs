@@ -100,6 +100,7 @@ fn main() {
       } else                                      	{""};
     let x = curℹ.ptScreenPos.x; let y = curℹ.ptScreenPos.y;
     φ!("1.1) 🖰 global: x{x} y{y} {vis} +handle (GetCursorInfo)");
+    if curℹ.flags != CURSOR_SHOWING {return}
 
     // 1.2 Get handle(s) to the cursor bitmap mask(s)
     let coords = parse_cursor_h(cur_h);
