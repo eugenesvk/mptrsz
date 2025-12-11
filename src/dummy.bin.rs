@@ -10,6 +10,7 @@ pub use ::h::helper	::*;
 _mod!(binmod); //→ #[path="binmod/[binmod].rs"] pub mod binmod;
 use crate::binmod::print42;
 use mouse_sz_lib::libmod::{ret42,get_mptr_sz,measure_mcursor_bm,cur_box,};
+use mouse_sz_lib::φ;
 
 use std::error::Error;
 use std::result;
@@ -98,7 +99,7 @@ fn main() {
       } else  if curℹ.flags   == CURSOR_SUPPRESSED	{"✗supr"
       } else                                      	{""};
     let x = curℹ.ptScreenPos.x; let y = curℹ.ptScreenPos.y;
-    println!("1.1) 🖰 global: x{x} y{y} {vis} +handle (GetCursorInfo)");
+    φ!("1.1) 🖰 global: x{x} y{y} {vis} +handle (GetCursorInfo)");
 
     // 1.2 Get handle(s) to the cursor bitmap mask(s)
     let coords = parse_cursor_h(cur_h);
