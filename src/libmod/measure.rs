@@ -25,7 +25,7 @@ fn get_cursor_reg() -> Res_win<u32> {
 }
 
 #[docpos]
-pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that contains all pixels, based off its ⋀AND and ⊻XOR bitmasks from GetIconInfo.</br>Masks can be of different size depending on the desired effect, e.g., ⋀AND can be empty with all 1s to not overwrite any 🖵pixels, but ⊻XOR can be bigger and invert those pixels with 1s, so still have a visual effect, so the bounding box should be the bigger of the two: 0 ⋀AND.
+pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that contains all pixels, based off its ⋀AND and ⊻XOR bitmasks from `GetIconInfo`. Accounts for `Settings`→`Accessibility`→`Size` factor by applying it manually since the API only adjusts the nominal 32·32 size by screen dpi, but not by accessibility resize. Though the result can be 1-2 pixels off compared to the actual size/position (based on DX Duplication API results). Also doesn't take cursor shadow into account (unlike DX Duplication).</br>(masks can be of different size depending on the cursor type, e.g., `⋀AND` can be empty with all `1`s to not overwrite any 🖵screen pixels, but `⊻XOR` can be bigger and invert those pixels with `1`s, so still have a visual effect, so the bounding box is based on the actual visual effect, not just single mask size.)
   𝑏mask	: HBITMAP	,/// 🖰Mono       : ⋀AND top + ⊻XOR bottom
     ///	  </br>  	     🖰Colorμ: ⋀AND
     ///	  </br>  	     🖰Colorα     : ✗
