@@ -183,7 +183,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       let mut most𑁱	= 0         ; //pushed → …
       let mut most𖭩	= h as usize;
       let mut most𖭪	= 0;
-      let mut 𝑐ℕ 	= 1;
+      let mut 𝑐ℕ   	= 1;
 
       // not needed to account for rotation?
         // let scan_lines = match output_desc.Rotation {
