@@ -308,7 +308,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       if is_s { let ss = s.as_deref_mut().unwrap();
         if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME {for (i,v) in scan_line_test.iter().enumerate() {
         let row_csz = ptr_shape.Pitch as usize;
-        let r = &chunk_test[(i*row_csz)..((i+1)*row_csz)];
+        let r =                         &chunk_test[(i*row_csz)..((i+1)*row_csz)];
         *ss += &format!("№{v} = "); get𝑏_row(r, ss); *ss += &format!("\n"); }
         } else {                                                  for (i,v) in scan_line_test.iter().enumerate() {
         let row_csz = 𝑐ℕ * w_sz;
