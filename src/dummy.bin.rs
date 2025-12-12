@@ -105,8 +105,8 @@ fn main() {
     // 1.2 Get handle(s) to the cursor bitmap mask(s)
     let coords = parse_cursor_h(cur_h);
     match coords {
-      Some(c)	=> {println!("global 🖰 𝑏map: coords {:?}",c);},
-      None   	=> {println!("global 🖰 𝑏map: no mouse pointer shape captured");},
+      Some(c)	=> {pp!("global 🖰 𝑏map: coords {:?}",c);},
+      None   	=> {pp!("global 🖰 𝑏map: no mouse pointer shape captured");},
     };
   }
 
