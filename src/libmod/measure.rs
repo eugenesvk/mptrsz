@@ -12,18 +12,9 @@ use windows::Win32::{
   UI::WindowsAndMessaging::{HICON,ICONINFO,CURSORINFO,HCURSOR,CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,
   GetCursor,GetCursorPos,GetCursorInfo,GetIconInfo}
 };
-pub fn get_bits   (x:  u8) -> String {
- let mut s = String::new(); for byte in x.to_be_bytes().iter() { s += &format!("{:08b} ", byte);}  s}
-pub fn add_bits   (x:  u8 ,mut s:String) {
-                            for byte in x.to_be_bytes().iter() { s += &format!("{:08b} ", byte);}}
-pub fn get𝑏_row   (r:&[u8],mut s:&mut String){
-  for x in r {              for byte in x.to_be_bytes().iter() {*s += &format!("{:08b} ", byte);}  }   }
-pub fn print_bits (x:  u8) {for byte in x.to_be_bytes().iter() {        print!("{:08b} ", byte);}}
-pub fn print𝑏_row (r:&[u8]){for x in r {print_bits(*x);}}
-pub fn print𝑏_slice(r:&BitSlice<u8,Msb0>){for x in r {print!("{}",if *x{1}else{0});}}
 
 use windows_registry::{CURRENT_USER,Result as Res_win};
-fn get_cursor_reg() -> Res_win<u32> {
+pub fn get_cursor_reg() -> Res_win<u32> {
   let key_s = r#"software\Microsoft\Accessibility"#;
   let key_reg = CURRENT_USER.options().read().open(key_s)?;
   let val_reg = key_reg.get_u32("CursorSize")?;
