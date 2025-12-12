@@ -219,8 +219,8 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
             let hrow = 𝑖row - hmask;
             chunk𝑏.chunks(𝑏pc   ).enumerate().for_each(|(𝑗col, px   )| { // px: &BitSlice<u8>
               if   px[0] == true {
-                if 𝑗col < most𐎓  	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱    	{most𑁱 = 𝑗col;}
-                if hrow   < most𖭩	{most𖭩 = hrow  ;} if hrow   > most𖭪	{most𖭪 = hrow  ;}  }
+                if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
+                if hrow < most𖭩	{most𖭩 = hrow;} if hrow > most𖭪	{most𖭪 = hrow  ;}  }
               if is_s {(*s.as_deref_mut().unwrap()).push(if px[0]==true  {'█'}else{' '})}
             });
           }
