@@ -313,13 +313,13 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         } else {                                                  for (i,v) in scan_line_test.iter().enumerate() {
         let row_csz = 𝑐ℕ * w_sz;
         *ss += &format!("№{v} = {:?}\n",&chunk_test[(i*row_csz)..((i+1)*row_csz)]);}  }
-        *s.as_deref_mut().unwrap() += &format!("←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} true bounding box (non0 pixels, 0-based coords )\n",
+        *ss += &format!("←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} true bounding box (non0 pixels, 0-based coords )\n",
         most𑁱-most𐎓+1, most𖭪-most𖭩+1);
         let mcur𝑡 = if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME  	{CursorColor::Mono
           } else    if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR       	{CursorColor::Colorα
           } else    if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR	{CursorColor::Colorμ
           } else                                                              	{CursorColor::Colorα};
-        *s.as_deref_mut().unwrap() += &format!("{}\n{}\n\
+        *ss += &format!("{}\n{}\n\
           {w} {h}  {hot_x} {hot_y}  {}b  {wb} {mcur𝑡} {mcur𝑡:#?}"
           ,"       Hotspot Bytes B Type"
           ," ↔   ↕  x  y   Size  ↔              №𝑐 𝑏⁄𝑐 𝑏⁄𝑝", ptr_buff.len());
