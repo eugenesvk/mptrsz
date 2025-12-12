@@ -305,10 +305,14 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       if  most𐎓 > most𑁱 // todo: convert to proper error
        || most𖭩 > most𖭪 {return None}
 
-      let row_csz = 𝑐ℕ * w_sz;
-      if is_s {
-        for (i,v) in scan_line_test.iter().enumerate() {
-        *s.as_deref_mut().unwrap() += &format!("№{v} = {:?}\n",&chunk_test[(i*row_csz)..((i+1)*row_csz)]);}
+      if is_s { let ss = s.as_deref_mut().unwrap();
+        if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME {for (i,v) in scan_line_test.iter().enumerate() {
+        let row_csz = ptr_shape.Pitch as usize;
+        let r = &chunk_test[(i*row_csz)..((i+1)*row_csz)];
+        *ss += &format!("№{v} = "); get𝑏_row(r, ss); *ss += &format!("\n"); }
+        } else {                                                  for (i,v) in scan_line_test.iter().enumerate() {
+        let row_csz = 𝑐ℕ * w_sz;
+        *ss += &format!("№{v} = {:?}\n",&chunk_test[(i*row_csz)..((i+1)*row_csz)]);}  }
         *s.as_deref_mut().unwrap() += &format!("←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} true bounding box (non0 pixels, 0-based coords )\n",
         most𑁱-most𐎓+1, most𖭪-most𖭩+1);
         let mcur𝑡 = if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME  	{CursorColor::Mono
