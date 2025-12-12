@@ -12,9 +12,9 @@ use windows::Win32::{
   UI::WindowsAndMessaging::{HICON,ICONINFO,CURSORINFO,HCURSOR,CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,
   GetCursor,GetCursorPos,GetCursorInfo,GetIconInfo}
 };
-fn print_bits (x:  u8) {for byte in x.to_be_bytes().iter() {print!("{:08b} ", byte);}}
-fn print𝑏_row (r:&[u8]){for x in r {print_bits(*x);}}
-fn print𝑏_slice(r:&BitSlice<u8,Msb0>){for x in r {print!("{}",if *x{1}else{0});}}
+pub fn print_bits (x:  u8) {for byte in x.to_be_bytes().iter() {print!("{:08b} ", byte);}}
+pub fn print𝑏_row (r:&[u8]){for x in r {print_bits(*x);}}
+pub fn print𝑏_slice(r:&BitSlice<u8,Msb0>){for x in r {print!("{}",if *x{1}else{0});}}
 
 use windows_registry::{CURRENT_USER,Result as Res_win};
 fn get_cursor_reg() -> Res_win<u32> {
