@@ -208,20 +208,20 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
           if is_s {if φL>=3&&scan_line_test.contains(&𝑖row) {chunk_test.extend_from_slice(chunk);}}
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
           let chunk𝑏 = BitSlice::<_,Msb0>::from_slice(&chunk);
-          if 𝑖row < hmask {if 𝑖row==0     {if is_s {*s.as_deref_mut().unwrap() += "———⋀AND bitmask———";}}
+          if 𝑖row < hmask {if 𝑖row==0     {if is_s {*s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n¦";}}
             chunk𝑏.chunks(𝑏pc   ).enumerate().for_each(|(𝑗col, px   )| { // px: &BitSlice<u8>
               if   px[0] == false {
                 if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
                 if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}  }
-              if is_s {(*s.as_deref_mut().unwrap()).push(if px[0]==false {'█'}else{' '})}
+              if is_s {(*s.as_deref_mut().unwrap()).push(if px[0]==false {'•'}else{' '})}
             });
-          } else          {if 𝑖row==hmask {if is_s {*s.as_deref_mut().unwrap() += "———⊻XOR bitmask———";}}
+          } else          {if 𝑖row==hmask {if is_s {*s.as_deref_mut().unwrap() += "———  ⊻XOR Mono◧ bitmask 0≝ 1Δ• ———¦\n¦";}}
             let hrow = 𝑖row - hmask;
             chunk𝑏.chunks(𝑏pc   ).enumerate().for_each(|(𝑗col, px   )| { // px: &BitSlice<u8>
               if   px[0] == true {
                 if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
                 if hrow < most𖭩	{most𖭩 = hrow;} if hrow > most𖭪	{most𖭪 = hrow  ;}  }
-              if is_s {(*s.as_deref_mut().unwrap()).push(if px[0]==true  {'█'}else{' '})}
+              if is_s {(*s.as_deref_mut().unwrap()).push(if px[0]==true  {'•'}else{' '})}
             });
           }
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
