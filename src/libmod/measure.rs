@@ -172,7 +172,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let pad = if hX_sz <= 9 {1} else if hX_sz <= 99 {2} else {3};
     if is_s {
          *s.as_deref_mut().unwrap() += &format!(
-      "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA}№𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz} ■sz Mono◧ 𝑏mask (BGRα DIB)\n");
+      "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA}№𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz}■sz {sz_acc}⋅🮰sz Mono◧ 𝑏mask (BGRα DIB)\n");
          *s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n";
     curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
       if φL>=3&&row_p.contains(&𝑖row){print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(&row);println!("");}
@@ -183,7 +183,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     });
 
          *s.as_deref_mut().unwrap() += &format!(
-      "↔{wX} ↕{hX} ↔{wXb}B  {cur𝑡:?}   {𝑐ℕX}№𝑐⋅{𝑏pcX}𝑏⁄𝑐={𝑏ppX}𝑏⁄𝑝 {pxX_sz} ■sz Color 𝑏map (BGRα DIB)\n");
+      "↔{wX} ↕{hX} ↔{wXb}B  {cur𝑡:?}   {𝑐ℕX}№𝑐⋅{𝑏pcX}𝑏⁄𝑐={𝑏ppX}𝑏⁄𝑝 {pxX_sz}■sz {sz_acc}⋅🮰sz Color 𝑏map (BGRα DIB)\n");
          *s.as_deref_mut().unwrap() += "——— ⊻XOR Color bitmap 0≝ 1Δ• ———¦\n";
     curX_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {(*s.as_deref_mut().unwrap()).push('¦');
       if φL>=3&&row_p.contains(&𝑖row){pp!("№{𝑖row:>pad$} {row:?}",pad=pad);}
@@ -257,8 +257,10 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
 
     if is_s {
          *s.as_deref_mut().unwrap() += &format!(
-      "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA}№𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz} ■sz Mono◧ 𝑏mask (BGRα DIB)\n");
+      "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA}№𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz}■sz {sz_acc}⋅🮰sz {rowA_sz}rowA Mono◧ 𝑏mask (BGRα DIB)\n");
          *s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n";
+         if sz_acc > 1 {
+         *s.as_deref_mut().unwrap() += "——— (likely nonsensical since 🮰sz Accessibility Size > 1)¦\n";}
     curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
       if φL>=3&&row_p.contains(&𝑖row){print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(&row);println!("");}
       (  *s.as_deref_mut().unwrap()).push('¦');
