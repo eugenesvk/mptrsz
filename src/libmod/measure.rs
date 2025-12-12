@@ -16,6 +16,14 @@ fn print_bits (x:  u8) {for byte in x.to_be_bytes().iter() {print!("{:08b} ", by
 fn print𝑏_row (r:&[u8]){for x in r {print_bits(*x);}}
 fn print𝑏_slice(r:&BitSlice<u8,Msb0>){for x in r {print!("{}",if *x{1}else{0});}}
 
+use windows_registry::{CURRENT_USER,Result as Res_win};
+fn get_cursor_reg() -> Res_win<u32> {
+  let key_s = r#"software\Microsoft\Accessibility"#;
+  let key_reg = CURRENT_USER.options().read().open(key_s)?;
+  let val_reg = key_reg.get_u32("CursorSize")?;
+  Ok(val_reg)
+}
+
 #[docpos]
 pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that contains all pixels, based off its ⋀AND and ⊻XOR bitmasks from GetIconInfo.</br>Masks can be of different size depending on the desired effect, e.g., ⋀AND can be empty with all 1s to not overwrite any 🖵pixels, but ⊻XOR can be bigger and invert those pixels with 1s, so still have a visual effect, so the bounding box should be the bigger of the two: 0 ⋀AND.
   𝑏mask	: HBITMAP	,/// 🖰Mono       : ⋀AND top + ⊻XOR bottom
@@ -40,6 +48,13 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
   let mut most𑁱	= 0usize    ; //pushed → …
   let mut most𖭩	= usize::MAX;
   let mut most𖭪	= 0usize    ;
+  let mut h_accf = 0.0;
+  let mut h_accΔ = 0usize;
+
+  let sz_acc = match get_cursor_reg() {
+    Ok (sz_acc) 	=> sz_acc,
+    Err(e      )	=> {φ!("Couldn't read CursorSize Accessibility multiplier from the registry! The bounding box will be wrong if the cursor size is > 1  ε={}",e); 1},
+  };
 
   // Iterate over mouse cursor 𝑏map buffer to detect blank pixels and bounding box size
   if cur𝑐.is_invalid() { let cur𝑡 = CursorColor::Mono; // 1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝, 𝑏mask has both ⋀AND and ⊻XOR masks
@@ -55,9 +70,11 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let 𝑏pc	= 𝑏pp / 𝑐ℕ;
 
     let buf_sz = (wb * h) as usize;
+    h_accΔ = ((sz_acc - 1) as usize) * (h_sz / 2); // 1 unit of accessibilitiy scale increases cursor size by half
+    h_accf = 1.0 + (h_accΔ as f32 / h_sz as f32);
 
     if is_s { *s.as_deref_mut().unwrap() += &format!(
-      "↔{w} ↕{h_sz} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ}№𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz} ■sz (DIB ⋀AND mask + ⊻XOR mask)\n");    }
+      "↔{w} ↕{h_sz} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ}№𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz}■sz {sz_acc}⋅🮰sz (DIB ⋀AND mask + ⊻XOR mask)\n");    }
     let mut cur_buf = vec![0u8; buf_sz];
     let ret = unsafe{GetBitmapBits(𝑏mask, cur_buf.len() as i32, cur_buf.as_mut_ptr() as *mut c_void,) };
     if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
@@ -134,6 +151,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let 𝑏pcX	= 𝑏ppX / 𝑐ℕX;
     let bufX_sz = (wXb * hX) as usize;
     let 𝑐ℕX_sz	= 𝑐ℕX        as usize;
+    h_accΔ = ((sz_acc - 1) as usize) * (hX_sz / 2); // 1 unit of accessibilitiy scale increases cursor size by half
+    h_accf = 1.0 + (h_accΔ as f32 / hX_sz as f32);
 
     let mut curX_buf = vec![0u8; bufX_sz];
     let ret = unsafe{GetBitmapBits(cur𝑐, curX_buf.len() as i32, curX_buf.as_mut_ptr() as *mut c_void,) };
@@ -278,6 +297,15 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
 
   if  most𐎓 > most𑁱 // todo: convert to proper error
    || most𖭩 > most𖭪 {return None}
+
+  if sz_acc > 1 { // adjust bounding box bottom/right sides by accessibility Δ since GetCursorInfo retrieves cursor mask of the default size (only adjusted by screen scaling, so 32⋅32⋅dpi)
+  if is_s {*s.as_deref_mut().unwrap() += &format!(
+    "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box PRE accessibility scaling (⋅{})\n",
+    most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1, h_accf);}
+    most𖭩 = (most𖭩 as f32 * h_accf).round() as usize;
+    most𐎓 = (most𐎓 as f32 * h_accf).round() as usize;
+    most𑁱 = (most𑁱 as f32 * h_accf).round() as usize;
+    most𖭪 = (most𖭪 as f32 * h_accf).round() as usize;}
 
   if is_s {*s.as_deref_mut().unwrap() += &format!(
     "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box (¬0 px, 0-based coords)\n",
