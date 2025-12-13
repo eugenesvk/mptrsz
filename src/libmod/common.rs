@@ -89,7 +89,7 @@ pub struct cur_box { /// 🖰Mouse cursor real bounding box around actualy drawn
   pub ptl:Point ,/// ↖ top-left     corner point coordinates (x,y) in bounding box coordinates (↖ box = 0,0)
   pub pbr:Point ,/// ↘ bottom-right …
                  ///!  position of the cursor's hot spot relative to its top-left pixel
-  pub hs :Option<Point> ,
+  pub hs :Point ,
 }
 
 

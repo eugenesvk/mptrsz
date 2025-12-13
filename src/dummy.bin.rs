@@ -47,11 +47,12 @@ fn parse_cursor_h(cur_h:HCURSOR) -> Option<cur_box> {
     let iℹ_T 	= if iℹ.fIcon == TRUE {'🖼'}else{'🖰'};
     let hot_x	=    iℹ.xHotspot; let hot_y = iℹ.yHotspot;
     if dbg {println!("2) T={iℹ_T} {}  hot_x{hot_x} y{hot_y} (GetIconInfo)",if iℹ_T=='🖰'{"≝🖰"}else{"!!! should be 🖰 !!!"});}
+    let mut hot_p = Point {x:iℹ.xHotspot as i32, y:iℹ.yHotspot as i32};
 
     // 3 Get handle(s) to the cursor bitmap mask(s)
     let coords = if dbg {let mut out_str = String::new();
-      let _r	=measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, Some(&mut out_str)); println!("{}",out_str); _r
-    } else  	{measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, None)};
+      let _r	=measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, hot_p, Some(&mut out_str)); pp!("{}",out_str); _r
+    } else  	{measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, hot_p, None              )};
     // let bm_h = if iℹ.hbmColor.is_invalid() {iℹ.hbmMask} else {iℹ.hbmColor};
     // test_GetDIBits(bm_h);
 

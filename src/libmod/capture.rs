@@ -218,7 +218,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       return Some(cur_box{
         ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
         pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
-        hs :Some(Point {x: hot_x, y: hot_y})})
+        hs :Point {x: hot_x       , y: hot_y}})
     },
   }
 }
