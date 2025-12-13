@@ -46,7 +46,7 @@ fn parse_cursor_h(cur_h:HCURSOR) -> Option<cur_box> {
   let res = unsafe { GetIconInfo(cur_h.into(), &mut iℹ) }; if !res.is_ok() {println!("1) ✗ GetIconInfo");None}else{
     let iℹ_T 	= if iℹ.fIcon == TRUE {'🖼'}else{'🖰'};
     let hot_x	=    iℹ.xHotspot; let hot_y = iℹ.yHotspot;
-    if dbg {println!("2) T={iℹ_T} {}  hot_x{hot_x} y{hot_y} (GetIconInfo)",if iℹ_T=='🖰'{"≝🖰"}else{"!!! should be 🖰 !!!"});}
+    φ!("2) T={iℹ_T} {}  hot_x{hot_x} y{hot_y} (GetIconInfo)",if iℹ_T=='🖰'{"≝🖰"}else{"!!! should be 🖰 !!!"});
     let mut hot_p = Point {x:iℹ.xHotspot as i32, y:iℹ.yHotspot as i32};
 
     // 3 Get handle(s) to the cursor bitmap mask(s)
