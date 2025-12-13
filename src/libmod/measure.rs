@@ -21,6 +21,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
   cur𝑐 	: HBITMAP	,/// 🖰Mono       : ✗          (↑in 𝑏mask)
     ///	  </br>  	     🖰Colorμ     : ⊻XOR-masked mixels without transparency
     ///	  </br>  	     🖰Colorα     : replacement pixels with    transparency
+  mut hot_p:Point, /// Hotspot coordinates to be adjusted if Accessibility size > 1
   ///! store the text drawing of the cursor and print a few metrics (mostly for debugging)
   mut s:Option<&mut String>
 ) -> Option<cur_box>  {
@@ -291,19 +292,23 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
 
   if sz_acc > 1 { // adjust bounding box bottom/right sides by accessibility Δ since GetCursorInfo retrieves cursor mask of the default size (only adjusted by screen scaling, so 32⋅32⋅dpi)
   if is_s {*s.as_deref_mut().unwrap() += &format!(
-    "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box PRE accessibility scaling (⋅{})\n",
-    most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1, h_accf);}
+    "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box PRE accessibility scaling (⋅{}) HS•x{} y{}\n",
+    most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1, h_accf, hot_p.x, hot_p.y);}
     most𖭩 = (most𖭩 as f32 * h_accf).round() as usize;
     most𐎓 = (most𐎓 as f32 * h_accf).round() as usize;
     most𑁱 = (most𑁱 as f32 * h_accf).round() as usize;
-    most𖭪 = (most𖭪 as f32 * h_accf).round() as usize;}
+    most𖭪 = (most𖭪 as f32 * h_accf).round() as usize;
+
+    hot_p.x = (hot_p.x as f32 * h_accf).round() as i32;
+    hot_p.y = (hot_p.y as f32 * h_accf).round() as i32;
+  }
 
   if is_s {*s.as_deref_mut().unwrap() += &format!(
-    "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box (¬0 px, 0-based coords)\n",
-    most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1);}
+    "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box (¬0 px, 0-based coords) HS•x{} y{}\n",
+    most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1, hot_p.x, hot_p.y);}
 
   return Some(cur_box{
     ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
     pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
-    hs :None, })
+    hs :hot_p, })
 }
