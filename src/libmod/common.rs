@@ -136,7 +136,7 @@ pub fn is_px3_grey    (px:&[u8]) -> bool{px[0]==px[1]  && px[1]==px[2]}
 
 
 // println! conditionally depending on φL level
-const φL:u8 = 3;
+pub const φL:u8 = 3;
 #[macro_export] macro_rules! φ {($($tokens:tt)*) => {if cfg!(debug_assertions){          pp!("{}",format!($($tokens)*))         } else{} }}
 #[macro_export] macro_rules! φ1{($($tokens:tt)*) => {if cfg!(debug_assertions){ if φL>=1{pp!("{}",format!($($tokens)*))} else {}} else{} }}
 #[macro_export] macro_rules! φ2{($($tokens:tt)*) => {if cfg!(debug_assertions){ if φL>=2{pp!("{}",format!($($tokens)*))} else {}} else{} }}
