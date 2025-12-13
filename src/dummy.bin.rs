@@ -43,7 +43,7 @@ fn parse_cursor_h(cur_h:HCURSOR) -> Option<cur_box> {
     hbmMask :hBitMap	icon monochrome mask bitmap. Monochrome icons: hbmMask = 2⋅iconHeight = AND mask on top and XOR mask on the bottom
     hbmColor:hBitMap	icon color           bitmap. NULL for monochrome*/
   // todo: convert to a proper error
-  let res = unsafe { GetIconInfo(cur_h.into(), &mut iℹ) }; if !res.is_ok() {println!("1) ✗ GetIconInfo");None}else{
+  let res = unsafe { GetIconInfo(cur_h.into(), &mut iℹ) }; if !res.is_ok() {pp!("1) ✗ GetIconInfo");None}else{
     let iℹ_T 	= if iℹ.fIcon == TRUE {'🖼'}else{'🖰'};
     let hot_x	=    iℹ.xHotspot; let hot_y = iℹ.yHotspot;
     φ!("2) T={iℹ_T} {}  hot_x{hot_x} y{hot_y} (GetIconInfo)",if iℹ_T=='🖰'{"≝🖰"}else{"!!! should be 🖰 !!!"});
@@ -59,16 +59,16 @@ fn parse_cursor_h(cur_h:HCURSOR) -> Option<cur_box> {
     // Avoid resource leaks    DeleteObject(ho:HGDIOBJ) -> BOOL
     let _d1 = if iℹ.hbmMask .is_invalid(){TRUE}else{unsafe{DeleteObject(iℹ.hbmMask .into())}};
     let _d2 = if iℹ.hbmColor.is_invalid(){TRUE}else{unsafe{DeleteObject(iℹ.hbmColor.into())}};
-    if _d1==FALSE || _d2==FALSE {println!("🛑GDI resource leak! ✗Mask {_d1:?} ✗Color {_d2:?}");}
+    if _d1==FALSE || _d2==FALSE {pp!("🛑GDI resource leak! ✗Mask {_d1:?} ✗Color {_d2:?}");}
 
     coords
   }
 }
 
 fn parse_cursor_dxgi() -> Option<cur_box> {
-  if dbg {println!("\n\n\n——————————————— 2. DXGI duplication API\n");}
+  if dbg {pp!("\n\n\n——————————————— 2. DXGI duplication API\n");}
   if dbg {let mut out_str = String::new();
-    let _r	=get_mptr_sz(Some(&mut out_str)); println!("{}",out_str); _r
+    let _r	=get_mptr_sz(Some(&mut out_str)); pp!("{}",out_str); _r
   } else  	{get_mptr_sz(None)}
 }
 
@@ -85,7 +85,7 @@ fn main() {
   // 0 Current cursor position (GetCursorPos)
   let mut cur_pos = POINT::default();
   let cur_pos_res =  unsafe{GetCursorPos(&mut cur_pos)}; //current of global?
-  if cur_pos_res.is_ok() {println!("0) 🖰 x{} y{} (GetCursorPos)",cur_pos.x,cur_pos.y);}
+  if cur_pos_res.is_ok() {pp!("0) 🖰 x{} y{} (GetCursorPos)",cur_pos.x,cur_pos.y);}
 
   // 1 🖰 Global cursor (GetCursorInfo) even if it's not owned by the current thread
   // 1.1 Get handle to the cursor itself
@@ -93,7 +93,7 @@ fn main() {
     /*hCursor:HCURSOR   cbSize:u32 (!must set before! ??? becomes 0 after GetCursorInfo call)
     flags      :CURSORINFO_FLAGS	0=hidden 1=CURSOR_SHOWING 2=CURSOR_SUPPRESSED (touch/pen)
     ptScreenPos:POINT           	screen coordinates of the cursor*/
-  let res = unsafe { GetCursorInfo(&mut curℹ) }; if !res.is_ok() {println!("1.1) ✗ GetCursorInfo");}else{
+  let res = unsafe { GetCursorInfo(&mut curℹ) }; if !res.is_ok() {pp!("1.1) ✗ GetCursorInfo");}else{
     let cur_h:HCURSOR = curℹ.hCursor;
     let vis = if curℹ.flags.0 == 0                	{"✗🕶" //hidden
       } else  if curℹ.flags   == CURSOR_SHOWING   	{"✓👓"
@@ -112,13 +112,13 @@ fn main() {
   }
 
   // 2 🖰 Current cursor (mostly busy even if it's invisible during fast run)
-  // let cur_h:HCURSOR =  unsafe{GetCursor()}; if cur_h.is_invalid() {println!("2.1) ✗ GetCursor");}else{
-  //   println!("2.1) 🖰 current: +handle (GetCursor)");
+  // let cur_h:HCURSOR =  unsafe{GetCursor()}; if cur_h.is_invalid() {pp!("2.1) ✗ GetCursor");}else{
+  //   pp!("2.1) 🖰 current: +handle (GetCursor)");
   //   // 2.2 Get handle(s) to the cursor bitmap mask(s)
   //   let coords = parse_cursor_h(cur_h);
   //   match coords {
-  //     Some(c)	=> {println!("current 🖰 𝑏map: coords {:?}",c);},
-  //     None   	=> {println!("current 🖰 𝑏map: no mouse pointer shape captured");},
+  //     Some(c)	=> {pp!("current 🖰 𝑏map: coords {:?}",c);},
+  //     None   	=> {pp!("current 🖰 𝑏map: no mouse pointer shape captured");},
   //   };
   // }
 
@@ -126,8 +126,8 @@ fn main() {
   // 3 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
     let coords = parse_cursor_dxgi();
     match coords {
-      Some(c)	=> {println!("DXGI: coords {:?}",c);},
-      None   	=> {println!("DXGI: no mouse pointer shape captured");},
+      Some(c)	=> {pp!("DXGI: coords {:?}",c);},
+      None   	=> {pp!("DXGI: no mouse pointer shape captured");},
     };
   //
   // TODO: HOW to detect whether a cursor is 24bit color (all α=0 even though it exists) or 32 bit color (α
