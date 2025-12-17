@@ -24,7 +24,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
   mut hot_p:Point, /// Hotspot coordinates to be adjusted if Accessibility size > 1
   ///! store the text drawing of the cursor and print a few metrics (mostly for debugging)
   mut s:Option<&mut String>
-) -> Option<cur_box>  {
+) -> Result<cur_box,CursorSizeErr>  {
   let is_s = s.is_some(); //store a printout string of non-empty pixels
   /* BITMAP:
     bmType:i32=0   bmPlanes:u16=№color planes (❗NOT colors)
@@ -51,7 +51,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let 𝑐ℕ = 1;
     let mut bmAX = BITMAP::default();
     let bmAXsz = unsafe{ GetObjectW(𝑏mask.into(), size_of::<BITMAP>() as _, Some(&mut bmAX as *mut BITMAP as _)) };
-    if  bmAXsz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
+    if  bmAXsz <= 0 {return Err(CursorSizeErr::Bitmap("Mono: ‘GetObjectW’ got no bytes for the 𝑏mask buffer".into()))};
 
     let w  	= bmAX.bmWidth     	; let w_sz  	= w        as usize;
     let wb 	= bmAX.bmWidthBytes	; let row_sz	= wb       as usize; // aka stride
@@ -67,7 +67,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       "↔{w} ↕{h_sz} ↔{wb}B  {cur𝑡:?}   {𝑐ℕ}№𝑐⋅{𝑏pc}𝑏⁄𝑐={𝑏pp}𝑏⁄𝑝 {px_sz}■sz {sz_acc}⋅🮰sz (DIB ⋀AND mask + ⊻XOR mask)\n");    }
     let mut cur_buf = vec![0u8; buf_sz];
     let ret = unsafe{GetBitmapBits(𝑏mask, cur_buf.len() as i32, cur_buf.as_mut_ptr() as *mut c_void,) };
-    if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
+    if  ret == 0 {return Err(CursorSizeErr::Bitmap("Mono: ‘GetBitmapBits’ copied no bytes from 𝑏mask".into()))};
 
     // 1. Print each mask separately, do box calculations later with both masks applied
     let pad = if h_sz <= 9 {1} else if h_sz <= 99 {2} else {3};
@@ -116,8 +116,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let mut bmX = BITMAP::default(); //color      𝑏map
     let bmAsz = unsafe{ GetObjectW(𝑏mask.into(), size_of::<BITMAP>() as _, Some(&mut bmA as *mut BITMAP as _)) };
     let bmXsz = unsafe{ GetObjectW(cur𝑐 .into(), size_of::<BITMAP>() as _, Some(&mut bmX as *mut BITMAP as _)) };
-    if  bmAsz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
-    if  bmXsz <= 0 {return None}; // no bytes for the buffer. todo: convert to a proper error
+    if  bmAsz <= 0 {return Err(CursorSizeErr::Bitmap("Colorμ: ‘GetObjectW’ copied no bytes for the monochrome 𝑏mask buffer".into()))};
+    if  bmXsz <= 0 {return Err(CursorSizeErr::Bitmap("Colorμ: ‘GetObjectW’ copied no bytes for the color 𝑏map buffer".into()))};
 
     // Monochrome 𝑏mask
     let 𝑐ℕA 	= 1;
@@ -130,7 +130,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
 
     let mut curA_buf = vec![0u8; bufA_sz];
     let ret = unsafe{GetBitmapBits(𝑏mask, curA_buf.len() as i32, curA_buf.as_mut_ptr() as *mut c_void,) };
-    if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
+    if  ret == 0 {return Err(CursorSizeErr::Bitmap("Colorμ: ‘GetBitmapBits’ copied no bytes from the monochrome 𝑏mask".into()))};
 
     // Color bits
     let 𝑐ℕX 	= 4; //unknown whether the 4th color is 0s (masked 24𝑏) before parsing the α channel
@@ -146,7 +146,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
 
     let mut curX_buf = vec![0u8; bufX_sz];
     let ret = unsafe{GetBitmapBits(cur𝑐, curX_buf.len() as i32, curX_buf.as_mut_ptr() as *mut c_void,) };
-    if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
+    if  ret == 0 {return Err(CursorSizeErr::Bitmap("Colorμ: ‘GetBitmapBits’ copied no bytes from the color 𝑏map".into()))};
 
     let mut isα = false; // Detect α bits
     curX_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {
@@ -264,7 +264,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       "↔{wX} ↕{hX} ↔{wXb}B  {cur𝑡:?}   {𝑐ℕX}№𝑐⋅{𝑏pcX}𝑏⁄𝑐={𝑏ppX}𝑏⁄𝑝 {pxX_sz} ■sz (BGRα DIB)\n");    }
     let mut cur_buf = vec![0u8; bufX_sz];
     let ret = unsafe{GetBitmapBits(cur𝑐, cur_buf.len() as i32, cur_buf.as_mut_ptr() as *mut c_void,) };
-    if  ret == 0 {return None}; // no bytes copied. todo: convert into a proper error
+    if  ret == 0 {return Err(CursorSizeErr::Bitmap("Colorα: ‘GetBitmapBits’ copied no bytes from the color 𝑏map".into()))};
 
     if is_s {*s.as_deref_mut().unwrap() += "——— Color 𝑏map ■dark¦□light¦•other ———\n";} //◧visually works best for greys
     cur_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
@@ -288,7 +288,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
   // }
 
   if  most𐎓 > most𑁱 // todo: convert to proper error
-   || most𖭩 > most𖭪 {return None}
+   || most𖭩 > most𖭪 {return Err(CursorSizeErr::Ii("bounding box is invalid, is the cursor blank?".into()))};
 
   if sz_acc > 1 { // adjust bounding box bottom/right sides by accessibility Δ since GetCursorInfo retrieves cursor mask of the default size (only adjusted by screen scaling, so 32⋅32⋅dpi)
   if is_s {*s.as_deref_mut().unwrap() += &format!(
@@ -307,7 +307,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box (¬0 px, 0-based coords) HS•x{} y{}\n",
     most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1, hot_p.x, hot_p.y);}
 
-  return Some(cur_box{
+  return Ok(cur_box{
     ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
     pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
     hs :hot_p, })
