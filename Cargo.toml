@@ -40,6 +40,7 @@ windows = {version="0.59.0", features=[
 ]}
 rusty-duplication = "0.6.1"
 windows-registry = "0.6.1"
+widestring = "1.2.1"
 
 [build-dependencies]
 log	= "0.4"
