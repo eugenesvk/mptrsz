@@ -106,8 +106,8 @@ fn main() {
     // 1.2 Get handle(s) to the cursor bitmap mask(s)
     let coords = parse_cursor_h(cur_h);
     match coords {
-      Some(c)	=> {pp!("global 🖰 𝑏map: coords {:?}",c);},
-      None   	=> {pp!("global 🖰 𝑏map: no mouse pointer shape captured");},
+      Ok(c) 	=> {pp!("global 🖰 𝑏map: coords {:?}",c);},
+      Err(e)	=> {pp!("global 🖰 𝑏map: no mouse pointer shape captured: {e}");},
     };
   }
 
@@ -126,8 +126,8 @@ fn main() {
   // 3 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
     let coords = parse_cursor_dxgi();
     match coords {
-      Some(c)	=> {pp!("DXGI: coords {:?}",c);},
-      None   	=> {pp!("DXGI: no mouse pointer shape captured");},
+      Ok (c)	=> {pp!("DXGI: coords {:?}",c);},
+      Err(𝑒)	=> {pp!("DXGI: no mouse pointer shape captured: {}",𝑒);},
     };
   //
   // TODO: HOW to detect whether a cursor is 24bit color (all α=0 even though it exists) or 32 bit color (α
