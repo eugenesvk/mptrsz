@@ -38,10 +38,10 @@ use std::mem::{size_of,zeroed};
 use std::path::PathBuf;
 use docpos::*;
 #[docpos]
-pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible), i.e., the minimal box that contains all the pointer pixels. If `E̲nable pointer shadow` Windows Mouse setting is on, the cursor size increases by ~9⋅7 pixels, so instead of 48⋅48 you'd get 57⋅55 (also affects the cursor positioning within the cursor frame). `GetCursorInfo` alternative seems to ignore shadows and always gets 48⋅48. However, `Colorμ` cursors (24𝑏=8𝑏⋅3𝑐 `TrueColor` colors with at least 1 pixel "inverted" that requires using α-channel to track inversion (0xFF inverts, 0x0 replaces; 𝑎-channel is 0-ed out in regular 24𝑏 color bitmap)) do not drop shadow, so retain the same size (48⋅48 in the example above)
+pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible), i.e., the minimal box that contains all the pointer pixels. If `E̲nable pointer shadow` Windows Mouse setting is on, the cursor size increases by ~9⋅7 pixels, so instead of 48⋅48 (48=32⋅1.5 screen scaling) you'd get 57⋅55 (also affects the cursor positioning within the cursor frame). `GetCursorInfo` alternative seems to ignore shadows and always gets 48⋅48. However, `Colorμ` cursors (24𝑏=8𝑏⋅3𝑐 `TrueColor` colors with at least 1 pixel "inverted" that requires using α-channel to track inversion (0xFF inverts, 0x0 replaces; 𝑎-channel is 0-ed out in regular 24𝑏 color bitmap)) do not drop shadow, so retain the same size (48⋅48 in the example above)
   ///! store the text drawing of the pointer and print a few metrics (mostly for debugging)
   mut s:Option<&mut String>
-) -> Option<cur_box>  {
+) -> Result<cur_box,CursorSizeErr>  {
   let is_s = s.is_some(); //store a printout string of non-empty pixels
 
   let mut mon_scanner         	= Scanner::new()    .unwrap(); // Scanner to scan for monitors
@@ -51,10 +51,9 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
 
   // thread::sleep(Duration::from_millis(50)); // sleep before capture to wait system to update the screen
   let capt = capturer.capture_with_pointer_shape().unwrap(); // Res<(DXGI_OUTDUPL_FRAME_INFO,Option<DXGI_OUTDUPL_POINTER_SHAPE_INFO>,)>
-  let ptr_buff = capturer.pointer_shape_buffer;
 
   let maybe_ptr_shape = capt.1;
-  match maybe_ptr_shape {None=>{return None},
+  match maybe_ptr_shape {None=>{return Err(CursorSizeErr::DXDupe("Failed to capture pointer shape".into())) },
     Some(ptr_shape)	=> {
       let w = ptr_shape.Width; let w_sz = w as usize;
       let h = ptr_shape.Height;
@@ -84,6 +83,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         // println!("{:?} Rotation",output_desc.Rotation);
 
       // Iterate over mouse pointer buffer to detect blank pixels and true box size
+      let ptr_buff = capturer.pointer_shape_buffer;
 
       if        ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME   { //1c·1𝑏pc=1𝑏pp DIB ⋀AND mask + ⊻XOR mask (⋅2))
         // █black □white
@@ -192,8 +192,13 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       // let    stop = src.add(h as usize);
       // while src != stop {src = src.add(1);}
       // }
-      if  most𐎓 > most𑁱 // todo: convert to proper error
-       || most𖭩 > most𖭪 {return None}
+      let res_box = cur_box {
+        ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
+        pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
+        hs :Point {x: hot_x       , y: hot_y}};
+
+      if  most𐎓 > most𑁱
+       || most𖭩 > most𖭪 {return Err(CursorSizeErr::BoxSzInvalid(res_box)) }
 
       if is_s { let ss = s.as_deref_mut().unwrap();
         if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME {for (i,v) in scan_line_test.iter().enumerate() {
@@ -215,10 +220,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
           ," ↔   ↕  x  y   Size  ↔              №𝑐 𝑏⁄𝑐 𝑏⁄𝑝", ptr_buff.len());
       }
 
-      return Some(cur_box{
-        ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
-        pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
-        hs :Point {x: hot_x       , y: hot_y}})
+      return Ok(res_box)
     },
   }
 }
