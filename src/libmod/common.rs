@@ -91,6 +91,17 @@ pub struct cur_box { /// 🖰Mouse cursor real bounding box around actualy drawn
                  ///!  position of the cursor's hot spot relative to its top-left pixel
   pub hs :Point ,
 }
+impl Default for cur_box {fn default() -> Self {
+  cur_box {ptl:Point::default(), pbr:Point::default(), hs:Point::default()}}
+}
+impl fmt::Display for cur_box {fn fmt(&self, f:&mut fmt::Formatter) -> fmt::Result {
+  // if !f.alternate() {
+  write!(f,"🮰🖰 size:↖x{} y{} ↘x{} y{} HS•x{} y{}"
+    ,self.ptl.x, self.ptl.y
+    ,self.pbr.x, self.pbr.y
+    ,self.hs .x, self.hs .y    )
+  // } else /*#*/      { }
+}}
 
 
 use windows_registry::{CURRENT_USER,Result as Res_win};
