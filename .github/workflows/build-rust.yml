@@ -6,29 +6,48 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUSTFLAGS: "-Dwarnings"
+  RUSTFLAGS       : "-Dwarnings"
 
 jobs:
-  build-windows-x64:
-    runs-on: windows-latest
-
+  release-win:
+    strategy:
+      matrix:
+        include:
+          - os           : windows-latest
+            artifact_dll : ${{github.event.repository.name}}_lib.dll
+            asset_dll    : ${{github.event.repository.name}}.dll
+            artifact_exe : ${{github.event.repository.name}}.exe
+            asset_exe    : ${{github.event.repository.name}}_test.exe
+            cargo_target : x86_64-pc-windows-msvc
+            cache_key    : x64
+          - os           : windows-11-arm
+            artifact_dll : ${{github.event.repository.name}}_lib.dll
+            asset_dll    : ${{github.event.repository.name}}-arm64.dll
+            artifact_exe : ${{github.event.repository.name}}.exe
+            asset_exe    : ${{github.event.repository.name}}_test-arm64.exe
+            cargo_target : aarch64-pc-windows-msvc
+            cache_key    : arm64
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8    #v6.0.1 25-12
-      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 #v2.8.2 25-12
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 #v2.8.2 25-12
         with:
-          shared-key: "persist-cross-job-win-x64"
-      - name: Build x64
+          shared-key: "persist-cross-job-win-${{matrix.cache_key}}"
+      - name : Build release
         shell: powershell
-        run: |
-          md artifacts
-          cargo build --release       --target x86_64-pc-windows-msvc
-          mv target/x86_64-pc-windows-msvc/release/mptrsz.exe     artifacts/mptrsz.exe
-          cargo build --release --lib --target x86_64-pc-windows-msvc
-          mv target/x86_64-pc-windows-msvc/release/mptrsz_lib.dll artifacts/mptrsz_lib.dll
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0 25-12
+        run  : |
+          cargo build --release       --target ${{matrix.cargo_target}}
+          cargo build --release --lib --target ${{matrix.cargo_target}}
+          md asset
+          mv target/${{matrix.cargo_target}}/release/${{artifact_exe}} asset/${{matrix.asset_exe}}.exe
+          mv target/${{matrix.cargo_target}}/release/${{artifact_dll}} asset/${{matrix.asset_dll}}.dll
+        # ↑ useful when introducing features that would generate same-named artifacts
+      - name: Upload EXE+DLL artifacts
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0 25-12
         with:
-          name: mptrsz_exe+dll_win_x64
+          name: mptrsz_exe+dll_win
           path: |
-            artifacts/mptrsz.exe
-            artifacts/mptrsz_lib.dll
+            asset/${{matrix.asset_exe}}.exe
+            asset/${{matrix.asset_dll}}.dll
