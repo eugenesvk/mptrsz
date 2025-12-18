@@ -9,7 +9,7 @@ build  	= "build.rs"
 members = ["./","xtask"]	# relative to the workspace root
 
 [[bin]]
-name	= "mptrsz_bin"
+name	= "mptrsz"
 path	= "src/mptrsz.bin.rs"
 
 [lib]
