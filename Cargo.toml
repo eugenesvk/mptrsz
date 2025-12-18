@@ -1,5 +1,5 @@
 [package]  # help on keys doc.rust-lang.org/cargo/reference/manifest.html
-name   	= "dummy"
+name   	= "mptrsz"
 version	= "0.1.0"
 authors	= ["{{authors}}"]
 edition	= "2024"
@@ -9,12 +9,12 @@ build  	= "build.rs"
 members = ["./","xtask"]	# relative to the workspace root
 
 [[bin]]
-name	= "dummy_bin"
-path	= "src/dummy.bin.rs"
+name	= "mptrsz_bin"
+path	= "src/mptrsz.bin.rs"
 
 [lib]
-name      	= "mouse_sz_lib"
-path      	= "src/mouse_sz.lib.rs"
+name      	= "mptrsz_lib"
+path      	= "src/mptrsz.lib.rs"
 crate-type	= ['lib','cdylib']
 
 [dependencies]

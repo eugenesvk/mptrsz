@@ -9,8 +9,8 @@ pub use ::h::helper	::*;
 
 _mod!(binmod); //→ #[path="binmod/[binmod].rs"] pub mod binmod;
 use crate::binmod::print42;
-use mouse_sz_lib::libmod::{ret42,get_mptr_sz,measure_mcursor_bm,cur_box,Point,parse_cursor_h,parse_cursor_dxgi};
-use mouse_sz_lib::φ;
+use mptrsz_lib::libmod::{ret42,get_mptr_sz,measure_mcursor_bm,cur_box,Point,parse_cursor_h,parse_cursor_dxgi};
+use mptrsz_lib::φ;
 
 use thiserror::Error;
 use std::result;
