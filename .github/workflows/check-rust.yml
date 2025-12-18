@@ -1,0 +1,51 @@
+name: Run Cargo check and clippy
+on:
+  push:
+    branches  : ["main"]
+    paths     :
+      - Cargo.*
+      - src/**/*
+      - .github/workflows/rust.yml
+  pull_request:
+    branches  : ["main"]
+    paths     :
+      - Cargo.*
+      - src/**/*
+      - .github/workflows/rust.yml
+  workflow_dispatch:
+    branches: ["main"]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS       : "-Dwarnings"
+
+jobs:
+  # fmt:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Check fmt
+  #     run: cargo fmt --all --check
+
+  build-clippy-windows:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - build : windows
+            os    : windows-latest
+            target: x86_64-pc-windows-msvc
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8    #v6.0.1 25-12
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 #v2.8.2 25-12
+        with:
+          shared-key: "persist-cross-job"
+          workspaces: ./
+      - run: rustup component add clippy
+
+      - name: Run tests  no features
+        run : cargo test   --all --no-default-features
+      - name: Run clippy no features
+        run : cargo clippy --all --no-default-features -- -D warnings
