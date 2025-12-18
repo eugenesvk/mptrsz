@@ -47,7 +47,7 @@ jobs:
       - name: Upload EXE+DLL artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0 25-12
         with:
-          name: mptrsz_exe+dll_win
+          name: mptrsz_exe+dll_win_${{matrix.cache_key}}
           path: |
             asset/${{matrix.asset_exe}}.exe
             asset/${{matrix.asset_dll}}.dll
