@@ -1,0 +1,67 @@
+name: Release
+on:
+  push             : # automatically on any tag
+    tags           :
+      - '*'
+  workflow_dispatch: # run manually
+    branches       : ["main"]
+  workflow_call    : # can be called by another workflow
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS       : "-Dwarnings"
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        include:
+          - os           : windows-latest
+            artifact_dll : mptrsz_lib.dll
+            asset_dll    : mptrsz.dll
+            artifact_exe : mptrsz.exe
+            asset_exe    : mptrsz_test.exe
+            cargo_target : x86_64-pc-windows-msvc
+            cache_key    : x64
+          - os           : windows-11-arm
+            artifact_dll : mptrsz_lib.dll
+            asset_dll    : mptrsz-arm64.dll
+            artifact_exe : mptrsz.exe
+            asset_exe    : mptrsz_test-arm64.exe
+            cargo_target : aarch64-pc-windows-msvc
+            cache_key    : arm64
+          # alt name${{github.event.repository.name}}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8    #v6.0.1 25-12
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 #v2.8.2 25-12
+        with:
+          shared-key: "persist-cross-job-win-${{matrix.cache_key}}"
+
+      - name : Build release
+        shell: powershell
+        run  : |
+          cargo build --release       --target ${{matrix.cargo_target}}
+          cargo build --release --lib --target ${{matrix.cargo_target}}
+          md asset
+          mv target/${{matrix.cargo_target}}/release/${{matrix.artifact_exe}} asset/${{matrix.asset_exe}}
+          mv target/${{matrix.cargo_target}}/release/${{matrix.artifact_dll}} asset/${{matrix.asset_dll}}
+        # ↑ useful when introducing features that would generate same-named artifacts
+
+      - name: Upload DLL to release
+        uses: svenstaro/upload-release-action@6b7fa9f267e90b50a19fef07b3596790bb941741 #v2.11.3 25-12
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file      : asset/${{matrix.asset_dll}}
+          asset_name:       ${{matrix.asset_dll}}
+          tag       : ${{ github.ref }}
+
+      - name: Upload EXE to release
+        uses: svenstaro/upload-release-action@6b7fa9f267e90b50a19fef07b3596790bb941741 #v2.11.3 25-12
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file      : asset/${{matrix.asset_exe}}
+          asset_name:       ${{matrix.asset_exe}}
+          tag       : ${{ github.ref }}
