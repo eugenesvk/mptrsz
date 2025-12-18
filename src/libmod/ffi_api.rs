@@ -31,10 +31,6 @@ fn ret_error(err_msg:&U16CStr, err_sz:u32,err_ptr:*mut WideChar) -> *const WideC
 }
 
 
-// TODO: convert to Option(cur_box), not sure possible with AHK - it's a nullable pointer? so should be ok
-  // how to call dealloc from AHK to avoid memory leak? is it needed?
-  // instead of returning default handle error?
-
 use windows::Win32::UI::WindowsAndMessaging::{HICON,ICONINFO,CURSORINFO,HCURSOR,CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,};
 use windows::Win32::UI::WindowsAndMessaging::{GetCursor,GetCursorPos,GetCursorInfo,GetIconInfo};
 use windows::Win32::Foundation::{POINT,BOOL,TRUE,FALSE,};
