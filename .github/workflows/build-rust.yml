@@ -23,9 +23,9 @@ jobs:
         run: |
           md artifacts
           cargo build --release       --target x86_64-pc-windows-msvc
-          mv target/x86_64-pc-windows-msvc/release/mptrsz.exe artifacts/mptrsz.exe
+          mv target/x86_64-pc-windows-msvc/release/mptrsz.exe     artifacts/mptrsz.exe
           cargo build --release --lib --target x86_64-pc-windows-msvc
-          mv target/release/mptrsz_lib.dll artifacts/mptrsz_lib.dll
+          mv target/x86_64-pc-windows-msvc/release/mptrsz_lib.dll artifacts/mptrsz_lib.dll
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0 25-12
         with:
           name: windows-binaries-x64
