@@ -1,4 +1,4 @@
-name: Run Cargo check and clippy
+name: Rust check clippy and test
 on:
   push:
     branches  : ["main"]
