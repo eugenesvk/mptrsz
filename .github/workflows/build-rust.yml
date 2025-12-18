@@ -1,0 +1,33 @@
+name: Build on Windows
+on:
+  workflow_dispatch:
+    branches: ["main"]
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8    #v6.0.1 25-12
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 #v2.8.2 25-12
+        with:
+          shared-key: "persist-cross-job"
+      - name: Build x64
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          cargo build --release       --target x86_64-pc-windows-msvc
+          move target\release\mptrsz.exe     artifacts\mptrsz.exe
+          cargo build --release --lib --target x86_64-pc-windows-msvc
+          move target\release\mptrsz_lib.dll artifacts\mptrsz_lib.dll
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0 25-12
+        with:
+          name: windows-binaries-x64
+          path: |
+            artifacts/mptrsz.exe
+            artifacts/mptrsz_lib.dll
