@@ -47,7 +47,7 @@ pub fn parse_cursor_h(cur_h:HCURSOR, p:bool) -> Result<cur_box, CursorSizeErr> {
     // Avoid resource leaks    DeleteObject(ho:HGDIOBJ) -> BOOL
     let _d1 = if iℹ.hbmMask .is_invalid(){TRUE}else{unsafe{DeleteObject(iℹ.hbmMask .into())}};
     let _d2 = if iℹ.hbmColor.is_invalid(){TRUE}else{unsafe{DeleteObject(iℹ.hbmColor.into())}};
-    // todo: convert to proper error
+    // todo: convert to proper error or leave as is, do we need to abort on leaks?
     if (_d1==FALSE || _d2==FALSE) && p {pp!("🛑GDI resource leak! ✗Mask {_d1:?} ✗Color {_d2:?}");}
 
     coords
