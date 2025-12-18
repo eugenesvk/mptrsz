@@ -91,5 +91,4 @@ pub fn main() {
       Ok (c)	=> {pp!("DXGI: coords {:?}",c);},
       Err(𝑒)	=> {pp!("DXGI: no mouse pointer shape captured: {}",𝑒);},
     };
-  // TODO: parse bitmap from this handle
 }
