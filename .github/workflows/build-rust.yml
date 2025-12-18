@@ -41,8 +41,8 @@ jobs:
           cargo build --release       --target ${{matrix.cargo_target}}
           cargo build --release --lib --target ${{matrix.cargo_target}}
           md asset
-          mv target/${{matrix.cargo_target}}/release/${{artifact_exe}} asset/${{matrix.asset_exe}}.exe
-          mv target/${{matrix.cargo_target}}/release/${{artifact_dll}} asset/${{matrix.asset_dll}}.dll
+          mv target/${{matrix.cargo_target}}/release/${{matrix.artifact_exe}} asset/${{matrix.asset_exe}}.exe
+          mv target/${{matrix.cargo_target}}/release/${{matrix.artifact_dll}} asset/${{matrix.asset_dll}}.dll
         # ↑ useful when introducing features that would generate same-named artifacts
       - name: Upload EXE+DLL artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0 25-12
