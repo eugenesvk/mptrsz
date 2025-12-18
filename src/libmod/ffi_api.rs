@@ -79,7 +79,8 @@ fn get_mcursor_sz_ci(coord:i8, err_sz:u32,err_ptr:*mut WideChar) -> maybe_cur_bo
   let coords = parse_cursor_h(cur_h, false);
   match coords {
     Ok(mut c)	=> {if coord == 0 {cur_box_to_screen(&mut c, &curℹ.ptScreenPos)}; maybe_cur_box{err:err::Ok, cur_box:c}},
-    Err(e)   	=> {let _ = ret_error(u16cstr!("✗ Couldn't get 🖰 cursor size box parsing bitmaps from ‘GetCursorInfo’ → ‘GetIconInfo’!"),err_sz,err_ptr);  //todo: provide reasons by adding errors to get_mptr_sz
+    Err(e)   	=> {let _ = ret_error(u16cstr!("✗ Couldn't get 🖰 cursor size box parsing bitmaps from ‘GetCursorInfo’ → ‘GetIconInfo’!"),err_sz,err_ptr);
+      //todo: provide reasons by adding errors to get_mptr_sz
       maybe_cur_box::default()},
   }
 }
