@@ -1,7 +1,6 @@
 use crate::*;
 use bitvec::prelude::{BitSlice,Msb0,};
 
-use std::path::PathBuf;
 use docpos::*;
 #[docpos] #[derive(PartialEq)] pub enum CursorColor { /// Type of cursor color/mask <br>
   /// Example of mask data for various cursor types:
@@ -114,7 +113,7 @@ pub fn get_bits   (x:  u8) -> String {
  let mut s = String::new(); for byte in x.to_be_bytes().iter() { s += &format!("{:08b} ", byte);}  s}
 pub fn add_bits   (x:  u8 ,mut s:String) {
                             for byte in x.to_be_bytes().iter() { s += &format!("{:08b} ", byte);}}
-pub fn get𝑏_row   (r:&[u8],mut s:&mut String){
+pub fn get𝑏_row   (r:&[u8],    s:&mut String){
   for x in r {              for byte in x.to_be_bytes().iter() {*s += &format!("{:08b} ", byte);}  }   }
 pub fn print_bits (x:  u8) {for byte in x.to_be_bytes().iter() {        print!("{:08b} ", byte);}}
 pub fn print𝑏_row (r:&[u8]){for x in r {print_bits(*x);}}
@@ -151,5 +150,5 @@ pub const φL:u8 = 3;
 #[macro_export] macro_rules! φ3{($($tokens:tt)*) => {if cfg!(debug_assertions){ if φL>=3{pp!("{}",format!($($tokens)*))} else {}} else{} }}
 #[macro_export] macro_rules! φ4{($($tokens:tt)*) => {if cfg!(debug_assertions){ if φL>=4{pp!("{}",format!($($tokens)*))} else {}} else{} }}
 #[macro_export] macro_rules! φ5{($($tokens:tt)*) => {if cfg!(debug_assertions){ if φL>=5{pp!("{}",format!($($tokens)*))} else {}} else{} }}
-use φ as φ0;
+// use φ as φ0;
 

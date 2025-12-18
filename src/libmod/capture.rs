@@ -1,9 +1,5 @@
 use crate::libmod::*;
-use helperes::alias::io;
-use helperes::p;
-use helperes::alias::type_name;
-use rusty_duplication::{FrameInfoExt, Scanner, VecCapturer, Monitor};
-use std::{fs::File, io::Write, thread, time::Duration};
+use rusty_duplication::{Scanner, VecCapturer, Monitor};
 use bitvec::prelude::*; // to iterate over individual pixels packed in a byte
 //use bitvec::prelude as 𝑏; // to iterate over individual pixels packed in a byte
 
@@ -14,28 +10,11 @@ use bitvec::prelude::*; // to iterate over individual pixels packed in a byte
 #[derive(Copy,Clone,Debug,PartialOrd,PartialEq,Eq,Ord)]
 pub struct BGRA8 {pub b:u8,  pub g:u8,  pub r:u8,  pub a:u8,}
 
-use std::mem;
 
-use windows::{
-  Win32::Graphics::{
-    Dxgi::{
-      Common::{DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_SAMPLE_DESC, DXGI_MODE_ROTATION_ROTATE90,DXGI_MODE_ROTATION_ROTATE270,},
-      DXGI_OUTDUPL_POINTER_SHAPE_TYPE,DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR,DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR,DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME,
-    },
-  },
+use windows::Win32::Graphics::Dxgi::{
+  DXGI_OUTDUPL_POINTER_SHAPE_TYPE,DXGI_OUTDUPL_POINTER_SHAPE_TYPE_COLOR,DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MASKED_COLOR,DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME,
 };
 
-use windows::Win32::Foundation::{POINT,BOOL,TRUE,FALSE,};
-use windows::Win32::Graphics::Gdi::{BITMAP,HGDIOBJ,HBITMAP,
-  DeleteObject,GetObjectW,GetBitmapBits,GetDIBits};
-use windows::Win32::UI::WindowsAndMessaging::{HICON,ICONINFO,CURSORINFO,HCURSOR,CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,
-  GetCursor,GetCursorPos,GetCursorInfo,GetIconInfo};
-use std::slice;
-use core::ffi::c_void;
-use std::mem::{size_of,zeroed};
-
-
-use std::path::PathBuf;
 use docpos::*;
 #[docpos]
 pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible), i.e., the minimal box that contains all the pointer pixels. If `E̲nable pointer shadow` Windows Mouse setting is on, the cursor size increases by ~9⋅7 pixels, so instead of 48⋅48 (48=32⋅1.5 screen scaling) you'd get 57⋅55 (also affects the cursor positioning within the cursor frame). `GetCursorInfo` alternative seems to ignore shadows and always gets 48⋅48. However, `Colorμ` cursors (24𝑏=8𝑏⋅3𝑐 `TrueColor` colors with at least 1 pixel "inverted" that requires using α-channel to track inversion (0xFF inverts, 0x0 replaces; 𝑎-channel is 0-ed out in regular 24𝑏 color bitmap)) do not drop shadow, so retain the same size (48⋅48 in the example above)
@@ -65,7 +44,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       let ps_type = DXGI_OUTDUPL_POINTER_SHAPE_TYPE(ptr_shape.Type as i32);
       let pad = if h <= 9 {1} else if h <= 99 {2} else {3};
 
-      let mut scan_line_test = [0,1,3,4];
+      let scan_line_test = [0,1,3,4];
       let mut chunk_test:Vec<u8> = vec![];
       // !: empty pointer will have nonsensical →0 < ←w, this is not checked    █■•◧□
       let mut most𐎓	= w as usize; //pushed ← if a valid pixel found

@@ -1,29 +1,21 @@
 extern crate helperes      as h    ;
 extern crate helperes_proc as hproc;
-use ::h            	::*; // gets macros :: prefix needed due to proc macro expansion
+ // gets macros :: prefix needed due to proc macro expansion
 pub use hproc      	::*; // gets proc macros
 pub use ::h::alias 	::*;
 pub use ::h::helper	::*;
 
-use crate::libmod::{ret42,get_mptr_sz,measure_mcursor_bm,cur_box,Point,CursorSizeErr,};
+use crate::libmod::{get_mptr_sz,measure_mcursor_bm,cur_box,Point,CursorSizeErr,};
 use crate::φ;
 
-use thiserror::Error;
-use std::result;
-use std::mem;
-use std::mem::{size_of, zeroed};
 
 const dbg:bool = true;
 
-use windows::Win32::Foundation::{POINT,BOOL,TRUE,FALSE,};
-use windows::Win32::Graphics::Gdi::{BITMAP,HGDIOBJ,HBITMAP,};
-use windows::Win32::Graphics::Gdi::{DeleteObject,GetObjectW,GetBitmapBits,GetDIBits,ReleaseDC,};
-use windows::Win32::UI::WindowsAndMessaging::{HICON, ICONINFO, CURSORINFO, HCURSOR, CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,};
-use windows::Win32::UI::WindowsAndMessaging::{GetCursor, GetCursorPos, GetCursorInfo, GetIconInfo};
+use windows::Win32::Foundation::{TRUE,FALSE,};
+use windows::Win32::Graphics::Gdi::DeleteObject;
+use windows::Win32::UI::WindowsAndMessaging::{ICONINFO, HCURSOR,};
+use windows::Win32::UI::WindowsAndMessaging::GetIconInfo;
 
-use std::path::PathBuf;
-use docpos::*;
-use crate::libmod::CursorColor;
 
 pub fn parse_cursor_h(cur_h:HCURSOR, p:bool) -> Result<cur_box, CursorSizeErr> {
   let mut iℹ = ICONINFO::default();
@@ -35,7 +27,7 @@ pub fn parse_cursor_h(cur_h:HCURSOR, p:bool) -> Result<cur_box, CursorSizeErr> {
     if p {let iℹ_T	= if iℹ.fIcon == TRUE {'🖼'}else{'🖰'};
       let hot_x   	=    iℹ.xHotspot; let hot_y = iℹ.yHotspot;
       φ!("2) T={iℹ_T} {}  hot_x{hot_x} y{hot_y} (GetIconInfo)",if iℹ_T=='🖰'{"≝🖰"}else{"!!! should be 🖰 !!!"});}
-    let mut hot_p = Point {x:iℹ.xHotspot as i32, y:iℹ.yHotspot as i32};
+    let hot_p = Point {x:iℹ.xHotspot as i32, y:iℹ.yHotspot as i32};
 
     // 3 Get handle(s) to the cursor bitmap mask(s)
     let coords = if dbg && p {let mut out_str = String::new();

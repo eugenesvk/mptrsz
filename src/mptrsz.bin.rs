@@ -2,38 +2,20 @@
 #![cfg_attr(    debug_assertions ,allow(uncommon_codepoints,non_snake_case,non_upper_case_globals,non_camel_case_types,mixed_script_confusables,confusable_idents,unused_imports,unused_mut,unused_variables,dead_code,unused_assignments,unused_macros))]
 extern crate helperes      as h    ;
 extern crate helperes_proc as hproc;
-use ::h            	::*; // gets macros :: prefix needed due to proc macro expansion
+ // gets macros :: prefix needed due to proc macro expansion
 pub use hproc      	::*; // gets proc macros
 pub use ::h::alias 	::*;
 pub use ::h::helper	::*;
 
 _mod!(binmod); //→ #[path="binmod/[binmod].rs"] pub mod binmod;
-use crate::binmod::print42;
-use mptrsz_lib::libmod::{ret42,get_mptr_sz,measure_mcursor_bm,cur_box,Point,parse_cursor_h,parse_cursor_dxgi};
+use mptrsz_lib::libmod::{parse_cursor_h,parse_cursor_dxgi};
 use mptrsz_lib::φ;
 
-use thiserror::Error;
-use std::result;
 use std::mem;
-use std::mem::{size_of, zeroed};
 
-const dbg:bool = true;
-// type Result<T> = result::Result<T, Box<dyn Error>>;
-// fn main() -> Result<()> {
-//   print42()?;
-//   get_mptr_sz();
-//   ret42();
-//   Ok(())
-// }
-
-use windows::Win32::Foundation::{POINT,BOOL,TRUE,FALSE,};
-use windows::Win32::Graphics::Gdi::{BITMAP,HGDIOBJ,HBITMAP,};
-use windows::Win32::Graphics::Gdi::{DeleteObject,GetObjectW,GetBitmapBits,GetDIBits,ReleaseDC,};
-use windows::Win32::UI::WindowsAndMessaging::{HICON, ICONINFO, CURSORINFO, HCURSOR, CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,};
-use windows::Win32::UI::WindowsAndMessaging::{GetCursor, GetCursorPos, GetCursorInfo, GetIconInfo};
-
-use std::path::PathBuf;
-use docpos::*;
+use windows::Win32::Foundation::POINT;
+use windows::Win32::UI::WindowsAndMessaging::{CURSORINFO, HCURSOR,CURSOR_SHOWING,CURSOR_SUPPRESSED,};
+use windows::Win32::UI::WindowsAndMessaging::{GetCursorPos, GetCursorInfo};
 
 pub fn main() {
   // TODO: when cursor is invisible, use alternative method of measuring its size

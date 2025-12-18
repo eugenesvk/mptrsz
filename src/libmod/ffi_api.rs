@@ -7,15 +7,9 @@
 
 use crate::libmod::ffi_api::std::mem;
 use crate::libmod::*;
-use helperes::alias::io;
-use helperes::p;
-use helperes::alias::type_name;
 
 
-use widestring::{U16Str,WideChar,u16cstr,
-  U16CString,U16CStr,	//   0 U16/U32-CString wide version of the standard CString type
-  Utf16Str   ,       	// no0 UTF-16 encoded, growable owned string
-};
+use widestring::{WideChar,u16cstr,U16CStr};
 
 
 use std     	::{self,slice,ptr,cmp};
@@ -32,9 +26,9 @@ fn ret_error(err_msg:&U16CStr, err_sz:u32,err_ptr:*mut WideChar) -> *const WideC
 }
 
 
-use windows::Win32::UI::WindowsAndMessaging::{HICON,ICONINFO,CURSORINFO,HCURSOR,CURSORINFO_FLAGS,CURSOR_SHOWING,CURSOR_SUPPRESSED,};
-use windows::Win32::UI::WindowsAndMessaging::{GetCursor,GetCursorPos,GetCursorInfo,GetIconInfo};
-use windows::Win32::Foundation::{POINT,BOOL,TRUE,FALSE,};
+use windows::Win32::UI::WindowsAndMessaging::{CURSORINFO,HCURSOR,CURSOR_SHOWING,};
+use windows::Win32::UI::WindowsAndMessaging::{GetCursorPos,GetCursorInfo};
+use windows::Win32::Foundation::POINT;
 
 
 pub fn cur_box_to_screen(cbox:&mut cur_box, hs_screen: &POINT) {
@@ -48,7 +42,6 @@ pub fn cur_box_to_screen(cbox:&mut cur_box, hs_screen: &POINT) {
   cbox.hs.y  = hs_screen.y;
 }
 
-use std::path::PathBuf;
 use docpos::*;
 
 #[repr(u8)] #[derive(Copy,Clone,Debug)]
@@ -79,7 +72,7 @@ fn get_mcursor_sz_ci(coord:i8, err_sz:u32,err_ptr:*mut WideChar) -> maybe_cur_bo
   let coords = parse_cursor_h(cur_h, false);
   match coords {
     Ok(mut c)	=> {if coord == 0 {cur_box_to_screen(&mut c, &curℹ.ptScreenPos)}; maybe_cur_box{err:err::Ok, cur_box:c}},
-    Err(e)   	=> {let _ = ret_error(u16cstr!("✗ Couldn't get 🖰 cursor size box parsing bitmaps from ‘GetCursorInfo’ → ‘GetIconInfo’!"),err_sz,err_ptr);
+    Err(_e)  	=> {let _ = ret_error(u16cstr!("✗ Couldn't get 🖰 cursor size box parsing bitmaps from ‘GetCursorInfo’ → ‘GetIconInfo’!"),err_sz,err_ptr);
       //todo: provide reasons by adding errors to get_mptr_sz
       maybe_cur_box::default()},
   }
@@ -98,7 +91,7 @@ fn get_mcursor_sz_dx(coord:i8, err_sz:u32,err_ptr:*mut WideChar) -> maybe_cur_bo
           return maybe_cur_box::default()  }
       };
       maybe_cur_box{err:err::Ok, cur_box:c}},
-    Err(𝑒)   => {let _ = ret_error(u16cstr!("✗ Couldn't get 🖰 cursor size box using DX duplication API for an unknown reason!"),err_sz,err_ptr);
+    Err(_𝑒)  => {let _ = ret_error(u16cstr!("✗ Couldn't get 🖰 cursor size box using DX duplication API for an unknown reason!"),err_sz,err_ptr);
       maybe_cur_box::default()  },
       // todo: send error messages as well? or match and send raw string
   }
