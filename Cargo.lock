@@ -102,24 +102,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dummy"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "bitvec",
- "docpos",
- "faccess",
- "helperes",
- "helperes_proc",
- "log",
- "rusty-duplication",
- "thiserror",
- "widestring",
- "windows",
- "windows-registry",
-]
-
-[[package]]
 name = "either"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -234,6 +216,24 @@ name = "log"
 version = "0.4.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
+
+[[package]]
+name = "mptrsz"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "bitvec",
+ "docpos",
+ "faccess",
+ "helperes",
+ "helperes_proc",
+ "log",
+ "rusty-duplication",
+ "thiserror",
+ "widestring",
+ "windows",
+ "windows-registry",
+]
 
 [[package]]
 name = "num-traits"
@@ -721,10 +721,10 @@ name = "xtask"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "dummy",
  "faccess",
  "helperes",
  "helperes_proc",
  "indoc",
  "log",
+ "mptrsz",
 ]
