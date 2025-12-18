@@ -72,10 +72,10 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       (    *s.as_deref_mut().unwrap()).push('¦');
       let 𝑖row0 = if 𝑖row < h_sz {𝑖row} else {𝑖row - h_sz}; // reset 𝑖row to begin from 0 for the 2nd half
       if 𝑖row < h_sz {if 𝑖row==0    {*s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n¦";}
-        row𝑏.chunks(px_sz𝑏).enumerate().for_each(|(_𝑗col, px )| { // px:&BitSlice<u8>, conceptually [bool] slice
+        row𝑏.chunks(px_sz𝑏).for_each(|px| { // px:&BitSlice<u8>, conceptually [bool] slice
           (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
       } else         {if 𝑖row==h_sz {*s.as_deref_mut().unwrap() += "——— ⊻XOR Mono◧ bitmask 0≝ 1Δ• ———¦\n¦";}
-        row𝑏.chunks(px_sz𝑏).enumerate().for_each(|(_𝑗col, px )| {
+        row𝑏.chunks(px_sz𝑏).for_each(|px| {
           (*s.as_deref_mut().unwrap()).push(if  px[0] {'•'}else{' '})        });//Δ XOR
       }    *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row0:>pad$}\n",pad=pad);
     });   }
@@ -145,8 +145,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     if  ret == 0 {return Err(CursorSizeErr::Bitmap("Colorμ: ‘GetBitmapBits’ copied no bytes from the color 𝑏map".into()))};
 
     let mut isα = false; // Detect α bits
-    curX_buf.chunks(rowX_sz).enumerate().for_each(|(_𝑖row, row)| {
-      row   .chunks( pxX_sz).enumerate().for_each(|(_𝑗col, px )| {
+    curX_buf.chunks(rowX_sz).for_each(|row| {
+      row   .chunks( pxX_sz).for_each(|px | {
         if px[3] != 0 {isα = true}      });    });
 
     let _is_colα	=  isα;
@@ -163,7 +163,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(row);
       if φL>=3&&row_p.contains(&𝑖row){print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(row);pp!();}
       (  *s.as_deref_mut().unwrap()).push('¦');
-      row𝑏  .chunks(pxA_sz𝑏).enumerate().for_each(|(_𝑗col,px )| { // px:&BitSlice<u8>, conceptually [bool] slice
+      row𝑏  .chunks(pxA_sz𝑏).for_each(|px| { // px:&BitSlice<u8>, conceptually [bool] slice
         (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
          *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);
     });
@@ -173,7 +173,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
          *s.as_deref_mut().unwrap() += "——— ⊻XOR Color bitmap 0≝ 1Δ• ———¦\n";
     curX_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {(*s.as_deref_mut().unwrap()).push('¦');
       if φL>=3&&row_p.contains(&𝑖row){pp!("№{𝑖row:>pad$} {row:?}",pad=pad);}
-      row   .chunks( pxX_sz).enumerate().for_each(|(_𝑗col,px )| {(*s.as_deref_mut().unwrap()).push(
+      row   .chunks( pxX_sz).for_each(|px| {(*s.as_deref_mut().unwrap()).push(
         if              px0 == px  {' '
         } else if       px1 == px
           ||            px_1== px  {'⎅' // some apps like Sib output 254 instead of all 255
@@ -250,7 +250,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(row);
       if φL>=3&&row_p.contains(&𝑖row){print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(row);pp!();}
       (  *s.as_deref_mut().unwrap()).push('¦');
-      row𝑏  .chunks(pxA_sz𝑏).enumerate().for_each(|(_𝑗col,px )| { // px:&BitSlice<u8>, conceptually [bool] slice
+      row𝑏  .chunks(pxA_sz𝑏).for_each(|px| { // px:&BitSlice<u8>, conceptually [bool] slice
         (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
          *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);
     });
