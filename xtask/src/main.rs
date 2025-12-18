@@ -27,7 +27,7 @@ fn main() -> anyhow::Result<()> {
 use mptrsz_lib::*;
 fn try_main() -> anyhow::Result<()> {
   let task = env::args().nth(1);
-  p!("task_arg1 = {:?} lib = {:?}", task, mptrsz_lib::lib());
+  let _ = p!("task_arg1 = {:?} lib = {:?}", task, mptrsz_lib::lib());
   match task {
     None           	=> tasks::print_help(),
     Some(t)        	=> match t.as_str() {
@@ -53,7 +53,7 @@ pub mod tasks {
         docgen     \tGenerate files to be included somewhere
         query-check\tCheck the validity of some queries"
     );
-    pe!("{}", help_out);
+    let _ = pe!("{}", help_out);
   }
 }
 
