@@ -33,7 +33,7 @@ fn try_main() -> anyhow::Result<()> {
     Some(t)        	=> match t.as_str() {
       "docgen"     	=> tasks::docgen()?,
       "query-check"	=> tasks::querycheck()?,
-      invalid      	=> return bail!("Invalid task name: {}", invalid),
+      invalid      	=> bail!("Invalid task name: {}", invalid),
     },
   };
   Ok(())
