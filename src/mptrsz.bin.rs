@@ -51,11 +51,11 @@ pub fn main() {
 
   // 1 🖰 Global cursor (GetCursorInfo) even if it's not owned by the current thread
   // 1.1 Get handle to the cursor itself
-  let mut curℹ = CURSORINFO::default(); curℹ.cbSize = mem::size_of::<CURSORINFO>() as u32;
+  let mut curℹ = CURSORINFO {cbSize: mem::size_of::<CURSORINFO>() as u32, ..Default::default()};
     /*hCursor:HCURSOR   cbSize:u32 (!must set before! ??? becomes 0 after GetCursorInfo call)
     flags      :CURSORINFO_FLAGS	0=hidden 1=CURSOR_SHOWING 2=CURSOR_SUPPRESSED (touch/pen)
     ptScreenPos:POINT           	screen coordinates of the cursor*/
-  let res = unsafe { GetCursorInfo(&mut curℹ) }; if !res.is_ok() {pp!("1.1) ✗ GetCursorInfo");}else{
+  let res = unsafe { GetCursorInfo(&mut curℹ) }; if res.is_err() {pp!("1.1) ✗ GetCursorInfo");}else{
     let cur_h:HCURSOR = curℹ.hCursor;
     let vis = if curℹ.flags.0 == 0                	{"✗🕶" //hidden
       } else  if curℹ.flags   == CURSOR_SHOWING   	{"✓👓"

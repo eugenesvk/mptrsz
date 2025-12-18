@@ -53,7 +53,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
   let capt = capturer.capture_with_pointer_shape().unwrap(); // Res<(DXGI_OUTDUPL_FRAME_INFO,Option<DXGI_OUTDUPL_POINTER_SHAPE_INFO>,)>
 
   let maybe_ptr_shape = capt.1;
-  match maybe_ptr_shape {None=>{return Err(CursorSizeErr::DXDupe("Failed to capture pointer shape".into())) },
+  match maybe_ptr_shape {None=>{Err(CursorSizeErr::DXDupe("Failed to capture pointer shape".into())) },
     Some(ptr_shape)	=> {
       let w = ptr_shape.Width; let w_sz = w as usize;
       let h = ptr_shape.Height;
@@ -158,7 +158,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         // scan_line_test = [35];
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(𝑖row, chunk)| {
-          if is_s {if φL>=3&&scan_line_test.contains(&𝑖row) {chunk_test.extend_from_slice(chunk);}}
+          if is_s && φL>=3&&scan_line_test.contains(&𝑖row) {chunk_test.extend_from_slice(chunk);}
           if is_s {*s.as_deref_mut().unwrap() += "¦";}
           chunk.chunks(  px_sz  ).enumerate().for_each(|(𝑗col, px   )| {
             if px[3] == 𝑐mask_rep || ( //replaced unconditionally
@@ -200,11 +200,11 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       if  most𐎓 > most𑁱
        || most𖭩 > most𖭪 {return Err(CursorSizeErr::BoxSzInvalid(res_box)) }
 
-      if is_s { let ss = s.as_deref_mut().unwrap();
+      if is_s { let ss = s.unwrap();
         if ps_type == DXGI_OUTDUPL_POINTER_SHAPE_TYPE_MONOCHROME {for (i,v) in scan_line_test.iter().enumerate() {
         let row_csz = ptr_shape.Pitch as usize;
         let r =                         &chunk_test[(i*row_csz)..((i+1)*row_csz)];
-        *ss += &format!("№{v} = "); get𝑏_row(r, ss); *ss += &format!("\n"); }
+        *ss += &format!("№{v} = "); get𝑏_row(r, ss); *ss += "\n"; }
         } else {                                                  for (i,v) in scan_line_test.iter().enumerate() {
         let row_csz = 𝑐ℕ * w_sz;
         *ss += &format!("№{v} = {:?}\n",&chunk_test[(i*row_csz)..((i+1)*row_csz)]);}  }
@@ -220,7 +220,7 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
           ," ↔   ↕  x  y   Size  ↔              №𝑐 𝑏⁄𝑐 𝑏⁄𝑝", ptr_buff.len());
       }
 
-      return Ok(res_box)
+      Ok(res_box)
     },
   }
 }

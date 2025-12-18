@@ -72,7 +72,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     // 1. Print each mask separately, do box calculations later with both masks applied
     let pad = if h_sz <= 9 {1} else if h_sz <= 99 {2} else {3};
     if is_s {
-    cur_buf .chunks(row_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
+    cur_buf .chunks(row_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(row);
       (    *s.as_deref_mut().unwrap()).push('¦');
       let 𝑖row0 = if 𝑖row < h_sz {𝑖row} else {𝑖row - h_sz}; // reset 𝑖row to begin from 0 for the 2nd half
       if 𝑖row < h_sz {if 𝑖row==0    {*s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n¦";}
@@ -94,8 +94,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
       let begA = (wb as usize) *  𝑖row        ; let endA = begA + row_sz;
       let begX = (wb as usize) * (𝑖row + h_sz); let endX = begX + row_sz;
-      let rowA = &cur_buf[begA..endA]; let rowA𝑏 = BitSlice::<_,Msb0>::from_slice(&rowA);
-      let rowX = &cur_buf[begX..endX]; let rowX𝑏 = BitSlice::<_,Msb0>::from_slice(&rowX);
+      let rowA = &cur_buf[begA..endA]; let rowA𝑏 = BitSlice::<_,Msb0>::from_slice(rowA);
+      let rowX = &cur_buf[begX..endX]; let rowX𝑏 = BitSlice::<_,Msb0>::from_slice(rowX);
 
       for 𝑗col in 0..w_sz {
         let pxA = &rowA𝑏[𝑗col..(𝑗col+1)];
@@ -164,8 +164,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
          *s.as_deref_mut().unwrap() += &format!(
       "↔{wA} ↕{hA} ↔{wAb}B  {cur𝑡:?}   {𝑐ℕA}№𝑐⋅{𝑏pcA}𝑏⁄𝑐={𝑏ppA}𝑏⁄𝑝 {pxA_sz}■sz {sz_acc}⋅🮰sz Mono◧ 𝑏mask (BGRα DIB)\n");
          *s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n";
-    curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
-      if φL>=3&&row_p.contains(&𝑖row){print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(&row);pp!("");}
+    curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(row);
+      if φL>=3&&row_p.contains(&𝑖row){print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(row);pp!();}
       (  *s.as_deref_mut().unwrap()).push('¦');
       row𝑏  .chunks(pxA_sz𝑏).enumerate().for_each(|(𝑗col, px )| { // px:&BitSlice<u8>, conceptually [bool] slice
         (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
@@ -179,8 +179,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       if φL>=3&&row_p.contains(&𝑖row){pp!("№{𝑖row:>pad$} {row:?}",pad=pad);}
       row   .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {(*s.as_deref_mut().unwrap()).push(
         if              px0 == px  {' '
-        } else if       px1 == px  {'⎅'
-        } else if       px_1== px  {'⎅' // some apps like Sib output 254 instead of all 255
+        } else if       px1 == px
+          ||            px_1== px  {'⎅' // some apps like Sib output 254 instead of all 255
         // } else if       0   == px[3]{'α' //α-transparent, but ■□•mark since XORing with ⋀0 will still result in color changes, same with ⋀1 and screen α
         // todo: compare 24b with 32b and how to deal with the fact that 24b has no alpha
         // is there a guaranteed way to detect 24b? if all α=0
@@ -207,11 +207,11 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
       if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
       let begA = (wAb as usize) * 𝑖row; let endA = begA + rowA_sz;
       let begX = (wXb as usize) * 𝑖row; let endX = begX + rowX_sz;
-      let rowA = &curA_buf[begA..endA]; let rowA𝑏 = BitSlice::<_,Msb0>::from_slice(&rowA);
+      let rowA = &curA_buf[begA..endA]; let rowA𝑏 = BitSlice::<_,Msb0>::from_slice(rowA);
       let rowX = &curX_buf[begX..endX];
 
       if φL>=4&&row_p.contains(&𝑖row){//12,13,24,25
-      print!("№{𝑖row:>pad$}𝑏= "        ,pad=pad);print𝑏_row(&rowA);pp!("");
+      print!("№{𝑖row:>pad$}𝑏= "        ,pad=pad);print𝑏_row(rowA);pp!();
       pp!(   "№{𝑖row:>pad$} = {rowX:?}",pad=pad);}
       for 𝑗col in 0..wX_sz {
         let begA = 𝑗col         ; let endA = begA + (𝑐ℕA as usize);
@@ -270,8 +270,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     cur_buf.chunks(rowX_sz).enumerate().for_each(|(𝑖row, row)| {if is_s {(*s.as_deref_mut().unwrap()).push('¦');}
       row  .chunks( pxX_sz).enumerate().for_each(|(𝑗col, px )| {
         let is_draw =
-          if              px0 == px   {if is_s {(*s.as_deref_mut().unwrap()).push(' ')};false
-          } else if         0 == px[3]{if is_s {(*s.as_deref_mut().unwrap()).push(' ')};false//transparency also affects RGB, so it's 15,15,15,15 or with α=0 would be px0, so this should be redundant? No, can be forced to have 255,255,255,0 in an app for 'inverted' color that has no effect in a non-masked format
+          if              px0 == px
+            ||              0 == px[3]{if is_s {(*s.as_deref_mut().unwrap()).push(' ')};false//transparency also affects RGB, so it's 15,15,15,15 or with α=0 would be px0, so this should be redundant? No, can be forced to have 255,255,255,0 in an app for 'inverted' color that has no effect in a non-masked format
           } else if is_px3_dark (px)  {if is_s {(*s.as_deref_mut().unwrap()).push('▓')};true//■
           } else if is_px3_light(px)  {if is_s {(*s.as_deref_mut().unwrap()).push('░')};true//❏
           } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('•')};true};//◧
@@ -303,11 +303,11 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     hot_p.y = (hot_p.y as f32 * h_accf).round() as i32;
   }
 
-  if is_s {*s.as_deref_mut().unwrap() += &format!(
+  if is_s {*s.unwrap() += &format!(
     "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box (¬0 px, 0-based coords) HS•x{} y{}\n",
     most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1, hot_p.x, hot_p.y);}
 
-  return Ok(cur_box{
+  Ok(cur_box{
     ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
     pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
     hs :hot_p, })
