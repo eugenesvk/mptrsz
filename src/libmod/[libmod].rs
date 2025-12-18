@@ -1,7 +1,6 @@
 pub mod ffi_api;
 
 mod error;
-mod ext;
 mod common;
 mod capture;
 mod measure;
@@ -15,7 +14,6 @@ pub use common::*;
 pub use capture::*;
 pub use measure::*;
 pub use get_cursor_sz::*;
-pub use ext::*;
 pub use ffi_api::*;
 
 pub fn ret42() -> i32 { 42 }
