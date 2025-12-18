@@ -95,23 +95,23 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         // scan_line_test = [24];
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(𝑖row, chunk)| {
-          if is_s {if φL>=3&&scan_line_test.contains(&𝑖row) {chunk_test.extend_from_slice(chunk);}}
-          if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
-          let chunk𝑏 = BitSlice::<_,Msb0>::from_slice(&chunk);
-          if 𝑖row < hmask {if 𝑖row==0     {if is_s {*s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n¦";}}
+          if is_s && φL>=3&&scan_line_test.contains(&𝑖row) {chunk_test.extend_from_slice(chunk);}
+          if is_s {*s.as_deref_mut().unwrap() += "¦";}
+          let chunk𝑏 = BitSlice::<_,Msb0>::from_slice(chunk);
+          if 𝑖row < hmask {if 𝑖row==0     && is_s {*s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n¦";}
             chunk𝑏.chunks(𝑏pc   ).enumerate().for_each(|(𝑗col, px   )| { // px: &BitSlice<u8>
-              if   px[0] == false {
-                if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
-                if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}  }
-              if is_s {(*s.as_deref_mut().unwrap()).push(if px[0]==false {'•'}else{' '})}
+              if  !px[0]{
+                if 𝑗col < most𐎓	{most𐎓 = 𝑗col}; if 𝑗col > most𑁱	{most𑁱 = 𝑗col};
+                if 𝑖row < most𖭩	{most𖭩 = 𝑖row}; if 𝑖row > most𖭪	{most𖭪 = 𝑖row};  }
+              if is_s {(*s.as_deref_mut().unwrap()).push(if !px[0]{'•'}else{' '})}
             });
-          } else          {if 𝑖row==hmask {if is_s {*s.as_deref_mut().unwrap() += "———  ⊻XOR Mono◧ bitmask 0≝ 1Δ• ———¦\n¦";}}
+          } else          {if 𝑖row==hmask && is_s {*s.as_deref_mut().unwrap() += "———  ⊻XOR Mono◧ bitmask 0≝ 1Δ• ———¦\n¦";}
             let hrow = 𝑖row - hmask;
             chunk𝑏.chunks(𝑏pc   ).enumerate().for_each(|(𝑗col, px   )| { // px: &BitSlice<u8>
-              if   px[0] == true {
-                if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
-                if hrow < most𖭩	{most𖭩 = hrow;} if hrow > most𖭪	{most𖭪 = hrow  ;}  }
-              if is_s {(*s.as_deref_mut().unwrap()).push(if px[0]==true  {'•'}else{' '})}
+              if   px[0]{
+                if 𝑗col < most𐎓	{most𐎓 = 𝑗col}; if 𝑗col > most𑁱	{most𑁱 = 𝑗col};
+                if hrow < most𖭩	{most𖭩 = hrow}; if hrow > most𖭪	{most𖭪 = hrow};  }
+              if is_s {(*s.as_deref_mut().unwrap()).push(if  px[0]{'•'}else{' '})}
             });
           }
           if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
@@ -125,12 +125,12 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
         // scan_line_test = [24];
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(𝑖row, chunk)| {
-          if is_s {if φL>=3&&scan_line_test.contains(&𝑖row) {chunk_test.extend_from_slice(chunk);}}
-          if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
+          if is_s && φL>=3&&scan_line_test.contains(&𝑖row) {chunk_test.extend_from_slice(chunk);}
+          if is_s {*s.as_deref_mut().unwrap() += "¦";}
           chunk.chunks(  px_sz  ).enumerate().for_each(|(𝑗col, px   )| {
             if px != px0 {
-              if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
-              if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}
+              if 𝑗col < most𐎓	{most𐎓 = 𝑗col}; if 𝑗col > most𑁱	{most𑁱 = 𝑗col};
+              if 𝑖row < most𖭩	{most𖭩 = 𝑖row}; if 𝑖row > most𖭪	{most𖭪 = 𝑖row};
             }
             if is_s {(*s.as_deref_mut().unwrap()).push(
               if                 px0 == px  {' '
@@ -159,12 +159,12 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
 
         ptr_buff.chunks(row_sz_b).enumerate().for_each(|(𝑖row, chunk)| {
           if is_s {if φL>=3&&scan_line_test.contains(&𝑖row) {chunk_test.extend_from_slice(chunk);}}
-          if is_s {*s.as_deref_mut().unwrap() += &format!("¦");}
+          if is_s {*s.as_deref_mut().unwrap() += "¦";}
           chunk.chunks(  px_sz  ).enumerate().for_each(|(𝑗col, px   )| {
             if px[3] == 𝑐mask_rep || ( //replaced unconditionally
                px[3] == 𝑐mask_xor && !is_px3_black(px)) { //0 is transparent, so nothing drawn, skip it
-              if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱	{most𑁱 = 𝑗col;}
-              if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪	{most𖭪 = 𝑖row;}
+              if 𝑗col < most𐎓	{most𐎓 = 𝑗col}; if 𝑗col > most𑁱	{most𑁱 = 𝑗col};
+              if 𝑖row < most𖭩	{most𖭩 = 𝑖row}; if 𝑖row > most𖭪	{most𖭪 = 𝑖row};
             }
             if is_s {(*s.as_deref_mut().unwrap()).push(
               if         px[3] == 𝑐mask_rep { // only two mask values↓

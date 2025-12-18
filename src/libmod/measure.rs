@@ -106,8 +106,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
           } else if  pxA[0] && !pxX[0] {if is_s {(*s.as_deref_mut().unwrap()).push(' ')}; false //🖵 transparent
           } else if  pxA[0] &&  pxX[0] {if is_s {(*s.as_deref_mut().unwrap()).push('◧')}; true  //🖵◧ Screen reverse/invert
           } else {false}; // should be impossible todo: error here
-          if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱 {most𑁱 = 𝑗col;}
-            /**/      if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪 {most𖭪 = 𝑖row;}  }
+          if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col}; if 𝑗col > most𑁱 {most𑁱 = 𝑗col};
+            /**/      if 𝑖row < most𖭩	{most𖭩 = 𝑖row}; if 𝑖row > most𖭪 {most𖭪 = 𝑖row};  }
       } if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     }
   } else { // 1st check if α is > 0 to detect Colorμ, then parse the 𝑏map buffer (both Colorα and Colorμ are technically 32𝑏⁄𝑝 with Colorμ having α=0)
@@ -238,8 +238,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
             } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('◧')}; true}//⊻color mask
           } else {false}; // should be impossible todo: error here
           // pp!("i{𝑖row} j{𝑗col} px={pxX:?}");
-          if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱 {most𑁱 = 𝑗col;}
-            /**/      if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪 {most𖭪 = 𝑖row;}  }
+          if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col}; if 𝑗col > most𑁱 {most𑁱 = 𝑗col};
+            /**/      if 𝑖row < most𖭩	{most𖭩 = 𝑖row}; if 𝑖row > most𖭪 {most𖭪 = 𝑖row};  }
       } if is_s { *s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     }
   } else     {let cur𝑡 = CursorColor::Colorα; // 4𝑐·8𝑏⁄𝑐=32𝑏⁄𝑝 BGRα DIB, no 𝑏mask → draw color px directly
@@ -251,8 +251,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
          *s.as_deref_mut().unwrap() += "——— ⋀AND Mono◧ bitmask 1≝ 0Δ• ———¦\n";
          if sz_acc > 1 {
          *s.as_deref_mut().unwrap() += "——— (likely nonsensical since 🮰sz Accessibility Size > 1)¦\n";}
-    curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(&row);
-      if φL>=3&&row_p.contains(&𝑖row){print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(&row);pp!("");}
+    curA_buf.chunks(rowA_sz).enumerate().for_each(|(𝑖row, row)| {let row𝑏 = BitSlice::<_,Msb0>::from_slice(row);
+      if φL>=3&&row_p.contains(&𝑖row){print!("№{𝑖row:>pad$}𝑏= ",pad=pad);print𝑏_row(row);pp!();}
       (  *s.as_deref_mut().unwrap()).push('¦');
       row𝑏  .chunks(pxA_sz𝑏).enumerate().for_each(|(𝑗col, px )| { // px:&BitSlice<u8>, conceptually [bool] slice
         (*s.as_deref_mut().unwrap()).push(if !px[0] {'•'}else{' '})}        );//Δ AND
@@ -275,8 +275,8 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
           } else if is_px3_dark (px)  {if is_s {(*s.as_deref_mut().unwrap()).push('▓')};true//■
           } else if is_px3_light(px)  {if is_s {(*s.as_deref_mut().unwrap()).push('░')};true//❏
           } else                      {if is_s {(*s.as_deref_mut().unwrap()).push('•')};true};//◧
-        if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col;} if 𝑗col > most𑁱 {most𑁱 = 𝑗col;}
-            /**/    if 𝑖row < most𖭩	{most𖭩 = 𝑖row;} if 𝑖row > most𖭪 {most𖭪 = 𝑖row;}  }
+        if is_draw {if 𝑗col < most𐎓	{most𐎓 = 𝑗col}; if 𝑗col > most𑁱 {most𑁱 = 𝑗col};
+            /**/    if 𝑖row < most𖭩	{most𖭩 = 𝑖row}; if 𝑖row > most𖭪 {most𖭪 = 𝑖row};  }
       });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     });
   }

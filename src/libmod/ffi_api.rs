@@ -1,7 +1,8 @@
 /*! Get the true bounding box size that fits a Windows 🖰mouse cursor=pointer using 2 methods:
-1. GetCursorInfo → GetIconInfo APIs that extracts nominal cursor size that is adjusted by screen DPI, but not adjusted for user accessibility multiplier, and them manually does the approximate adjustment for it. But does NOT take into account cursor shadow.
-2. DirectX duplication API that captures a screenshot and extracts mouse cursor from it. Takes into account all size-related factors: monitor scaling, user accessibility multiplier, cursor shadow.
-See win_api_const.ahk for an example on how to use in AutoHotkey
+  1. GetCursorInfo → GetIconInfo APIs that extracts nominal cursor size that is adjusted by screen DPI, but not adjusted for user accessibility multiplier, and them manually does the approximate adjustment for it. But does NOT take into account cursor shadow.
+  2. DirectX duplication API that captures a screenshot and extracts mouse cursor from it. Takes into account all size-related factors: monitor scaling, user accessibility multiplier, cursor shadow.
+
+  See win_api_const.ahk for an example on how to use in AutoHotkey
 */
 
 use crate::libmod::ffi_api::std::mem;
@@ -67,11 +68,11 @@ impl Default for maybe_cur_box {fn default() -> Self {
 fn get_mcursor_sz_ci(coord:i8, err_sz:u32,err_ptr:*mut WideChar) -> maybe_cur_box {
   // 1 🖰 Global cursor (GetCursorInfo) even if it's not owned by the current thread
   // 1.1 Get handle to the cursor itself
-  let mut curℹ = CURSORINFO::default(); curℹ.cbSize = mem::size_of::<CURSORINFO>() as u32;
+  let mut curℹ = CURSORINFO {cbSize: mem::size_of::<CURSORINFO>() as u32, ..Default::default()};
     /*hCursor:HCURSOR   cbSize:u32 (!must set before! ??? becomes 0 after GetCursorInfo call)
     flags      :CURSORINFO_FLAGS	0=hidden 1=CURSOR_SHOWING 2=CURSOR_SUPPRESSED (touch/pen)
     ptScreenPos:POINT           	screen coordinates of the cursor*/
-  let res = unsafe { GetCursorInfo(&mut curℹ) }; if !res.is_ok()                 {let _ = ret_error(u16cstr!("✗ Couldn't ‘GetCursorInfo’!"                 ),err_sz,err_ptr); return maybe_cur_box::default()}
+  let res = unsafe { GetCursorInfo(&mut curℹ) }; if res.is_err()                 {let _ = ret_error(u16cstr!("✗ Couldn't ‘GetCursorInfo’!"                 ),err_sz,err_ptr); return maybe_cur_box::default()}
   let cur_h:HCURSOR = curℹ.hCursor;              if curℹ.flags != CURSOR_SHOWING {let _ = ret_error(u16cstr!("✗ cursor is not shown (hidden or touch/pen)!"),err_sz,err_ptr); return maybe_cur_box::default()}
 
   // 1.2 Get/parse handle(s) to the cursor bitmap mask(s)
@@ -96,7 +97,7 @@ fn get_mcursor_sz_dx(coord:i8, err_sz:u32,err_ptr:*mut WideChar) -> maybe_cur_bo
           return maybe_cur_box::default()  }
       };
       maybe_cur_box{err:err::Ok, cur_box:c}},
-    Err(𝑒)   => {let _ = ret_error(u16cstr!("✗ Couldn't get 🖰 cursor size box using DX duplication API for an unknown reason!"),err_sz,err_ptr); //todo: provide reasons by adding errors to get_mptr_sz
+    Err(𝑒)   => {let _ = ret_error(u16cstr!("✗ Couldn't get 🖰 cursor size box using DX duplication API for an unknown reason!"),err_sz,err_ptr);
       maybe_cur_box::default()  },
       // todo: send error messages as well? or match and send raw string
   }

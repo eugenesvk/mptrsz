@@ -31,7 +31,7 @@ pub fn parse_cursor_h(cur_h:HCURSOR, p:bool) -> Result<cur_box, CursorSizeErr> {
     xHotspot:u32    	, yHotspot:u32
     hbmMask :hBitMap	icon monochrome mask bitmap. Monochrome icons: hbmMask = 2⋅iconHeight = AND mask on top and XOR mask on the bottom
     hbmColor:hBitMap	icon color           bitmap. NULL for monochrome*/
-  let res = unsafe { GetIconInfo(cur_h.into(), &mut iℹ) }; if !res.is_ok() {if p{pp!("1) ✗ GetIconInfo")}; Err(CursorSizeErr::Ii("✗ Windows GetIconInfo call failed".into()))}else{
+  let res = unsafe { GetIconInfo(cur_h.into(), &mut iℹ) }; if res.is_err() {if p{pp!("1) ✗ GetIconInfo")}; Err(CursorSizeErr::Ii("✗ Windows GetIconInfo call failed".into()))}else{
     if p {let iℹ_T	= if iℹ.fIcon == TRUE {'🖼'}else{'🖰'};
       let hot_x   	=    iℹ.xHotspot; let hot_y = iℹ.yHotspot;
       φ!("2) T={iℹ_T} {}  hot_x{hot_x} y{hot_y} (GetIconInfo)",if iℹ_T=='🖰'{"≝🖰"}else{"!!! should be 🖰 !!!"});}
