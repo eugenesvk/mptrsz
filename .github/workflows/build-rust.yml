@@ -9,7 +9,7 @@ env:
   RUSTFLAGS       : "-Dwarnings"
 
 jobs:
-  release-win:
+  build:
     strategy:
       matrix:
         include:
