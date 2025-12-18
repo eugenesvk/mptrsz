@@ -1,14 +1,15 @@
 name: Build on Windows
 on:
-  workflow_dispatch:
+  workflow_dispatch: # run manually
     branches: ["main"]
+  workflow_call:     # can be called by another workflow
 
 env:
   CARGO_TERM_COLOR: always
   RUSTFLAGS: "-Dwarnings"
 
 jobs:
-  build-windows:
+  build-windows-x64:
     runs-on: windows-latest
 
     steps:
@@ -16,15 +17,15 @@ jobs:
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8    #v6.0.1 25-12
       - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 #v2.8.2 25-12
         with:
-          shared-key: "persist-cross-job"
+          shared-key: "persist-cross-job-win-x64"
       - name: Build x64
-        shell: bash
+        shell: powershell
         run: |
-          mkdir -p artifacts
+          md artifacts
           cargo build --release       --target x86_64-pc-windows-msvc
-          move target\release\mptrsz.exe     artifacts\mptrsz.exe
+          mv target/x86_64-pc-windows-msvc/release/mptrsz.exe artifacts/mptrsz.exe
           cargo build --release --lib --target x86_64-pc-windows-msvc
-          move target\release\mptrsz_lib.dll artifacts\mptrsz_lib.dll
+          mv target/release/mptrsz_lib.dll artifacts/mptrsz_lib.dll
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0 25-12
         with:
           name: windows-binaries-x64
