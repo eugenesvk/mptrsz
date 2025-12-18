@@ -38,6 +38,7 @@ jobs:
         uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 #v2.8.2 25-12
         with:
           shared-key: "persist-cross-job-win-${{matrix.cache_key}}"
+
       - name : Build release
         shell: powershell
         run  : |
@@ -47,6 +48,7 @@ jobs:
           mv target/${{matrix.cargo_target}}/release/${{matrix.artifact_exe}} asset/${{matrix.asset_exe}}
           mv target/${{matrix.cargo_target}}/release/${{matrix.artifact_dll}} asset/${{matrix.asset_dll}}
         # ↑ useful when introducing features that would generate same-named artifacts
+
       - name: Upload EXE+DLL artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0 25-12
         with:
