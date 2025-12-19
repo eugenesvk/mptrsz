@@ -14,18 +14,18 @@ jobs:
       matrix:
         include:
           - os           : windows-latest
-            artifact_dll : mptrsz_lib.dll
+            artifact_dll : mptrsz.dll
             asset_dll    : mptrsz.dll
             artifact_exe : mptrsz.exe
-            asset_exe    : mptrsz_test.exe
+            asset_exe    : mptrsz.exe
             zip_suffix   : ""
             cargo_target : x86_64-pc-windows-msvc
             cache_key    : x64
           - os           : windows-11-arm
-            artifact_dll : mptrsz_lib.dll
+            artifact_dll : mptrsz.dll
             asset_dll    : mptrsz_arm64.dll
             artifact_exe : mptrsz.exe
-            asset_exe    : mptrsz_test_arm64.exe
+            asset_exe    : mptrsz_arm64.exe
             zip_suffix   : _arm64
             cargo_target : aarch64-pc-windows-msvc
             cache_key    : arm64
