@@ -44,42 +44,27 @@ pub fn cur_box_to_screen(cbox:&mut cur_box, hs_screen: &POINT) {
 
 use docpos::*;
 
-#[repr(u8)] #[derive(Copy,Clone,Debug)]
-pub enum err {Ok = 0, Er = 1 }
-
-#[repr(C)] #[derive(Copy,Clone,Debug)] #[docpos]
-pub struct maybe_cur_box { /// cur_box with a tag denoting whether it's a valid copy or an 0-ed error struct. Default is with an error.
-  pub err:err ,///  tag signaling whether the cursor size box is valid
-                     ///! Cursor size box (0-ed if tag is invalid)
-  pub cur_box:cur_box ,
-}
-impl Default for maybe_cur_box {fn default() -> Self {
-  maybe_cur_box {err: err::Er, cur_box: cur_box::default()}}
-}
-
 #[unsafe(no_mangle)] pub extern "C"
-fn get_mcursor_sz_ci(coord:i8, err_sz:u32,err_ptr:*mut WideChar) -> maybe_cur_box {
+fn get_mcursor_sz_ci(mut cur_box:cur_box, coord:i8) -> 𝑝𝑠 {
   // 1 🖰 Global cursor (GetCursorInfo) even if it's not owned by the current thread
   // 1.1 Get handle to the cursor itself
   let mut curℹ = CURSORINFO {cbSize: mem::size_of::<CURSORINFO>() as u32, ..Default::default()};
     /*hCursor:HCURSOR   cbSize:u32 (!must set before! ??? becomes 0 after GetCursorInfo call)
     flags      :CURSORINFO_FLAGS	0=hidden 1=CURSOR_SHOWING 2=CURSOR_SUPPRESSED (touch/pen)
     ptScreenPos:POINT           	screen coordinates of the cursor*/
-  let res = unsafe { GetCursorInfo(&mut curℹ) }; if res.is_err()                 {let _ = ret_error(u16cstr!("✗ Couldn't ‘GetCursorInfo’!"                 ),err_sz,err_ptr); return maybe_cur_box::default()}
-  let cur_h:HCURSOR = curℹ.hCursor;              if curℹ.flags != CURSOR_SHOWING {let _ = ret_error(u16cstr!("✗ cursor is not shown (hidden or touch/pen)!"),err_sz,err_ptr); return maybe_cur_box::default()}
+  let res = unsafe { GetCursorInfo(&mut curℹ) }; if res.is_err()                 {cur_box=cur_box::default(); return ffi𝑒("✗ Couldn't ‘GetCursorInfo’!"            )}
+  let cur_h:HCURSOR = curℹ.hCursor;              if curℹ.flags != CURSOR_SHOWING {cur_box=cur_box::default(); return ffi𝑒("✗ cursor is not shown (hidden or touch/pen)!")}
 
   // 1.2 Get/parse handle(s) to the cursor bitmap mask(s)
   let coords = parse_cursor_h(cur_h, false);
   match coords {
-    Ok(mut c)	=> {if coord == 0 {cur_box_to_screen(&mut c, &curℹ.ptScreenPos)}; maybe_cur_box{err:err::Ok, cur_box:c}},
-    Err(_e)  	=> {let _ = ret_error(u16cstr!("✗ Couldn't get 🖰 cursor size box parsing bitmaps from ‘GetCursorInfo’ → ‘GetIconInfo’!"),err_sz,err_ptr);
-      //todo: provide reasons by adding errors to get_mptr_sz
-      maybe_cur_box::default()},
+    Ok(mut c)	=> {if coord == 0 {cur_box_to_screen(&mut c, &curℹ.ptScreenPos)}; cur_box=c; ffi𝑒("")},
+    Err(𝑒)   	=> {ffi𝑒(format!("✗ Couldn't get 🖰 cursor size box parsing bitmaps from ‘GetCursorInfo’ → ‘GetIconInfo’! 𝑒 = ‘{}’",𝑒))},
   }
 }
 
 #[unsafe(no_mangle)] pub extern "C"
-fn get_mcursor_sz_dx(coord:i8, err_sz:u32,err_ptr:*mut WideChar) -> maybe_cur_box {
+fn get_mcursor_sz_dx(mut cur_box:cur_box, coord:i8) -> 𝑝𝑠 {
   // 2 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
   match get_mptr_sz(None) {
     Ok(mut c) => {
@@ -87,13 +72,12 @@ fn get_mcursor_sz_dx(coord:i8, err_sz:u32,err_ptr:*mut WideChar) -> maybe_cur_bo
         let mut cur_pos = POINT::default();
         let cur_pos_res = unsafe{GetCursorPos(&mut cur_pos)};
         if  cur_pos_res.is_ok() {cur_box_to_screen(&mut c, &cur_pos);
-        } else {let _ = ret_error(u16cstr!("✗ Couldn't ‘GetCursorPos’!"),err_sz,err_ptr);
-          return maybe_cur_box::default()  }
+        } else {return ffi𝑒("✗ Couldn't ‘GetCursorPos’!")}
       };
-      maybe_cur_box{err:err::Ok, cur_box:c}},
-    Err(_𝑒)  => {let _ = ret_error(u16cstr!("✗ Couldn't get 🖰 cursor size box using DX duplication API for an unknown reason!"),err_sz,err_ptr);
-      maybe_cur_box::default()  },
-      // todo: send error messages as well? or match and send raw string
+      cur_box = c;
+      ffi𝑒("")
+    },
+    Err(𝑒)  => {ffi𝑒(&format!("✗ Couldn't get 🖰 cursor size box using DX duplication API for an unknown reason! 𝑒 = {𝑒}"))},
   }
 }
 
