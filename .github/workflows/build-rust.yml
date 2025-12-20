@@ -14,7 +14,7 @@ jobs:
       matrix:
         include:
           - os           : windows-latest
-            artifact_dll : mptrsz.dll
+            artifact_dll : mptrsz_lib.dll
             asset_dll    : mptrsz.dll
             artifact_exe : mptrsz.exe
             asset_exe    : mptrsz.exe
@@ -22,7 +22,7 @@ jobs:
             cargo_target : x86_64-pc-windows-msvc
             cache_key    : x64
           - os           : windows-11-arm
-            artifact_dll : mptrsz.dll
+            artifact_dll : mptrsz_lib.dll
             asset_dll    : mptrsz_arm64.dll
             artifact_exe : mptrsz.exe
             asset_exe    : mptrsz_arm64.exe

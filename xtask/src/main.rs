@@ -24,10 +24,10 @@ use std  	::{env,fs,
 fn main() -> anyhow::Result<()> {
   try_main()
 }
-use mptrsz::*;
+use mptrsz_lib::*;
 fn try_main() -> anyhow::Result<()> {
   let task = env::args().nth(1);
-  let _ = p!("task_arg1 = {:?} lib = {:?}", task, mptrsz::lib());
+  let _ = p!("task_arg1 = {:?} lib = {:?}", task, mptrsz_lib::lib());
   match task {
     None           	=> tasks::print_help(),
     Some(t)        	=> match t.as_str() {

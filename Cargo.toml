@@ -13,7 +13,7 @@ name	= "mptrsz"
 path	= "src/mptrsz.bin.rs"
 
 [lib]
-name      	= "mptrsz"
+name      	= "mptrsz_lib"
 path      	= "src/mptrsz.lib.rs"
 crate-type	= ['lib','cdylib']
 
