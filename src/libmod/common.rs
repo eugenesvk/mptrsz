@@ -80,8 +80,13 @@ impl fmt::Debug   for CursorColor {fn fmt(&self, f:&mut fmt::Formatter) -> fmt::
   Xor,
 }
 
+use windows::Win32::Foundation::POINT;
 #[repr(C)] #[derive(Default,Copy,Clone,Debug,PartialOrd,PartialEq,Eq,Ord)] #[docpos]
 pub struct Point {pub x:i32, pub y:i32,}
+
+impl From<POINT> for Point {
+  fn from(P: POINT) -> Self { Point {x:P.x, y:P.x} }
+}
 
 #[repr(C)] #[derive(Default,Copy,Clone,Debug,PartialOrd,PartialEq,Eq,Ord)] #[docpos]
 pub struct cur_box { /// 🖰Mouse cursor real bounding box around actualy drawn pixels, not just the containing bitmap rect
