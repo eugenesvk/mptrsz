@@ -8,8 +8,8 @@ pub use ::h::alias 	::*;
 pub use ::h::helper	::*;
 
 _mod!(binmod); //→ #[path="binmod/[binmod].rs"] pub mod binmod;
-use mptrsz_lib::libmod::{parse_cursor_h,parse_cursor_dxgi};
-use mptrsz_lib::φ;
+use mptrsz::libmod::{parse_cursor_h,parse_cursor_dxgi};
+use mptrsz::φ;
 
 use std::mem;
 
