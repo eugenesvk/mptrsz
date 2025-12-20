@@ -31,6 +31,10 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
   // thread::sleep(Duration::from_millis(50)); // sleep before capture to wait system to update the screen
   let capt = capturer.capture_with_pointer_shape().unwrap(); // Res<(DXGI_OUTDUPL_FRAME_INFO,Option<DXGI_OUTDUPL_POINTER_SHAPE_INFO>,)>
 
+  let frameℹ  = capt.0;
+  let cur_pos = frameℹ.PointerPosition;
+  if (!cur_pos.Visible).into() {return Err(CursorSizeErr::DXDupe("Pointer is Hidden, so has no size!".into()))}
+
   let maybe_ptr_shape = capt.1;
   match maybe_ptr_shape {None=>{Err(CursorSizeErr::DXDupe("Failed to capture pointer shape".into())) },
     Some(ptr_shape)	=> {
