@@ -15,17 +15,6 @@ use widestring::{WideChar,u16cstr,U16CStr};
 use std     	::{self,slice,ptr,cmp};
 use std::ffi	::{CString};
 
-
-fn ret_error(err_msg:&U16CStr, err_sz:u32,err_ptr:*mut WideChar) -> *const WideChar { // create a buffer from pointer/size and fill it in
-  let err_msg_bufer   	= unsafe{slice::from_raw_parts_mut::<WideChar>(err_ptr, err_sz as usize)};
-  let err_msg_b:&[u16]	= err_msg.as_slice_with_nul(); // → slice of underlying elements, incl ␀ terminator
-  let max_buff_len    	= cmp::min(err_msg_b.len(),(err_sz / 2) as usize);
-  err_msg_bufer[..max_buff_len].copy_from_slice(&err_msg_b[..max_buff_len]);
-  err_msg_bufer[max_buff_len-1] = U16CStr::NUL_TERMINATOR;
-  ptr::null()
-}
-
-
 use windows::Win32::UI::WindowsAndMessaging::{CURSORINFO,HCURSOR,CURSOR_SHOWING,};
 use windows::Win32::UI::WindowsAndMessaging::{GetCursorPos,GetCursorInfo};
 use windows::Win32::Foundation::POINT;
