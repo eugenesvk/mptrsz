@@ -97,6 +97,8 @@ fn get_mcursor_sz_dx(coord:i8, err_sz:u32,err_ptr:*mut WideChar) -> maybe_cur_bo
   }
 }
 
+use widestring::U16CString;
+
 #[docpos]
 fn ffi𝑒( /// Return an FFI-friendly error string to a non-Rust caller
   ///! Rust error string vallue to return. ❗ Must be deallocated via `dealloc_lib_string` to avoid memory leak (can't be deallocated by the caller)
