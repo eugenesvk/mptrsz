@@ -47,7 +47,7 @@ fn get_mcursor_sz_ci(mut cur_box:cur_box, coord:i8) -> 𝑝𝑠 {
   // 1.2 Get/parse handle(s) to the cursor bitmap mask(s)
   let coords = parse_cursor_h(cur_h, false);
   match coords {
-    Ok(mut c)	=> {if coord == 0 {cur_box_to_screen(&mut c, &curℹ.ptScreenPos)}; cur_box=c; ffi𝑒("")},
+    Ok(mut c)	=> {if coord == Coord::Mon as i8 {cur_box_to_screen(&mut c, &curℹ.ptScreenPos)}; cur_box=c; ffi𝑒("")},
     Err(𝑒)   	=> {ffi𝑒(format!("✗ Couldn't get 🖰 cursor size box parsing bitmaps from ‘GetCursorInfo’ → ‘GetIconInfo’! 𝑒 = ‘{}’",𝑒))},
   }
 }
@@ -57,7 +57,7 @@ fn get_mcursor_sz_dx(mut cur_box:cur_box, coord:i8) -> 𝑝𝑠 {
   // 2 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
   match get_mptr_sz(None) {
     Ok(mut c) => {
-      if coord == 0 { //convert to screen coordinates once we get hotspot's screen coords
+      if coord == Coord::Mon as i8 { //convert to screen coordinates once we get hotspot's screen coords
         let mut cur_pos = POINT::default();
         let cur_pos_res = unsafe{GetCursorPos(&mut cur_pos)};
         if  cur_pos_res.is_ok() {cur_box_to_screen(&mut c, &cur_pos);

@@ -99,6 +99,11 @@ impl fmt::Display for cur_box {fn fmt(&self, f:&mut fmt::Formatter) -> fmt::Resu
   // } else /*#*/      { }
 }}
 
+#[docpos] pub enum Coord { /// Cursor coordinate type
+  Mon = 0	,/// Absolute monitor pixel position
+  /**/   	 ///! Relative to the cursor icon box
+  Box = 1	,
+}
 
 use windows_registry::{CURRENT_USER,Result as Res_win};
 pub fn get_cursor_reg() -> Res_win<u32> {
