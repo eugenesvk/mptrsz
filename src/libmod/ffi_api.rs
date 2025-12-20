@@ -58,10 +58,8 @@ fn get_mcursor_sz_dx(mut cur_box:cur_box, coord:i8) -> 𝑝𝑠 {
   match get_mptr_sz(None) {
     Ok(mut c) => {
       if coord == Coord::Mon as i8 { //convert to screen coordinates once we get hotspot's screen coords
-        let mut cur_pos = POINT::default();
-        let cur_pos_res = unsafe{GetCursorPos(&mut cur_pos)};
-        if  cur_pos_res.is_ok() {cur_box_to_screen(&mut c, &cur_pos);
-        } else {return ffi𝑒("✗ Couldn't ‘GetCursorPos’!")}
+        let cur_pos = POINT {x:c.hs.x, y:c.hs.y};
+        cur_box_to_screen(&mut c, &cur_pos);
       };
       cur_box = c;
       ffi𝑒("")
