@@ -77,7 +77,7 @@ fn get_mcursor_sz_dx(mut cur_box:cur_box, coord:i8) -> 𝑝𝑠 {
       cur_box = c;
       ffi𝑒("")
     },
-    Err(𝑒)  => {ffi𝑒(&format!("✗ Couldn't get 🖰 cursor size box using DX duplication API for an unknown reason! 𝑒 = {𝑒}"))},
+    Err(𝑒)  => {ffi𝑒(&format!("{𝑒}"))},
   }
 }
 
