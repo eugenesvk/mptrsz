@@ -6,7 +6,7 @@ pub use ::h::alias 	::*;
 pub use ::h::helper	::*;
 // use crate::*;
 
-use mptrsz_lib::{φ, libmod::{parse_cursor_h,parse_cursor_dxgi}};
+use mptrsz_lib::{φ, libmod::{parse_cursor_h,parse_cursor_dxgi,cur_box_to_screen_hs,Coord}};
 
 use std::mem;
 
@@ -57,8 +57,9 @@ pub fn main_cli() -> Result<()> {
     // 1.2 Get handle(s) to the cursor bitmap mask(s)
     let coords = parse_cursor_h(cur_h, opt.p_ci, &opt.rows);
     match coords {
-      Ok(c) 	=> {pp!("global 🖰 𝑏map: coords {:?}",c);},
-      Err(e)	=> {pp!("global 🖰 𝑏map: no mouse pointer shape captured: {e}");},
+      Ok(mut c)	=> {if opt.coord {cur_box_to_screen_hs(&mut c, &curℹ.ptScreenPos)};
+        /**/   	    pp!("global 🖰 𝑏map: coords {:?}",c);},
+      Err(e)   	=> {pp!("global 🖰 𝑏map: no mouse pointer shape captured: {e}");},
     };
   }
 
@@ -75,10 +76,10 @@ pub fn main_cli() -> Result<()> {
 
 
   // 3 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
-    let coords = parse_cursor_dxgi(opt.p_dx, &opt.rows);
+    let coords = parse_cursor_dxgi(opt.p_dx, opt.coord, &opt.rows);
     match coords {
-      Ok (c)	=> {pp!("DXGI: coords {:?}",c);},
-      Err(𝑒)	=> {pp!("DXGI: no mouse pointer shape captured: {}",𝑒);},
+      Ok (mut c) => {pp!("DXGI: coords {:?}",c);},
+      Err(𝑒)     => {pp!("DXGI: no mouse pointer shape captured: {}",𝑒);},
     };
 
   Ok(())

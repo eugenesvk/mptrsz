@@ -46,9 +46,9 @@ pub fn parse_cursor_h(cur_h:HCURSOR, p:bool, rows:&[usize]) -> Result<cur_box, C
   }
 }
 
-pub fn parse_cursor_dxgi(p:bool, rows:&[usize]) -> Result<cur_box, CursorSizeErr> {
+pub fn parse_cursor_dxgi(p:bool, coord:bool, rows:&[usize]) -> Result<cur_box, CursorSizeErr> {
   if dbg && p {pp!("\n\n\n——————————————— 2. DXGI duplication API (screenshot)\n");}
   if dbg && p {let mut out_str = String::new();
-    let _r	=get_mptr_sz(Some(&mut out_str),rows); pp!("{}",out_str); _r
-  } else  	{get_mptr_sz(None              ,rows)}
+    let _r	=get_mptr_sz(Some(&mut out_str),coord,rows); pp!("{}",out_str); _r
+  } else  	{get_mptr_sz(None              ,coord,rows)}
 }

@@ -110,6 +110,19 @@ impl fmt::Display for cur_box {fn fmt(&self, f:&mut fmt::Formatter) -> fmt::Resu
   Box = 1	,
 }
 
+pub fn cur_box_to_screen_hs(cbox:&mut cur_box, hs_screen: &POINT) {
+  let icon_box_x = hs_screen.x - cbox.hs.x;
+  let icon_box_y = hs_screen.y - cbox.hs.y;
+  cbox.ptl.x += icon_box_x;  cbox.ptl.y += icon_box_y;
+  cbox.pbr.x += icon_box_x;  cbox.pbr.y += icon_box_y;
+  cbox.hs .x = hs_screen.x;  cbox.hs .y = hs_screen.y;
+}
+pub fn cur_box_to_screen(cbox:&mut cur_box, box_screen: &POINT) {
+  cbox.ptl.x += box_screen.x;  cbox.ptl.y += box_screen.y;
+  cbox.pbr.x += box_screen.x;  cbox.pbr.y += box_screen.y;
+  cbox.hs .x += box_screen.x;  cbox.hs .y += box_screen.y;
+}
+
 use windows_registry::{CURRENT_USER,Result as Res_win};
 pub fn get_cursor_reg() -> Res_win<u32> {
   let key_s = r#"software\Microsoft\Accessibility"#;

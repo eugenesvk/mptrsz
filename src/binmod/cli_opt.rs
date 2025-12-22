@@ -2,7 +2,7 @@ use std::str::FromStr;
 use bpaf::*;
 
 // #[derive(Debug,Clone)] pub struct Opt {pub fmt:usize, pub log:bool, pub rows:Vec<u16>}
-#[derive(Debug,Clone)] pub struct Opt {pub p_ci:bool, pub p_dx:bool, pub rows:Vec<usize>}
+#[derive(Debug,Clone)] pub struct Opt {pub p_ci:bool, pub p_dx:bool, pub coord:bool, pub rows:Vec<usize>}
 
 // use owo_colors::OwoColorize;
 pub fn options() -> OptionParser<Opt> {
@@ -24,9 +24,11 @@ pub fn options() -> OptionParser<Opt> {
     d}).switch();
   let p_dx	= s('p').l("pdx"   ).h({let mut d = Doc::default();d.text("Print masks for DX Dupplication (screnshot) API");
     d}).switch();
+  let coord	= s('s').l("screen").h({let mut d = Doc::default();d.text("Report values in screen coordinates");
+    d}).switch();
 
   // construct!(Opt {fmt, log, rows}).to_options()
-  construct!(Opt {p_ci,p_dx,rows}).to_options()
+  construct!(Opt {p_ci,p_dx,coord,rows}).to_options()
     .version(env!("CARGO_PKG_VERSION"))
     .descr("Quick & dirty debug of the mouse cursor size library using either cursor info API or DX Duplication (screenshot), printing binary/color masks and optionally raw row values")
     // .header("")

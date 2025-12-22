@@ -19,6 +19,7 @@ use docpos::*;
 #[docpos]
 pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible), i.e., the minimal box that contains all the pointer pixels. If `E̲nable pointer shadow` Windows Mouse setting is on, the cursor size increases by ~9⋅7 pixels, so instead of 48⋅48 (48=32⋅1.5 screen scaling) you'd get 57⋅55 (also affects the cursor positioning within the cursor frame). `GetCursorInfo` alternative seems to ignore shadows and always gets 48⋅48. However, `Colorμ` cursors (24𝑏=8𝑏⋅3𝑐 `TrueColor` colors with at least 1 pixel "inverted" that requires using α-channel to track inversion (0xFF inverts, 0x0 replaces; 𝑎-channel is 0-ed out in regular 24𝑏 color bitmap)) do not drop shadow, so retain the same size (48⋅48 in the example above)
   mut s:Option<&mut String>, /// store the text drawing of the pointer and print a few metrics (mostly for debugging)
+  coord:bool,        /// whether to convert coordinates to screen
   /**/               ///! print mask/color values of these rows (for debugging)
   p_rows:&[usize],
 ) -> Result<cur_box,CursorSizeErr>  {
@@ -172,10 +173,11 @@ pub fn get_mptr_sz( /// Get the true bounding box of a 🖰 pointer (if visible)
       // let    stop = src.add(h as usize);
       // while src != stop {src = src.add(1);}
       // }
-      let res_box = cur_box {
+      let mut res_box = cur_box {
         ptl:Point {x: most𐎓 as i32, y: most𖭩 as i32},
         pbr:Point {x: most𑁱 as i32, y: most𖭪 as i32},
         hs :Point {x: hot_x       , y: hot_y}};
+      if coord {cur_box_to_screen(&mut res_box, &cur_pos.Position)};
 
       if  most𐎓 > most𑁱
        || most𖭩 > most𖭪 {return Err(CursorSizeErr::BoxSzInvalid(res_box)) }

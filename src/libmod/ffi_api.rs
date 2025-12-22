@@ -18,18 +18,6 @@ use windows::Win32::UI::WindowsAndMessaging::{CURSORINFO,HCURSOR,CURSOR_SHOWING,
 use windows::Win32::UI::WindowsAndMessaging::GetCursorInfo;
 use windows::Win32::Foundation::POINT;
 
-
-pub fn cur_box_to_screen(cbox:&mut cur_box, hs_screen: &POINT) {
-  let icon_box_x = hs_screen.x - cbox.hs.x;
-  let icon_box_y = hs_screen.y - cbox.hs.y;
-  cbox.ptl.x += icon_box_x;
-  cbox.ptl.y += icon_box_y;
-  cbox.pbr.x += icon_box_x;
-  cbox.pbr.y += icon_box_y;
-  cbox.hs.x  = hs_screen.x;
-  cbox.hs.y  = hs_screen.y;
-}
-
 use docpos::*;
 
 #[unsafe(no_mangle)] pub extern "C"
@@ -46,7 +34,7 @@ fn get_mcursor_sz_ci(cur_box:&mut cur_box, coord:i8) -> 𝑝𝑠 {
   // 1.2 Get/parse handle(s) to the cursor bitmap mask(s)
   let coords = parse_cursor_h(cur_h, false, &[]);
   match coords {
-    Ok(mut c)	=> {if coord == Coord::Mon as i8 {cur_box_to_screen(&mut c, &curℹ.ptScreenPos)}; *cur_box=c; ffi𝑒("")},
+    Ok(mut c)	=> {if coord == Coord::Mon as i8 {cur_box_to_screen_hs(&mut c, &curℹ.ptScreenPos)}; *cur_box=c; ffi𝑒("")},
     Err(𝑒)   	=> {ffi𝑒(format!("✗ Couldn't get 🖰 cursor size box parsing bitmaps from ‘GetCursorInfo’ → ‘GetIconInfo’! 𝑒 = ‘{}’",𝑒))},
   }
 }
@@ -54,16 +42,9 @@ fn get_mcursor_sz_ci(cur_box:&mut cur_box, coord:i8) -> 𝑝𝑠 {
 #[unsafe(no_mangle)] pub extern "C"
 fn get_mcursor_sz_dx(cur_box:&mut cur_box, coord:i8) -> 𝑝𝑠 {
   // 2 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
-  match get_mptr_sz(None,&[]) {
-    Ok(mut c) => {
-      if coord == Coord::Mon as i8 { //convert to screen coordinates once we get hotspot's screen coords
-        let cur_pos = POINT {x:c.hs.x, y:c.hs.y};
-        cur_box_to_screen(&mut c, &cur_pos);
-      };
-      *cur_box = c;
-      ffi𝑒("")
-    },
-    Err(𝑒)  => {ffi𝑒(format!("{𝑒}"))},
+  match get_mptr_sz(None, coord == Coord::Mon as i8, &[]) {
+    Ok(mut c) => {*cur_box = c; ffi𝑒("")},
+    Err(𝑒)    => {              ffi𝑒(format!("{𝑒}"))},
   }
 }
 
