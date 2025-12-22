@@ -48,6 +48,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "bpaf"
+version = "0.9.20"
+source = "git+https://github.com/eugenesvk/bpaf.git?rev=f9909d4a#f9909d4a196134735422e69a291e0051b296c548"
+dependencies = [
+ "owo-colors",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -223,11 +231,13 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "bitvec",
+ "bpaf",
  "docpos",
  "faccess",
  "helperes",
  "helperes_proc",
  "log",
+ "owo-colors",
  "rusty-duplication",
  "thiserror",
  "widestring",
@@ -249,6 +259,12 @@ name = "once_cell"
 version = "1.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1261fe7e33c73b354eab43b1273a57c8f967d0391e80353e51f764ac02cf6775"
+
+[[package]]
+name = "owo-colors"
+version = "4.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c6901729fa79e91a0913333229e9ca5dc725089d1c363b2f4b4760709dc4a52"
 
 [[package]]
 name = "proc-macro2"
