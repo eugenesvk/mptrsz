@@ -22,6 +22,9 @@ type Result<T> = result::Result<T, Box<dyn Error>>;
 pub fn print42() -> Result<()> {p!("{}",42)?; Ok(())}
 
 pub fn main_cli() {
+  let opt = options().run();
+  // p!("parsed args: rows={:?}",opt.rows)?;
+
   // TODO: when cursor is invisible, use alternative method of measuring its size
     // system metrics? add enum in return type to know: ≝, bitmap parsing, 3rd???
     // if ( !size.x ) { // use default icon size on this hardware
@@ -52,7 +55,7 @@ pub fn main_cli() {
     if curℹ.flags != CURSOR_SHOWING {return}
 
     // 1.2 Get handle(s) to the cursor bitmap mask(s)
-    let coords = parse_cursor_h(cur_h, true);
+    let coords = parse_cursor_h(cur_h, opt.p_ci, &opt.rows);
     match coords {
       Ok(c) 	=> {pp!("global 🖰 𝑏map: coords {:?}",c);},
       Err(e)	=> {pp!("global 🖰 𝑏map: no mouse pointer shape captured: {e}");},
@@ -72,7 +75,7 @@ pub fn main_cli() {
 
 
   // 3 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
-    let coords = parse_cursor_dxgi();
+    let coords = parse_cursor_dxgi(opt.p_dx, &opt.rows);
     match coords {
       Ok (c)	=> {pp!("DXGI: coords {:?}",c);},
       Err(𝑒)	=> {pp!("DXGI: no mouse pointer shape captured: {}",𝑒);},
