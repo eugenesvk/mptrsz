@@ -18,10 +18,10 @@ pub mod cli_opt;
 use cli_opt::*;
 
 use std::{result, error::Error};
-type Result<T> = result::Result<T, Box<dyn Error>>;
+pub type Result<T> = result::Result<T, Box<dyn Error>>;
 pub fn print42() -> Result<()> {p!("{}",42)?; Ok(())}
 
-pub fn main_cli() {
+pub fn main_cli() -> Result<()> {
   let opt = options().run();
   // p!("parsed args: rows={:?}",opt.rows)?;
 
@@ -52,7 +52,7 @@ pub fn main_cli() {
       } else                                      	{""};
     let x = curℹ.ptScreenPos.x; let y = curℹ.ptScreenPos.y;
     φ!("1.1) 🖰 global: x{x} y{y} {vis} +handle (GetCursorInfo)");
-    if curℹ.flags != CURSOR_SHOWING {return}
+    if curℹ.flags != CURSOR_SHOWING {return Ok(())}
 
     // 1.2 Get handle(s) to the cursor bitmap mask(s)
     let coords = parse_cursor_h(cur_h, opt.p_ci, &opt.rows);
@@ -80,4 +80,6 @@ pub fn main_cli() {
       Ok (c)	=> {pp!("DXGI: coords {:?}",c);},
       Err(𝑒)	=> {pp!("DXGI: no mouse pointer shape captured: {}",𝑒);},
     };
+
+  Ok(())
 }

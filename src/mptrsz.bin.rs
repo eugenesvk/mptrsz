@@ -8,8 +8,8 @@ pub use ::h::alias 	::*;
 pub use ::h::helper	::*;
 
 _mod!(binmod); //→ #[path="binmod/[binmod].rs"] pub mod binmod;
-use crate::binmod::main_cli;
+use binmod::*;
 
-pub fn main() {
+pub fn main() -> Result<()> {
   main_cli()
 }
