@@ -33,26 +33,26 @@ pub fn cur_box_to_screen(cbox:&mut cur_box, hs_screen: &POINT) {
 use docpos::*;
 
 #[unsafe(no_mangle)] pub extern "C"
-fn get_mcursor_sz_ci(mut cur_box:cur_box, coord:i8) -> 𝑝𝑠 {
+fn get_mcursor_sz_ci(cur_box:&mut cur_box, coord:i8) -> 𝑝𝑠 {
   // 1 🖰 Global cursor (GetCursorInfo) even if it's not owned by the current thread
   // 1.1 Get handle to the cursor itself
   let mut curℹ = CURSORINFO {cbSize: mem::size_of::<CURSORINFO>() as u32, ..Default::default()};
     /*hCursor:HCURSOR   cbSize:u32 (!must set before! ??? becomes 0 after GetCursorInfo call)
     flags      :CURSORINFO_FLAGS	0=hidden 1=CURSOR_SHOWING 2=CURSOR_SUPPRESSED (touch/pen)
     ptScreenPos:POINT           	screen coordinates of the cursor*/
-  let res = unsafe { GetCursorInfo(&mut curℹ) }; if res.is_err()                 {cur_box=cur_box::default(); return ffi𝑒("✗ Couldn't ‘GetCursorInfo’!"            )}
-  let cur_h:HCURSOR = curℹ.hCursor;              if curℹ.flags != CURSOR_SHOWING {cur_box=cur_box::default(); return ffi𝑒("✗ cursor is not shown (hidden or touch/pen)!")}
+  let res = unsafe { GetCursorInfo(&mut curℹ) }; if res.is_err()                 {*cur_box=cur_box::default(); return ffi𝑒("✗ Couldn't ‘GetCursorInfo’!"            )}
+  let cur_h:HCURSOR = curℹ.hCursor;              if curℹ.flags != CURSOR_SHOWING {*cur_box=cur_box::default(); return ffi𝑒("✗ cursor is not shown (hidden or touch/pen)!")}
 
   // 1.2 Get/parse handle(s) to the cursor bitmap mask(s)
   let coords = parse_cursor_h(cur_h, false,&[]);
   match coords {
-    Ok(mut c)	=> {if coord == Coord::Mon as i8 {cur_box_to_screen(&mut c, &curℹ.ptScreenPos)}; cur_box=c; ffi𝑒("")},
+    Ok(mut c)	=> {if coord == Coord::Mon as i8 {cur_box_to_screen(&mut c, &curℹ.ptScreenPos)}; *cur_box=c; ffi𝑒("")},
     Err(𝑒)   	=> {ffi𝑒(format!("✗ Couldn't get 🖰 cursor size box parsing bitmaps from ‘GetCursorInfo’ → ‘GetIconInfo’! 𝑒 = ‘{}’",𝑒))},
   }
 }
 
 #[unsafe(no_mangle)] pub extern "C"
-fn get_mcursor_sz_dx(mut cur_box:cur_box, coord:i8) -> 𝑝𝑠 {
+fn get_mcursor_sz_dx(cur_box:&mut cur_box, coord:i8) -> 𝑝𝑠 {
   // 2 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
   match get_mptr_sz(None,&[]) {
     Ok(mut c) => {
@@ -60,7 +60,7 @@ fn get_mcursor_sz_dx(mut cur_box:cur_box, coord:i8) -> 𝑝𝑠 {
         let cur_pos = POINT {x:c.hs.x, y:c.hs.y};
         cur_box_to_screen(&mut c, &cur_pos);
       };
-      cur_box = c;
+      *cur_box = c;
       ffi𝑒("")
     },
     Err(𝑒)  => {ffi𝑒(format!("{𝑒}"))},
