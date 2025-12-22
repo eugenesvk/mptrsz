@@ -17,7 +17,7 @@ use windows::Win32::UI::WindowsAndMessaging::{ICONINFO, HCURSOR,};
 use windows::Win32::UI::WindowsAndMessaging::GetIconInfo;
 
 
-pub fn parse_cursor_h(cur_h:HCURSOR, p:bool, rows:&Vec<usize>) -> Result<cur_box, CursorSizeErr> {
+pub fn parse_cursor_h(cur_h:HCURSOR, p:bool, rows:&[usize]) -> Result<cur_box, CursorSizeErr> {
   let mut iℹ = ICONINFO::default();
     /*fIcon :BOOL   	TRUE specifies an icon; FALSE specifies a cursor
     xHotspot:u32    	, yHotspot:u32
@@ -46,7 +46,7 @@ pub fn parse_cursor_h(cur_h:HCURSOR, p:bool, rows:&Vec<usize>) -> Result<cur_box
   }
 }
 
-pub fn parse_cursor_dxgi(p:bool, rows:&Vec<usize>) -> Result<cur_box, CursorSizeErr> {
+pub fn parse_cursor_dxgi(p:bool, rows:&[usize]) -> Result<cur_box, CursorSizeErr> {
   if dbg && p {pp!("\n\n\n——————————————— 2. DXGI duplication API (screenshot)\n");}
   if dbg && p {let mut out_str = String::new();
     let _r	=get_mptr_sz(Some(&mut out_str),rows); pp!("{}",out_str); _r

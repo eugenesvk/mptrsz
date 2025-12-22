@@ -20,7 +20,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
   mut hot_p:Point, /// Hotspot coordinates to be adjusted if Accessibility size > 1
   mut s:Option<&mut String>, /// store the text drawing of the cursor and print a few metrics (mostly for debugging)
   /**/               ///! print mask/color values of these rows (for debugging)
-  p_rows:&Vec<usize>,
+  p_rows:&[usize],
 ) -> Result<cur_box,CursorSizeErr>  {
   let is_s = s.is_some(); //store a printout string of non-empty pixels
   /* BITMAP:
