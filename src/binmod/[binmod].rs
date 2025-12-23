@@ -26,12 +26,13 @@ pub fn main_cli() -> Result<()> {
   // p!("parsed args: rows={:?}",opt.rows)?;
 
   // TODO: when cursor is invisible, use alternative method of measuring its size
-    // system metrics? add enum in return type to know: ≝, bitmap parsing, 3rd???
-    // if ( !size.x ) { // use default icon size on this hardware
-      // const wxWindow* win = wxApp::GetMainTopWindow();
-      // size.x = wxGetSystemMetrics(SM_CXICON, win);
-      // size.y = wxGetSystemMetrics(SM_CYICON, win);
-    // }
+  // use windows::Win32::UI::WindowsAndMessaging::{GetSystemMetrics,};
+  // use windows::Win32::UI::WindowsAndMessaging::{SM_CXSCREEN,SM_CYSCREEN,SM_CXICON,SM_CYICON,};
+  // let screen_w	= unsafe{GetSystemMetrics(SM_CXSCREEN)};
+  // let screen_h	= unsafe{GetSystemMetrics(SM_CYSCREEN)};
+  // let cursor_w	= unsafe{GetSystemMetrics(SM_CXICON)};
+  // let cursor_h	= unsafe{GetSystemMetrics(SM_CYICON)};
+  // pp!("metrics screen w{screen_w} h{screen_h} cursor w{cursor_w} h{cursor_h}");
 
   // 0 Current cursor position (GetCursorPos)
   let mut cur_pos = POINT::default();
