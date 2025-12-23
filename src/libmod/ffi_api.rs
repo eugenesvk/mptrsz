@@ -16,7 +16,6 @@ use std     	::{self,ptr};
 
 use windows::Win32::UI::WindowsAndMessaging::{CURSORINFO,HCURSOR,CURSOR_SHOWING,};
 use windows::Win32::UI::WindowsAndMessaging::GetCursorInfo;
-use windows::Win32::Foundation::POINT;
 
 use docpos::*;
 
@@ -43,8 +42,8 @@ fn get_mcursor_sz_ci(cur_box:&mut cur_box, coord:i8) -> 𝑝𝑠 {
 fn get_mcursor_sz_dx(cur_box:&mut cur_box, coord:i8) -> 𝑝𝑠 {
   // 2 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
   match get_mptr_sz(None, coord == Coord::Mon as i8, &[]) {
-    Ok(mut c) => {*cur_box = c; ffi𝑒("")},
-    Err(𝑒)    => {              ffi𝑒(format!("{𝑒}"))},
+    Ok (c)	=> {*cur_box = c; ffi𝑒("")},
+    Err(𝑒)	=> {              ffi𝑒(format!("{𝑒}"))},
   }
 }
 

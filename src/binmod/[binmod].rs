@@ -6,7 +6,7 @@ pub use ::h::alias 	::*;
 pub use ::h::helper	::*;
 // use crate::*;
 
-use mptrsz_lib::{φ, libmod::{parse_cursor_h,parse_cursor_dxgi,cur_box_to_screen_hs,Coord}};
+use mptrsz_lib::{φ, libmod::{parse_cursor_h,parse_cursor_dxgi,cur_box_to_screen_hs}};
 
 use std::mem;
 
@@ -78,8 +78,8 @@ pub fn main_cli() -> Result<()> {
   // 3 DXGI duplication API (screenshot the whole screen, get pointer image). Unlike ↑ captures shadow
     let coords = parse_cursor_dxgi(opt.p_dx, opt.coord, &opt.rows);
     match coords {
-      Ok (mut c) => {pp!("DXGI: coords {:?}",c);},
-      Err(𝑒)     => {pp!("DXGI: no mouse pointer shape captured: {}",𝑒);},
+      Ok (c)	=> {pp!("DXGI: coords {c:?}");},
+      Err(𝑒)	=> {pp!("DXGI: no mouse pointer shape captured: {𝑒}");},
     };
 
   Ok(())
