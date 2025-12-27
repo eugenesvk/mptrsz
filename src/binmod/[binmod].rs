@@ -36,10 +36,7 @@ pub fn main_cli() -> Result<()> {
   // pp!("metrics screen w{screen_w} h{screen_h} cursor w{cursor_w} h{cursor_h}");
   let shadow = if is_cursor_shadow(false) {"❏"}else{"□"};
   let dpi = 0; // TODO: add screen scaling
-  let acc = match get_cursor_reg() {
-    Ok(acc)	=> acc,
-    Err(e) 	=> 1,
-  };
+  let acc = get_cursor_reg().unwrap_or(1);
   p!("{shadow}   ⋅{dpi} dpi   ⋅{acc} sz accessibility")?;
 
   // 0 Current cursor position (GetCursorPos)

@@ -47,7 +47,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
   let (shΔx,shΔy):(usize,usize) = if adjust_shadow {
     let acc:f32 = match get_cursor_reg() {
       Ok(acc)	=> acc as f32,
-      Err(e) 	=> 1f32,
+      Err(_e)	=> 1f32,
     };
     ((4.0 + acc      ).floor() as usize, // x≈≈1→5 2→6 3→7 4→8 5→9 6→10 7→11
      (2.5 + acc / 2.0).floor() as usize) // y≈ 1→3 2→3 3→4 4→4 5→5 6→ 5 7→ 6 8→6
@@ -165,7 +165,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let is_colμ 	= !isα;
 
   if is_colμ {let cur𝑡 = CursorColor::Colorμ; //4c·8𝑏pc=32𝑏pp BGRα DIB  both 𝑏mask and color 𝑏map
-    cancel_shadow = true;
+    cancel_shadow = true; let _ = cancel_shadow;
     // 1. Print each mask separately, do box calculations later with both masks applied
     let pad = if hX_sz <= 9 {1} else if hX_sz <= 99 {2} else {3};
     if is_s {
@@ -229,11 +229,11 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
         // if 𝑖row==0 {print!("№{𝑖row:>pad$}𝑏¦№{𝑗col:>pad$} = ",pad=pad);print𝑏_slice(pxA);pp!(" ¦ {pxX:?}");} //todo: delete / uncomment debug print
         let is_draw =
           if        !pxA[0] { //base=🖰cursor px 0█ 1□
-            if              px0 == pxX  {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; true
+            if              px0 == pxX
               //α is not transparency, but a flag for RGB=0,0,0'█' to replace screen
             // } else if       0   == pxX[3]{if is_s{(*s.as_deref_mut().unwrap()).push('α')}; true
               //α=0 is a flag to replace with px RGB '•', not α-transparen, but we differentiate shades↓
-            } else if is_px3_black   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; true
+            ||        is_px3_black   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('█')}; true
             } else if is_px3_blackish(pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▇')}; true
             } else if is_px3_dark    (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('▓')}; true
             } else if is_px3_white   (pxX) {if is_s {(*s.as_deref_mut().unwrap()).push('□')}; true
