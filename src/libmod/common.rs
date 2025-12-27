@@ -131,6 +131,23 @@ pub fn get_cursor_reg() -> Res_win<u32> {
   Ok(val_reg)
 }
 
+use windows::Win32::UI::WindowsAndMessaging::SystemParametersInfoW;
+use windows::Win32::UI::WindowsAndMessaging::{SPI_GETCURSORSHADOW,SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS};
+use core::ffi::c_void;
+
+use windows::Win32::Foundation::{BOOL,FALSE};
+pub fn is_cursor_shadow(p:bool) -> bool {
+  let mut is_shadow: BOOL = FALSE;
+  let x = unsafe{ SystemParametersInfoW(SPI_GETCURSORSHADOW, 0u32, Some(&mut is_shadow as *mut BOOL as *mut c_void),SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS(0u32))};
+    /* libs win (rustified function vs C and libs syst)	winAPI
+      uiaction: SYSTEM_PARAMETERS_INFO_ACTION          	→UINT 	uiAction SPI_GETCURSORSHADOW 0x101A
+      uiparam : u32                                    	→UINT 	uiParam  depends on the sys parameter↑   or  must be 0
+      pvparam : Option<*mut core::ffi::c_void>         	🡘PVOID	pvParam  must point to a BOOL variable that receives info
+      fwinini : SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS)   	→UINT 	fWinIni
+      -> windows_core::Result<()>                      	←BOOL*/
+  if p {pp!("is_shadow = {is_shadow:?} SysParInfoRes = {x:?} SPI_GetCursorShadow={SPI_GETCURSORSHADOW:?}");}
+  is_shadow.into()
+}
 
 pub fn get_bits   (x:  u8) -> String {
  let mut s = String::new(); for byte in x.to_be_bytes().iter() { s += &format!("{:08b} ", byte);}  s}
