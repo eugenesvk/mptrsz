@@ -42,14 +42,14 @@ A summary of the various options and their limitations:
 ## Install
 
 (for AutoHotkey)
-  - Copy the `mouse_sz.ahk` AutoHotkey library to your `…\Autohotkey\lib` library folder
-  - Copy the `mptrsz.dll` Windows library to the same folder (or adjust path in `mouse_sz.ahk` to point to another location)
+  - Copy the [mouse_sz.ahk](./example_ahk/lib/mouse_sz.ahk) AutoHotkey library to your `…\Autohotkey\lib` library folder
+  - Copy the `mptrsz.dll` Windows library to the same folder (or adjust `libPath` in [mouse_sz.ahk](./example_ahk/lib/mouse_sz.ahk) to point to another location)
 
 ## Use
 
 The library provides 2 functions `get_mcursor_sz_ci` and `get_mcursor_sz_dx` that can report values in nominal or screen coordinates using either the GetCursorInfo or the DX duplication (screenshot) APIs.
 
-See `mouse_sz_example.ahk` that uses the `mouse_sz.ahk` library to show the nominal+screen coordinate sizes of the current mouse pointer using both, also showing the time each operation took.
+See [mouse_sz_example.ahk](./example_ahk/mouse_sz_example.ahk) AutoHotkey example that uses the [mouse_sz.ahk](./example_ahk/lib/mouse_sz.ahk) library to show the nominal+screen coordinate sizes of the current mouse pointer using both, also showing the time each operation took.
 
 You can then use this information to, e.g., show a tooltip that doesn't overlap with the bigger accessibility-sized pointer.
 
