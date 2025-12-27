@@ -6,7 +6,8 @@ pub use ::h::alias 	::*;
 pub use ::h::helper	::*;
 // use crate::*;
 
-use mptrsz_lib::{φ, libmod::{parse_cursor_h,parse_cursor_dxgi,cur_box_to_screen_hs}};
+use mptrsz_lib::libmod::get_cursor_reg;
+use mptrsz_lib::{φ, libmod::{parse_cursor_h,parse_cursor_dxgi,cur_box_to_screen_hs,is_cursor_shadow,}};
 
 use std::mem;
 
@@ -33,6 +34,13 @@ pub fn main_cli() -> Result<()> {
   // let cursor_w	= unsafe{GetSystemMetrics(SM_CXICON)};
   // let cursor_h	= unsafe{GetSystemMetrics(SM_CYICON)};
   // pp!("metrics screen w{screen_w} h{screen_h} cursor w{cursor_w} h{cursor_h}");
+  let shadow = if is_cursor_shadow(false) {"❏"}else{"□"};
+  let dpi = 0; // TODO: add screen scaling
+  let acc = match get_cursor_reg() {
+    Ok(acc)	=> acc,
+    Err(e) 	=> 1,
+  };
+  p!("{shadow}   ⋅{dpi} dpi   ⋅{acc} sz accessibility")?;
 
   // 0 Current cursor position (GetCursorPos)
   let mut cur_pos = POINT::default();
