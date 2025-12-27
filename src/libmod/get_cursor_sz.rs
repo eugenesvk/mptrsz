@@ -17,7 +17,7 @@ use windows::Win32::UI::WindowsAndMessaging::{ICONINFO, HCURSOR,};
 use windows::Win32::UI::WindowsAndMessaging::GetIconInfo;
 
 
-pub fn parse_cursor_h(cur_h:HCURSOR, p:bool, rows:&[usize]) -> Result<cur_box, CursorSizeErr> {
+pub fn parse_cursor_h(cur_h:HCURSOR, p:bool, rows:&[usize], shadow:bool) -> Result<cur_box, CursorSizeErr> {
   let mut iℹ = ICONINFO::default();
     /*fIcon :BOOL   	TRUE specifies an icon; FALSE specifies a cursor
     xHotspot:u32    	, yHotspot:u32
@@ -31,8 +31,8 @@ pub fn parse_cursor_h(cur_h:HCURSOR, p:bool, rows:&[usize]) -> Result<cur_box, C
 
     // 3 Get handle(s) to the cursor bitmap mask(s)
     let coords = if dbg && p {let mut out_str = String::new();
-      let _r	=measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, hot_p, Some(&mut out_str),rows); pp!("{}",out_str); _r
-    } else  	{measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, hot_p, None              ,rows)};
+      let _r	=measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, hot_p, Some(&mut out_str),rows,shadow); pp!("{}",out_str); _r
+    } else  	{measure_mcursor_bm(iℹ.hbmMask, iℹ.hbmColor, hot_p, None              ,rows,shadow)};
     // let bm_h = if iℹ.hbmColor.is_invalid() {iℹ.hbmMask} else {iℹ.hbmColor};
     // test_GetDIBits(bm_h);
 

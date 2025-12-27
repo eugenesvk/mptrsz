@@ -56,7 +56,7 @@ pub fn main_cli() -> Result<()> {
     if curℹ.flags != CURSOR_SHOWING {return Ok(())}
 
     // 1.2 Get handle(s) to the cursor bitmap mask(s)
-    let coords = parse_cursor_h(cur_h, opt.p_ci, &opt.rows);
+    let coords = parse_cursor_h(cur_h, opt.p_ci, &opt.rows, opt.shadow);
     match coords {
       Ok(mut c)	=> {if opt.coord {cur_box_to_screen_hs(&mut c, &curℹ.ptScreenPos)};
         /**/   	    pp!("global 🖰 𝑏map CI: {:?}",c);},

@@ -31,7 +31,7 @@ fn get_mcursor_sz_ci(cur_box:&mut cur_box, coord:i8) -> 𝑝𝑠 {
   let cur_h:HCURSOR = curℹ.hCursor;              if curℹ.flags != CURSOR_SHOWING {*cur_box=cur_box::default(); return ffi𝑒("✗ cursor is not shown (hidden or touch/pen)!")}
 
   // 1.2 Get/parse handle(s) to the cursor bitmap mask(s)
-  let coords = parse_cursor_h(cur_h, false, &[]);
+  let coords = parse_cursor_h(cur_h, false, &[], shadow != 0);
   match coords {
     Ok(mut c)	=> {if coord == Coord::Mon as i8 {cur_box_to_screen_hs(&mut c, &curℹ.ptScreenPos)}; *cur_box=c; ffi𝑒("")},
     Err(𝑒)   	=> {ffi𝑒(format!("✗ Couldn't get 🖰 cursor size box parsing bitmaps from ‘GetCursorInfo’ → ‘GetIconInfo’! 𝑒 = ‘{}’",𝑒))},
