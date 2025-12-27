@@ -42,6 +42,7 @@ A summary of the various options and their limitations:
 ## Install
 
 (for AutoHotkey)
+
   - Copy the [mouse_sz.ahk](./example_ahk/lib/mouse_sz.ahk) AutoHotkey library to your `…\Autohotkey\lib` library folder
   - Copy the `mptrsz.dll` Windows library to the same folder (or adjust `libPath` in [mouse_sz.ahk](./example_ahk/lib/mouse_sz.ahk) to point to another location)
 
@@ -53,10 +54,19 @@ See [mouse_sz_example.ahk](./example_ahk/mouse_sz_example.ahk) AutoHotkey exampl
 
 You can then use this information to, e.g., show a tooltip that doesn't overlap with the bigger accessibility-sized pointer.
 
+Before: mouse cursor covering the tooltip located at its default position
+![ToolTip ✗ ≝](<./doc/ToolTip ✗ ≝.png>)
+
+![ToolTip ✓ mcursor_sz](<./doc/ToolTip ✓ mcursor_sz.png>)
+
+After: mouse cursor not covering the tooltip located at the corner of the actual visible cursor
+
+
 ## Known issues
   - Accessibility size adjustment is not pixel perfect, and shadow size adjustment for the `get_mcursor_sz_ci` method is even less precise
   - With some large (>8) accessibility size factors the `get_mcursor_sz_dx` might not be able to capture the cursor for some reason
-  - I don't know whether it's possible to take the screenshot of only the pointer and not the whole screen with the DX duplication API, and anyway the Rust library used doesn't [support it](https://github.com/DiscreteTom/rusty-duplication/issues/10), maybe this could improve performance
+  - The DX duplication API is relatively much slower and memory-hungry due to the need to take the full screen screenshot and other unknown reasons, and it's unknown whether it's possible to take the screenshot of only the pointer and not the whole screen (which should definitely reduce the memory use, but unclear whether the time will improve); and anyway the Rust library used doesn't [support it](https://github.com/DiscreteTom/rusty-duplication/issues/10)
+  - The library doesn't calculate the visible cursor pixels closest to the corners, only the min-sized box that fits all the cursor pixels, so, e.g., you can't position the tooltip close to the bottom-right tip of the arrow at the `ToolTip ✓ mcursor_sz.png` screenshot above since the bottom-left tip is lower, thus pushing the whole tooltip down
 
 ## Credits
 
