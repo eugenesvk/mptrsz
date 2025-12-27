@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file
 
-[unreleased]: https://github.com/eugenesvk/mptrsz/compare/0.0.0...HEAD
+[unreleased]: https://github.com/eugenesvk/mptrsz/compare/0.1.0...HEAD
 ## [Unreleased]
 <!-- - ✨ __Added__ -->
   <!-- + new features -->
@@ -15,6 +15,9 @@ All notable changes to this project will be documented in this file
   <!-- + now removed features -->
 <!-- - 🔒 __Security__ -->
   <!-- + vulnerabilities -->
+
+[0.1.0]: https://github.com/eugenesvk/mptrsz/releases/tag/0.1.0
+## [0.1.0]
 - ✨ __Added__
   + `dll` with FFI functions `get_mcursor_sz_ci` `get_mcursor_sz_dx` to get the cursor size using either CursorInfo or DX Duplication (screenshot) API
   + Test executable with arguments for:
@@ -23,6 +26,3 @@ All notable changes to this project will be documented in this file
     + Print masks for DX Dupplication (screnshot) API
     + Report values in screen coordinates
     + Add an ≈approximation of shadow size (if it's enabled)
-
-[0.0.0]: https://github.com/eugenesvk/mptrsz/releases/tag/0.0.0
-## [0.0.0]
