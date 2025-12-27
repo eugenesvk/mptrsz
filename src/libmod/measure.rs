@@ -19,8 +19,9 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     ///	  </br>  	     🖰Colorα     : replacement pixels with    transparency
   mut hot_p:Point, /// Hotspot coordinates to be adjusted if Accessibility size > 1
   mut s:Option<&mut String>, /// store the text drawing of the cursor and print a few metrics (mostly for debugging)
-  /**/               ///! print mask/color values of these rows (for debugging)
-  p_rows:&[usize],
+  p_rows:&[usize], /// print mask/color values of these rows (for debugging)
+  /**/             ///! add rough ≈approximation of the pointer shadow (if it exists)
+  shadow:bool,
 ) -> Result<cur_box,CursorSizeErr>  {
   let is_s = s.is_some(); //store a printout string of non-empty pixels
   /* BITMAP:
@@ -42,6 +43,16 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     Ok (sz_acc) 	=> sz_acc,
     Err(e      )	=> {φ!("Couldn't read CursorSize Accessibility multiplier from the registry! The bounding box will be wrong if the cursor size is > 1  ε={}",e); 1},
   };
+  let adjust_shadow = is_cursor_shadow(false) && shadow;
+  let (shΔx,shΔy):(usize,usize) = if adjust_shadow {
+    let acc:f32 = match get_cursor_reg() {
+      Ok(acc)	=> acc as f32,
+      Err(e) 	=> 1f32,
+    };
+    ((4.0 + acc      ).floor() as usize, // x≈≈1→5 2→6 3→7 4→8 5→9 6→10 7→11
+     (2.5 + acc / 2.0).floor() as usize) // y≈ 1→3 2→3 3→4 4→4 5→5 6→ 5 7→ 6 8→6
+  } else {(0,0)};
+  let mut cancel_shadow = false; // transparent pixels in a cursor cancel shadow?
 
   // Iterate over mouse cursor 𝑏map buffer to detect blank pixels and bounding box size
   if cur𝑐.is_invalid() { let cur𝑡 = CursorColor::Mono; // 1𝑐·1𝑏⁄𝑐= 1𝑏⁄𝑝, 𝑏mask has both ⋀AND and ⊻XOR masks
@@ -154,6 +165,7 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
     let is_colμ 	= !isα;
 
   if is_colμ {let cur𝑡 = CursorColor::Colorμ; //4c·8𝑏pc=32𝑏pp BGRα DIB  both 𝑏mask and color 𝑏map
+    cancel_shadow = true;
     // 1. Print each mask separately, do box calculations later with both masks applied
     let pad = if hX_sz <= 9 {1} else if hX_sz <= 99 {2} else {3};
     if is_s {
@@ -275,6 +287,14 @@ pub fn measure_mcursor_bm( /// Get the true bounding box of a 🖰 cursor that c
             /**/    if 𝑖row < most𖭩	{most𖭩 = 𝑖row}; if 𝑖row > most𖭪 {most𖭪 = 𝑖row};  }
       });if is_s {*s.as_deref_mut().unwrap() += &format!("¦ №{𝑖row:>pad$}\n",pad=pad);}
     });
+
+    if adjust_shadow && !cancel_shadow { // adjust bounding box bottom/right sides by shadow
+    if is_s {*s.as_deref_mut().unwrap() += &format!(
+      "←{most𐎓}–{most𑁱}→={} ↑{most𖭩}–{most𖭪}↓={} bound box PRE shadow scaling (⋅{}) HS•x{} y{}\n",
+      most𑁱 - most𐎓 + 1, most𖭪 - most𖭩 + 1, h_accf, hot_p.x, hot_p.y);}
+      most𑁱 += shΔx;
+      most𖭪 += shΔy;
+    }
   }
   }
   // todo: replace with unsafe pointer arithmetic? to avoid bound checks??
