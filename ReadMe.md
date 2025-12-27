@@ -25,7 +25,7 @@ But at least you can parse the bitmasks and extract the mouse pointer from its b
 
 A more precise convoluted Windows API [DX Duplication](https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_2/ns-dxgi1_2-dxgi_outdupl_pointer_shape_info) takes the full screenshot of the whole screen(!) and then extracts the mouse pointer, wasting time and memory in the process (it's orders of magnitude slower than the `GetCursorInfo`), but at least you get halfway there — screen scale, accessibility size, and pointer shadow are all accounted for in the screenshot, though you still only get the nominal box, including empty pixels (though you can parse the masks and exclude them).
 
-So this library parses the pointer bitmasks from each of the APIs to get the actual pointer instead of its box, and for the incomplete `GetCursorInfo` partially completes it adjusting for the Accessibility multiplier (but not the shadow) to get the actual pointer size.
+So this library parses the pointer bitmasks from each of the APIs to get the actual pointer instead of its box, and for the incomplete `GetCursorInfo` partially completes it adjusting for the Accessibility multiplier and the shadow (if an optional argument is set since shadow adjustment is even less precise than accessibility one) to get the actual pointer size.
 
 A summary of the various options and their limitations:
 
@@ -36,7 +36,7 @@ A summary of the various options and their limitations:
 | Pointer, not its box     	| −  	| −  	| ✓  	| − 	| ✓  	|                                                  	|
 | 🖵 Screen resolution scale	| ✓  	| ✓  	| ✓  	| ✓ 	| ✓  	| at set 1.5, 2, 3, 4 factors                      	|
 | ♿ Accessibility size     	| −  	| −  	| ≈✓ 	| ✓ 	| ✓  	| ≈ off by a few pixels                            	|
-| ❏ Shadow                 	| −  	| −  	| −  	| ✓ 	| ✓  	|                                                  	|
+| ❏ Shadow                 	| −  	| −  	|≈≈✓ 	| ✓ 	| ✓  	| ≈≈ off by even more pixels                       	|
 | Performance              	| ✓  	| ✓  	| ✓  	| ✗ 	| ✗  	| DX is orders of magnitude slower/uses more memory	|
 
 ## Install
@@ -54,10 +54,11 @@ See `mouse_sz_example.ahk` that uses the `mouse_sz.ahk` library to show the nomi
 You can then use this information to, e.g., show a tooltip that doesn't overlap with the bigger accessibility-sized pointer.
 
 ## Known issues
-  - Precise shadow size for the `get_mcursor_sz_ci` method is not calculated by this library
+  - Accessibility size adjustment is not pixel perfect, and shadow size adjustment for the `get_mcursor_sz_ci` method is even less precise
+  - With some large (>8) accessibility size factors the `get_mcursor_sz_dx` might not be able to capture the cursor for some reason
   - I don't know whether it's possible to take the screenshot of only the pointer and not the whole screen with the DX duplication API, and anyway the Rust library used doesn't [support it](https://github.com/DiscreteTom/rusty-duplication/issues/10), maybe this could improve performance
 
 ## Credits
 
 [^1]: Accessibility increases the cursor size by ½ of its height with each level
-[^2]: Precise shadow size is not calculated by this library
+[^2]: Precise shadow size formula is unknown to this library
