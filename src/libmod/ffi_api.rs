@@ -11,8 +11,9 @@ use crate::libmod::*;
 
 use widestring::WideChar;
 
+use core::ffi::c_char;
 
-use std     	::{self,ptr};
+use std	::{self,ptr};
 
 use windows::Win32::UI::WindowsAndMessaging::{CURSORINFO,HCURSOR,CURSOR_SHOWING,};
 use windows::Win32::UI::WindowsAndMessaging::GetCursorInfo;
@@ -20,7 +21,7 @@ use windows::Win32::UI::WindowsAndMessaging::GetCursorInfo;
 use docpos::*;
 
 #[unsafe(no_mangle)] pub extern "C"
-fn get_mcursor_sz_ci(cur_box:&mut cur_box, coord:i8) -> 𝑝𝑠 {
+fn get_mcursor_sz_ci(cur_box:&mut cur_box, coord:c_char, shadow:c_char) -> 𝑝𝑠 {
   // 1 🖰 Global cursor (GetCursorInfo) even if it's not owned by the current thread
   // 1.1 Get handle to the cursor itself
   let mut curℹ = CURSORINFO {cbSize: mem::size_of::<CURSORINFO>() as u32, ..Default::default()};
