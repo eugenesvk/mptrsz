@@ -15,6 +15,8 @@ All notable changes to this project will be documented in this file
   <!-- + now removed features -->
 <!-- - 🔒 __Security__ -->
   <!-- + vulnerabilities -->
+- ✨ __Added__
+  + AHK examples
 
 [0.1.0]: https://github.com/eugenesvk/mptrsz/releases/tag/0.1.0
 ## [0.1.0]
