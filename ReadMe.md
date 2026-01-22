@@ -46,6 +46,13 @@ A summary of the various options and their limitations:
   - Copy the [mouse_sz.ahk](./example_ahk/lib/mouse_sz.ahk) AutoHotkey library to your `…\Autohotkey\lib` library folder
   - Copy the `mptrsz.dll` Windows library to the same folder (or adjust `libPath` in [mouse_sz.ahk](./example_ahk/lib/mouse_sz.ahk) to point to another location)
 
+Or you can use [Scoop](scoop.sh) package manager to install the DLL to a dir in `PATH`:
+  ```pwsh
+    scoop bucket add mptrsz "https://github.com/eugenesvk/scoop-bucket"
+    scoop install mptrsz
+  ```
+  (though this bucket has a few extra apps not related to `mptrsz`)
+
 ## Use
 
 The library provides 2 functions `get_mcursor_sz_ci` and `get_mcursor_sz_dx` that can report values in nominal or screen coordinates using either the GetCursorInfo or the DX duplication (screenshot) APIs.
